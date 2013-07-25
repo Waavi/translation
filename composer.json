@@ -1,5 +1,5 @@
 {
-    "name": "waavi/lang",
+    "name": "waavi/translation",
     "description": "",
     "authors": [
         {
@@ -9,14 +9,16 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "illuminate/support": "4.0.x"
+        "illuminate/support": "4.0.x",
+        "illuminate/translation": "4.0.x",
+        "illuminate/database": "4.0.*"
     },
     "autoload": {
         "classmap": [
             "src/migrations"
         ],
         "psr-0": {
-            "Waavi\\Lang": "src/"
+            "Waavi\\Translation": "src/"
         }
     },
     "minimum-stability": "dev"

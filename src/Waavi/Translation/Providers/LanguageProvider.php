@@ -1,0 +1,100 @@
+<?php namespace Waavi\Translation\Providers;
+
+class LanguageProvider {
+
+	/**
+	 *	The Eloquent language model.
+	 *	@var string
+	 */
+	protected $model = 'Waavi/Lang/Models/Language';
+
+	/**
+	 * Create a new Eloquent Language provider.
+	 *
+	 * @param  string  $model
+	 * @return void
+	 */
+	public function __construct($model = null)
+	{
+		$this->setModel($model);
+	}
+
+	/**
+	 * Find the language by ID.
+	 *
+	 * @param  int  $id
+	 * @return Eloquent NULL in case no language entry was found.
+	 */
+	public function findById($id)
+	{
+		return $this->createModel()->newQuery()->find($id);
+	}
+
+	/**
+	 * Find the language by ISO.
+	 *
+	 * @param  string  $iso
+	 * @return Eloquent NULL in case no language entry was found.
+	 */
+	public function findByIso($iso)
+	{
+		return $this->createModel()->newQuery()->where('iso', '=', $iso)->first();
+	}
+
+	/**
+	 * Find the language by name.
+	 *
+	 * @param  string  $name
+	 * @return Eloquent  $language
+	 */
+	public function findByName($name)
+	{
+		return $this->createModel()->newQuery()->where('name', '=', $name)->first();
+	}
+
+	/**
+	 * Returns all languages.
+	 *
+	 * @return array  $languages
+	 */
+	public function findAll()
+	{
+		return $this->createModel()->newQuery()->get()->all();
+	}
+
+	/**
+	 * Creates a language.
+	 *
+	 * @param  array  $attributes
+	 * @return Cartalyst\Sentry\languages\GroupInterface
+	 */
+	public function create(array $attributes)
+	{
+		$language = $this->createModel();
+		$language->fill($attributes)->save();
+		return $language;
+	}
+
+	/**
+	 * Create a new instance of the model.
+	 *
+	 * @return Illuminate\Database\Eloquent\Model
+	 */
+	public function createModel()
+	{
+		$class = '\\'.ltrim($this->model, '\\');
+
+		return new $class;
+	}
+
+	/**
+	 * Sets a new model class name to be used at
+	 * runtime.
+	 *
+	 * @param  string  $model
+	 */
+	public function setModel($model = null)
+	{
+		$this->model = $model ?: $this->model;
+	}
+}

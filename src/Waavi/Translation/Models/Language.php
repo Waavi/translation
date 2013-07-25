@@ -19,7 +19,7 @@ class Language extends Model {
    */
   public function entries()
   {
-  	return $this->hasMany('LangEntry');
+  	return $this->hasMany('Waavi\Translation\Models\LanguageEntry');
   }
 
 }

@@ -15,7 +15,7 @@ class CreateLanguageEntriesTable extends Migration {
 			$table->engine = 'InnoDB';
 			$table->increments('id');
 			$table->integer('language_id')->unsigned();
-			$table->string('namespace', 150);
+			$table->string('namespace', 150)->nullable();
 			$table->string('group', 150);
 			$table->string('item', 150);
 			$table->text('text');

@@ -23,7 +23,7 @@ class LanguageEntry extends Model {
    */
   public function language()
   {
-  	return $this->belongsTo('Language');
+  	return $this->belongsTo('Waavi\Translation\Models\Language');
   }
 
 }

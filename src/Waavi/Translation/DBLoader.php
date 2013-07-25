@@ -76,12 +76,12 @@ class DBLoader implements LoaderInterface {
 	{
 		$namespace = $namespace == '*' ? null : $namespace;
 		$langArray = array();
-		$language = $this->languageProvider->findByIso($locale);
+		$language = $this->languageProvider->findByLocale($locale);
 		if ($language) {
 			$entries = $language->entries()->where('group', '=', $group)->where('namespace', '=', $namespace)->get();
 			if ($entries) {
 				foreach($entries as $entry) {
-					array_set($langArray, $entry->key, $entry->value);
+					array_set($langArray, $entry->item, $entry->text);
 				}
 			}
 		}

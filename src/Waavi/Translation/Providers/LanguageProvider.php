@@ -6,7 +6,7 @@ class LanguageProvider {
 	 *	The Eloquent language model.
 	 *	@var string
 	 */
-	protected $model = 'Waavi/Lang/Models/Language';
+	protected $model = 'Waavi\Translation\Models\Language';
 
 	/**
 	 * Create a new Eloquent Language provider.
@@ -33,12 +33,12 @@ class LanguageProvider {
 	/**
 	 * Find the language by ISO.
 	 *
-	 * @param  string  $iso
+	 * @param  string  $locale
 	 * @return Eloquent NULL in case no language entry was found.
 	 */
-	public function findByIso($iso)
+	public function findByLocale($locale)
 	{
-		return $this->createModel()->newQuery()->where('iso', '=', $iso)->first();
+		return $this->createModel()->newQuery()->where('locale', '=', $locale)->first();
 	}
 
 	/**

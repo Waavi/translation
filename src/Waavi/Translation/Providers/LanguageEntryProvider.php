@@ -6,7 +6,7 @@ class LanguageEntryProvider {
 	 *	The Eloquent language entry model.
 	 *	@var string
 	 */
-	protected $model = 'Waavi/Lang/Models/LanguageEntry';
+	protected $model = 'Waavi\Translation\Models\LanguageEntry';
 
 	/**
 	 * Create a new Eloquent LangEntry provider.

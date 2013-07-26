@@ -14,7 +14,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('waavi/lang');
+		$this->package('waavi/translation', 'waavi/translation', __DIR__.'/../..');
 	}
 
 	/**
@@ -26,13 +26,15 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	{
 		$this->app['translation.loader'] = $this->app->share(function($app)
 		{
-			$languageModel = new LanguageProvider($app['config']['waavi/lang::language.model']);
-			$langEntryModel = new LanguageEntryProvider($app['config']['waavi/lang::language_entry.model']);
-			$fileLoader = new FileLoader($app['files'], $app['path'].'/lang');
-			if ($app['config']['waavi/lang::driver'] == 'database') {
-				return $fileLoader;
-			} else {
-				return new DBLoader($fileLoader, $languageModel, $langEntryModel, $app['config']['app.locale']);
+			$languageModel 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
+			$langEntryModel = new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
+			$fileLoader 		= new FileLoader($app['files'], $app['path'].'/lang');
+			switch ($app['config']['waavi/translation::driver']) {
+				case 'file':
+					return $fileLoader;
+				default:
+				case 'database':
+					return new DBLoader($fileLoader, $languageModel, $langEntryModel, $app['config']['app.locale']);
 			}
 		});
 	}

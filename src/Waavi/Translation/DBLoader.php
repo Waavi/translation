@@ -113,9 +113,28 @@ class DBLoader implements LoaderInterface {
 	 * 	@param  string  $namespace
 	 * 	@return array
 	 */
-	private function loadFromFile($locale, $group, $namespace)
+	private function loadFromFile($locale, $group, $namespace = null)
 	{
 		return $this->fileLoader->load($locale, $group, $namespace);
+	}
+
+	private function loadFilesIntoDatabase()
+	{
+		$path = app_path().'/lang';
+		$finder = new Filesystem();
+		$localeDirs = $finder->directories($path);
+		foreach($localeDirs as $localeDir) {
+			$locale = str_replace($path.'/', '', $localeDir);
+			$language = $this->languageProvider->findByLocale($locale);
+			$langFiles = $finder->files($localeDir);
+			if ($language) {
+				foreach($langFiles as $langFile) {
+					$group = str_replace('.php', '', str_replace($localeDir.'/', '', $langFile));
+					$lines = $this->loadFromFile($locale, $group);
+					$this->languageEntryProvider->loadArray($lines, $language, $group);
+				}
+			}
+		}
 	}
 
 	/**

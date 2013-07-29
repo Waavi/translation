@@ -75,6 +75,42 @@ class LanguageEntryProvider {
 		return $language;
 	}
 
+	public function loadArray(array $lines, $language, $group, $namespace = null)
+	{
+		// Check if the entry exists in the database:
+		$lines = array_dot($lines);
+		foreach ($lines as $item => $text) {
+			$entry = $this
+				->createModel()
+				->newQuery()
+				->where('namespace', '=', $namespace)
+	      ->where('group', '=', $group)
+	      ->where('item', '=', $item)
+	      ->join('languages', function($join) {
+	        $join->on('languages.id', '=', 'language_entries.language_id');
+	      })
+	      ->where('languages.id', '=', $language->id)
+	      ->first();
+
+	    // If the entry already exists and its text is different from the parameters:
+	    if ($entry) {
+	      if ($entry->text != $text) {
+	        $entry->text = $text;
+	        $entry->save();
+	      }
+	    }
+	    // The entry doesn't exist:
+	    else {
+	    	$entry = $this->createModel();
+	    	$entry->namespace = $namespace;
+		    $entry->group = $group;
+		    $entry->item = $item;
+		    $entry->text = $text;
+		    $language->entries()->save($entry);
+	    }
+		}
+	}
+
 	/**
 	 * Create a new instance of the model.
 	 *

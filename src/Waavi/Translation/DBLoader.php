@@ -10,6 +10,8 @@ class DBLoader implements LoaderInterface {
 	protected $fileLoader;
 	protected $languageProvider;
 	protected $languageEntryProvider;
+	protected $cacheEnabled;
+	protected $cacheTimeout;
 
 	/**
 	 * All of the namespace hints.
@@ -26,12 +28,15 @@ class DBLoader implements LoaderInterface {
 	 * 	@param 	\Waavi\Lang\Providers\LanguageEntryProvider		$languageEntryProvider
 	 *	@param 	string 																				$defaultLocale
 	 */
-	public function __construct($fileLoader, $languageProvider, $languageEntryProvider, $defaultLocale)
+	public function __construct($fileLoader, $languageProvider, $languageEntryProvider, $app)
 	{
-		$this->fileLoader = $fileLoader;
-		$this->languageProvider = $languageProvider;
-		$this->languageEntryProvider = $languageEntryProvider;
-		$this->defaultLocale = $defaultLocale;
+		$this->fileLoader 						= $fileLoader;
+		$this->languageProvider 			= $languageProvider;
+		$this->languageEntryProvider 	= $languageEntryProvider;
+		$this->app 										= $app;
+		$this->defaultLocale 					= $app['config']['app.locale'];
+		$this->cacheEnabled 					= $app['config']['waavi/translation::cache.enabled'];
+		$this->cacheTimeout 					= $app['config']['waavi/translation::cache.timeout'];
 	}
 
 	/**
@@ -44,16 +49,22 @@ class DBLoader implements LoaderInterface {
 	 */
 	public function load($locale, $group, $namespace = null)
 	{
-		$defaultLocaleFile = array();
-		$defaultLocaleDB = array();
+		// Check the cache:
+		$cacheKey = "$locale.$group.$namespace";
+		if ($this->cacheEnabled && $this->app['cache']->has($cacheKey)) {
+			return $this->app['cache']->get($cacheKey);
+		}
+
 		// Always load the default locale
+		$defaultLocaleFile 	= array();
+		$defaultLocaleDB 		= array();
 		if ($locale != $this->defaultLocale) {
-			$defaultLocaleDB = $this->loadFromDB($this->defaultLocale, $group, $namespace);
-			$defaultLocaleFile = $this->loadFromFile($this->defaultLocale, $group, $namespace);
+			$defaultLocaleDB 		= $this->loadFromDB($this->defaultLocale, $group, $namespace);
+			$defaultLocaleFile 	= $this->loadFromFile($this->defaultLocale, $group, $namespace);
 		}
 
 		// Load locale given by param
-		$localeDB = $this->loadFromDB($locale, $group, $namespace);
+		$localeDB 	= $this->loadFromDB($locale, $group, $namespace);
 		$localeFile = $this->loadFromFile($locale, $group, $namespace);
 
 		// Return the merge of all translation sources, by priority:
@@ -61,7 +72,13 @@ class DBLoader implements LoaderInterface {
 		//	2. Locale database entries.
 		//	3. Default locale file on disk.
 		// 	4. Default locale database entries.
-		return array_merge($defaultLocaleDB, $defaultLocaleFile, $localeDB, $localeFile);
+		$langLines = array_merge($defaultLocaleDB, $defaultLocaleFile, $localeDB, $localeFile);
+
+		if ($this->cacheEnabled) {
+			$this->app['cache']->put($cacheKey, $langLines, $this->cacheTimeout);
+		}
+
+		return $langLines;
 	}
 
 	/**
@@ -110,7 +127,7 @@ class DBLoader implements LoaderInterface {
 	 */
 	public function addNamespace($namespace, $hint)
 	{
-		$this->hints[$namespace] = $hint;
+		return;
 	}
 
 }

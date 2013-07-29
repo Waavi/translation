@@ -26,6 +26,7 @@ return array(
 	*/
 	'cache'					=>	array(
 		'enabled' =>	true,
+		'timeout'	=>	60,
 	),
 
 	/*

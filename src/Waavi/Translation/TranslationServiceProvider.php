@@ -24,6 +24,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	protected function registerLoader()
 	{
+		$app = $this->app;
 		$this->app['translation.loader'] = $this->app->share(function($app)
 		{
 			$languageModel 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
@@ -34,7 +35,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 					return $fileLoader;
 				default:
 				case 'database':
-					return new DBLoader($fileLoader, $languageModel, $langEntryModel, $app['config']['app.locale']);
+					return new DBLoader($fileLoader, $languageModel, $langEntryModel, $app);
 			}
 		});
 	}

@@ -15,7 +15,7 @@ class LanguageEntry extends Model {
     'group'       => 'required',
     'item'        => 'required',
     'text'        => 'required',
-    'unstable'    => 'required',
+    'unstable'    => '',
   );
 
   /**

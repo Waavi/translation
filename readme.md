@@ -109,10 +109,33 @@ When uploading your code to the live site, you must load your file contents into
 
 When loading the contents of the language files, non-existing entries will be added and existing ones will be updated (nothing is erased by default, you'll see why). In case the text on a default locale entry is updated, its current translations are flagged as 'unstable' so as to signal that a translator should check them to see if they're still valid. This is useful when small changes in the text shouldn't be reflected in the translations, or these are still somewhat valid despite the fact of not having been updated.
 
+## Caching results
+
+Since querying the database everytime a language group must be loaded is grossly inefficient, you may choose to leverage Laravel's cache system. This module will use the same cache configuration as defined by you in app/config/cache.php.
+
+By default, the cache will be deactivated if the value of 'debug' in app/config/app.php is true, and activated when debug is false. You may customize this behaviour in the package's config file.
+
+Entries in the cache will be prefixed with 'waavi|translation|'
+
 ## The models
 
-### The Language model
+If you need to extend either the Language Model or the LanguageEntry model, you will need to extend both of them since they reference eachother. Once you've created your own models, remember to update the config file.
 
-### The LanguageEntry model
+For example, should you define your models as Language and LanguageEntry in /app/models you will have to edit the config file so its contents are:
 
-### The 
+	/*
+	|--------------------------------------------------------------------------
+	| Language
+	|--------------------------------------------------------------------------
+	|
+	| Configuration specific to the language management component. You may extend
+	| the default models or implement their corresponding interfaces if you need to.
+	|
+	*/
+	'language'				=>	array(
+		'model' 	=>	'Language',
+	),
+
+	'language_entry'	=>	array(
+		'model' 	=>	'LanguageEntry',
+	),

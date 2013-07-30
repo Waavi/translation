@@ -14,14 +14,14 @@ class FileLoaderCommand extends Command {
    *
    * @var string
    */
-  protected $name = 'translator:loadFiles';
+  protected $name = 'translator:load';
 
   /**
    * The console command description.
    *
    * @var string
    */
-  protected $description = "Load language files into the database";
+  protected $description = "Load language files into the database.";
 
   /**
    *  Create a new mixed loader instance.

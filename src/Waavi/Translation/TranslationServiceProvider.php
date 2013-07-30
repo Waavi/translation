@@ -36,12 +36,8 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	{
 		$this->registerLoader();
 		$this->registerTranslationFileLoader();
-		$this->registerTranslationDatabaseLoader();
 
-		$this->commands(
-			'translator.loadFiles',
-			'translator.loadDatabase'
-		);
+		$this->commands('translator.load');
 
 		$this->app['translator'] = $this->app->share(function($app)
 		{
@@ -87,25 +83,19 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 		});
 	}
 
+	/**
+	 * Register the translation file loader command.
+	 *
+	 * @return void
+	 */
 	public function registerTranslationFileLoader()
 	{
-		$this->app['translator.loadFiles'] = $this->app->share(function($app)
+		$this->app['translator.load'] = $this->app->share(function($app)
 		{
 			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
 			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
 			$fileLoader 				= new FileLoader($languageProvider, $langEntryProvider, $app);
 			return new Commands\FileLoaderCommand($languageProvider, $langEntryProvider, $fileLoader);
-		});
-	}
-
-	public function registerTranslationDatabaseLoader()
-	{
-		$this->app['translator.loadDatabase'] = $this->app->share(function($app)
-		{
-			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
-			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
-			$databaseLoader 		= new DatabaseLoader($languageProvider, $langEntryProvider, $app);
-			return new Commands\DatabaseLoaderCommand($languageProvider, $langEntryProvider, $databaseLoader);
 		});
 	}
 

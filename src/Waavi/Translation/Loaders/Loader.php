@@ -91,8 +91,8 @@ class Loader implements LoaderInterface {
 	 */
 	protected function setProviders($languageProvider, $languageEntryProvider)
 	{
-		$this->LanguageProvider 			= $languageProvider;
-		$this->LanguageEntryProvider 	= $languageEntryProvider;
+		$this->languageProvider 			= $languageProvider;
+		$this->languageEntryProvider 	= $languageEntryProvider;
 	}
 
 	/**

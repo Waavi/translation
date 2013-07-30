@@ -1,7 +1,9 @@
 <?php namespace Waavi\Translation;
 
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
-use Illuminate\Translation\FileLoader;
+use Waavi\Translation\Loaders\FileLoader;
+use Waavi\Translation\Loaders\DatabaseLoader;
+use Waavi\Translation\Loaders\MixedLoader;
 use Waavi\Translation\Providers\LanguageProvider;
 use Waavi\Translation\Providers\LanguageEntryProvider;
 
@@ -29,13 +31,19 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 		{
 			$languageModel 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
 			$langEntryModel = new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
-			$fileLoader 		= new FileLoader($app['files'], $app['path'].'/lang');
-			switch ($app['config']['waavi/translation::driver']) {
-				case 'file':
-					return $fileLoader;
+
+			$mode 					= $app['config']['waavi/translation::mode'];
+			if ($mode == 'auto')	$mode = $app['config']['debug'] ? 'mixed'	:	'database';
+
+			switch ($mode) {
+				default:
+				case 'mixed':
+					return new MixedLoader($languageModel, $langEntryModel, $app);
+				case 'filesystem':
+					return new FileLoader($languageModel, $langEntryModel, $app);
 				default:
 				case 'database':
-					return new DBLoader($fileLoader, $languageModel, $langEntryModel, $app);
+					return new DatabaseLoader($languageModel, $langEntryModel, $app);
 			}
 		});
 	}

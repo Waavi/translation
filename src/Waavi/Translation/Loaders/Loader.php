@@ -96,6 +96,25 @@ class Loader implements LoaderInterface {
 	}
 
 	/**
+	 *	Sets the default locale.
+	 *	@param string 	$locale
+	 *	@return void
+	 */
+	protected function setDefaultLocale($locale)
+	{
+		$this->defaultLocale = $locale;
+	}
+
+	/**
+	 *	Returns the default locale.
+	 *	@return string
+	 */
+	public function getDefaultLocale()
+	{
+		return $this->defaultLocale;
+	}
+
+	/**
 	 * Load the messages for the given locale.
 	 *
 	 * @param  string  $locale

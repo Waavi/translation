@@ -75,28 +75,45 @@ class LanguageEntryProvider {
 		return $language;
 	}
 
-	public function loadArray(array $lines, $language, $group, $namespace = null)
+	/**
+	 *	Loads messages into the database
+	 *	@param array 			$lines
+	 *	@param Language 	$language
+	 *	@param string 		$group
+	 *	@param string 		$namespace
+	 *	@param boolean 		$isDefault
+	 *	@return void
+	 */
+	public function loadArray(array $lines, $language, $group, $namespace = null, $isDefault = false)
 	{
-		// Check if the entry exists in the database:
+		// Transform the lines into a flat dot array:
 		$lines = array_dot($lines);
 		foreach ($lines as $item => $text) {
+			// Check if the entry exists in the database:
 			$entry = $this
 				->createModel()
 				->newQuery()
 				->where('namespace', '=', $namespace)
 	      ->where('group', '=', $group)
 	      ->where('item', '=', $item)
-	      ->join('languages', function($join) {
-	        $join->on('languages.id', '=', 'language_entries.language_id');
-	      })
-	      ->where('languages.id', '=', $language->id)
+	      ->where('language_id', '=', $language->id)
 	      ->first();
 
 	    // If the entry already exists and its text is different from the parameters:
 	    if ($entry) {
 	      if ($entry->text != $text) {
 	        $entry->text = $text;
-	        $entry->save();
+	        if($entry->save() && $isDefault) {
+	        	// If we just updated a line from the default language, flag all translations as unstable.
+	        	$this
+							->createModel()
+							->newQuery()
+							->where('namespace', '=', $namespace)
+				      ->where('group', '=', $group)
+				      ->where('item', '=', $item)
+				      ->where('language_id', '!=', $language->id)
+				      ->update(array('unstable' => '1'));
+	        }
 	      }
 	    }
 	    // The entry doesn't exist:

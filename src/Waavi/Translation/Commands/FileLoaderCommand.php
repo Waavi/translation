@@ -56,7 +56,7 @@ class FileLoaderCommand extends Command {
         foreach($langFiles as $langFile) {
           $group = str_replace(array($localeDir.'/', '.php'), '', $langFile);
           $lines = $this->fileLoader->loadRawLocale($locale, $group);
-          $this->languageEntryProvider->loadArray($lines, $language, $group);
+          $this->languageEntryProvider->loadArray($lines, $language, $group, null, $locale == $this->fileLoader->getDefaultLocale());
         }
       }
     }

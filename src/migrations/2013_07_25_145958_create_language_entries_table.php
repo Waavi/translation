@@ -19,6 +19,7 @@ class CreateLanguageEntriesTable extends Migration {
 			$table->string('group', 150);
 			$table->string('item', 150);
 			$table->text('text');
+			$table->boolean('unstable')->default('0');
 			$table->timestamps();
 			$table->foreign('language_id')->references('id')->on('languages');
 		});

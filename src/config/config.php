@@ -17,7 +17,7 @@ return array(
 	| 	'database' 		Use the database as the exclusive source for language entries.
 	|   'filesystem'	Use files as the exclusive source for language entries [Laravel's default].
 	*/
-	'mode'					=>	'database',
+	'mode'					=>	'auto',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -35,8 +35,8 @@ return array(
 	|
 	*/
 	'cache'					=>	array(
-		'enabled' =>	'auto',
-		'timeout'	=>	60,					// minutes
+		'enabled' 	=>	'auto',
+		'timeout'		=>	60,					// minutes
 	),
 
 	/*

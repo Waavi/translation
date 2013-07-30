@@ -10,8 +10,8 @@ class Language extends Model {
    * Validation rules
    */
   protected $rules = array(
-    'locale' => 'required|unique:languages',
-    'name' => 'required|unique:languages',
+    'locale'  => 'required|unique:languages',
+    'name'    => 'required|unique:languages',
   );
 
   /**

@@ -38,7 +38,7 @@ class FileLoader extends Loader implements LoaderInterface {
 	 */
 	public function loadRawLocale($locale, $group, $namespace = null)
 	{
-		return $this->$laravelFileLoader->load($locale, $group, $namespace);
+		return $this->laravelFileLoader->load($locale, $group, $namespace);
 	}
 
 }

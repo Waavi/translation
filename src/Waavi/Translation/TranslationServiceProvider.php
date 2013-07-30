@@ -1,6 +1,7 @@
 <?php namespace Waavi\Translation;
 
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
+use Illuminate\Translation\Translator;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\MixedLoader;
@@ -8,6 +9,13 @@ use Waavi\Translation\Providers\LanguageProvider;
 use Waavi\Translation\Providers\LanguageEntryProvider;
 
 class TranslationServiceProvider extends LaravelTranslationServiceProvider {
+
+	/**
+	 * Indicates if loading of the provider is deferred.
+	 *
+	 * @var bool
+	 */
+	protected $defer = true;
 
 	/**
 	 * Bootstrap the application events.
@@ -20,6 +28,37 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	}
 
 	/**
+	 * Register the service provider.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$this->registerLoader();
+		$this->registerTranslationFileLoader();
+		$this->registerTranslationDatabaseLoader();
+
+		$this->commands(
+			'translator.loadFiles',
+			'translator.loadDatabase'
+		);
+
+		$this->app['translator'] = $this->app->share(function($app)
+		{
+			$loader = $app['translation.loader'];
+
+			// When registering the translator component, we'll need to set the default
+			// locale as well as the fallback locale. So, we'll grab the application
+			// configuration so we can easily get both of these values from there.
+			$locale = $app['config']['app.locale'];
+
+			$trans = new Translator($loader, $locale);
+
+			return $trans;
+		});
+	}
+
+	/**
 	 * Register the translation line loader.
 	 *
 	 * @return void
@@ -29,8 +68,8 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 		$app = $this->app;
 		$this->app['translation.loader'] = $this->app->share(function($app)
 		{
-			$languageModel 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
-			$langEntryModel = new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
+			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
+			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
 
 			$mode 					= $app['config']['waavi/translation::mode'];
 			if ($mode == 'auto')	$mode = $app['config']['debug'] ? 'mixed'	:	'database';
@@ -38,14 +77,46 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 			switch ($mode) {
 				default:
 				case 'mixed':
-					return new MixedLoader($languageModel, $langEntryModel, $app);
+					return new MixedLoader($languageProvider, $langEntryProvider, $app);
 				case 'filesystem':
-					return new FileLoader($languageModel, $langEntryModel, $app);
+					return new FileLoader($languageProvider, $langEntryProvider, $app);
 				default:
 				case 'database':
-					return new DatabaseLoader($languageModel, $langEntryModel, $app);
+					return new DatabaseLoader($languageProvider, $langEntryProvider, $app);
 			}
 		});
+	}
+
+	public function registerTranslationFileLoader()
+	{
+		$this->app['translator.loadFiles'] = $this->app->share(function($app)
+		{
+			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
+			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
+			$fileLoader 				= new FileLoader($languageProvider, $langEntryProvider, $app);
+			return new Commands\FileLoaderCommand($languageProvider, $langEntryProvider, $fileLoader);
+		});
+	}
+
+	public function registerTranslationDatabaseLoader()
+	{
+		$this->app['translator.loadDatabase'] = $this->app->share(function($app)
+		{
+			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
+			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
+			$databaseLoader 		= new DatabaseLoader($languageProvider, $langEntryProvider, $app);
+			return new Commands\DatabaseLoaderCommand($languageProvider, $langEntryProvider, $databaseLoader);
+		});
+	}
+
+	/**
+	 * Get the services provided by the provider.
+	 *
+	 * @return array
+	 */
+	public function provides()
+	{
+		return array('translator', 'translation.loader');
 	}
 
 }

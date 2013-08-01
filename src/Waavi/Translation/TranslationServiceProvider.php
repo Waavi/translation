@@ -68,7 +68,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
 
 			$mode 					= $app['config']['waavi/translation::mode'];
-			if ($mode == 'auto')	$mode = $app['config']['debug'] ? 'mixed'	:	'database';
+			if ($mode == 'auto')	$mode = $app['config']['app.debug'] ? 'mixed'	:	'database';
 
 			switch ($mode) {
 				default:

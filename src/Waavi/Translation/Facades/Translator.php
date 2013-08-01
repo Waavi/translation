@@ -6,7 +6,7 @@ class Translator extends LaravelTranslator {
 
 	public function test()
 	{
-		echo Config::get('locale');
+		return "Jaume tiene labia";
 	}
 
 }

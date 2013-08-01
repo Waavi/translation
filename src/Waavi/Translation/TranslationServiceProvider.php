@@ -1,7 +1,7 @@
 <?php namespace Waavi\Translation;
 
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
-use Illuminate\Translation\Translator;
+use Waavi\Translation\Facades\Translator;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\MixedLoader;

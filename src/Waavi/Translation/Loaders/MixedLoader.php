@@ -45,9 +45,4 @@ class MixedLoader extends Loader implements LoaderInterface {
 	{
 		return array_merge($this->databaseLoader->loadRawLocale($locale, $group, $namespace), $this->fileLoader->loadRawLocale($locale, $group, $namespace));
 	}
-
-	private function loadFilesIntoDatabase()
-	{
-		
-	}
 }

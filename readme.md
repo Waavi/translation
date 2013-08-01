@@ -6,6 +6,18 @@ This package allows developers to leverage their database and cache to manage mu
 
 ## Installation
 
+Edit composer.json:
+
+	"require": {
+		"waavi/translation": "*"
+	},
+	"repositories": [
+    {
+      "type": "vcs",
+      "url":  "git@github.com:Waavi/translation.git"
+    }
+  ],
+
 In app/config/app.php, replace the following entry from the providers array:
 
 	'Illuminate\Translation\TranslationServiceProvider'
@@ -20,7 +32,7 @@ Execute the database migrations:
 
 You may publish the package's configuration if you so choose:
 
-	php artisan config:publish vendor/package
+	php artisan config:publish waavi/translation
 
 ## Usage
 

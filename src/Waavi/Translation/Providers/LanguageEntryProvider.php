@@ -77,14 +77,14 @@ class LanguageEntryProvider {
 			->whereNotExists(function($query) use ($model, $reference, $target){
 				$table = $model->getTable();
 				$query
-					->select(DB::raw(1))
 					->from("$table as e")
 					->where('language_id', '=', $target->id)
-					->whereRaw("e.namespace = $table.namespace")
+					->whereRaw("(e.namespace = $table.namespace OR (e.namespace IS NULL AND $table.namespace IS NULL))")
 					->whereRaw("e.group = $table.group")
 					->whereRaw("e.item = $table.item")
 					;
-			})->first();
+				})
+			->first();
 	}
 
 	/**

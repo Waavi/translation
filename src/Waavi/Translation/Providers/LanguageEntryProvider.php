@@ -63,6 +63,31 @@ class LanguageEntryProvider {
 	}
 
 	/**
+	 *	Returns a language entry that is untranslated in the specified language.
+	 *	@param Waavi\Translation\Models\Language 				$reference
+	 *	@param Waavi\Translation\Models\Language 				$target
+	 *	@return Waavi\Translation\Models\LanguageEntry
+	 */
+	public function findUntranslated($reference, $target)
+	{
+		$model = $this->createModel();
+		return $model
+			->newQuery()
+			->where('language_id', '=', $reference->id)
+			->whereNotExists(function($query) use ($model, $reference, $target){
+				$table = $model->getTable();
+				$query
+					->select(DB::raw(1))
+					->from("$table as e")
+					->where('language_id', '=', $target->id)
+					->whereRaw("e.namespace = $table.namespace")
+					->whereRaw("e.group = $table.group")
+					->whereRaw("e.item = $table.item")
+					;
+			})->first();
+	}
+
+	/**
 	 * Creates a language.
 	 *
 	 * @param  array  $attributes

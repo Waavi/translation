@@ -115,6 +115,24 @@ class Loader implements LoaderInterface {
 	}
 
 	/**
+	 *	Returns the language provider:
+	 *	@return Waavi\Translation\Providers\LanguageProvider
+	 */
+	public function getLanguageProvider()
+	{
+		return $this->languageProvider;
+	}
+
+	/**
+	 *	Returns the language entry provider:
+	 *	@return Waavi\Translation\Providers\LanguageEntryProvider
+	 */
+	public function getLanguageEntryProvider()
+	{
+		return $this->languageEntryProvider;
+	}
+
+	/**
 	 * Load the messages for the given locale.
 	 *
 	 * @param  string  $locale

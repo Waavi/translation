@@ -18,6 +18,9 @@ class LanguageEntry extends Model {
     'unstable'    => '',
   );
 
+  // Allow for mass assignment.
+  protected $guarded = array('id');
+
   /**
    *	Each language entry belongs to a language.
    */

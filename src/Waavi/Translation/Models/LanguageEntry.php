@@ -4,10 +4,33 @@ use LaravelBook\Ardent\Ardent;
 
 class LanguageEntry extends Ardent {
 
+  /**
+   *  Table name in the database.
+   *  @var string
+   */
 	protected $table = 'language_entries';
 
+  /**
+   *  Hydrate data on new entries' validation.
+   *  @var boolean
+   */
+  public $autoHydrateEntityFromInput = false;
+
+  /**
+   *  Hydrate data whenever validation is called
+   *  @var boolean
+   */
+  public $forceEntityHydrationFromInput = false;
+
+  /**
+   *  List of variables that cannot be mass assigned
+   *  @var array
+   */
+  protected $guarded = array('id');
+
 	/**
-   * Validation rules
+   *  Validation rules
+   *  @var array
    */
   public static $rules = array(
     'language_id' => 'required',
@@ -17,12 +40,6 @@ class LanguageEntry extends Ardent {
     'text'        => 'required',
     'unstable'    => '',
   );
-
-  // Allow for mass assignment.
-  protected $guarded = array('id');
-
-  public $autoHydrateEntityFromInput = false;    // hydrates on new entries' validation
-  public $forceEntityHydrationFromInput = false; // hydrates whenever validation is called
 
   /**
    *	Each language entry belongs to a language.
@@ -53,5 +70,27 @@ class LanguageEntry extends Ardent {
     } else {
       return false;
     }
+  }
+
+  /**
+   *  Returns a list of entries that contain a translation for this item in the given language.
+   *
+   *  @param Waavi\Translation\Models\Language
+   *  @return Waavi\Translation\Models\LanguageEntry
+   */
+  public function getSuggestedTranslations($language)
+  {
+    $self = $this;
+    return $language->entries()
+        ->select("{$this->table}.*")
+        ->join("{$this->table} as e", function($join) use ($self) {
+          $join
+            ->on('e.group', '=', "{$self->table}.group")
+            ->on('e.item', '=', "{$self->table}.item");
+        })
+        ->where('e.language_id', '=', $this->language_id)
+        ->where('e.text', '=', "{$this->text}")
+        ->groupBy("{$this->table}.text")
+        ->get();
   }
 }

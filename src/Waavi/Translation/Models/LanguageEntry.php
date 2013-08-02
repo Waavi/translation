@@ -1,15 +1,15 @@
 <?php namespace Waavi\Translation\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use LaravelBook\Ardent\Ardent;
 
-class LanguageEntry extends Model {
+class LanguageEntry extends Ardent {
 
 	protected $table = 'language_entries';
 
 	/**
    * Validation rules
    */
-  protected $rules = array(
+  public static $rules = array(
     'language_id' => 'required',
     'namespace'   => '',
     'group'       => 'required',
@@ -20,6 +20,9 @@ class LanguageEntry extends Model {
 
   // Allow for mass assignment.
   protected $guarded = array('id');
+
+  public $autoHydrateEntityFromInput = false;    // hydrates on new entries' validation
+  public $forceEntityHydrationFromInput = false; // hydrates whenever validation is called
 
   /**
    *	Each language entry belongs to a language.

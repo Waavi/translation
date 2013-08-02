@@ -12,7 +12,8 @@
         "php": ">=5.3.0",
         "illuminate/support": "4.0.x",
         "illuminate/translation": "4.0.x",
-        "illuminate/database": "4.0.*"
+        "illuminate/database": "4.0.*",
+        "laravelbook/ardent": "dev-master"
     },
     "autoload": {
         "classmap": [

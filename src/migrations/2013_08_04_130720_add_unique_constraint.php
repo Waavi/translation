@@ -16,7 +16,7 @@ class AddUniqueConstraint extends Migration {
 			$table->unique('name');
 		});
 		Schema::table('language_entries', function($table){
-			$table->unique('language_id, namespace, group, item');
+			$table->unique('language_id, namespace, group, item', 'lngi');
 		});
 	}
 

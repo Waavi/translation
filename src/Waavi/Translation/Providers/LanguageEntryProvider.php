@@ -111,6 +111,9 @@ class LanguageEntryProvider {
 	 */
 	public function loadArray(array $lines, $language, $group, $namespace = null, $isDefault = false)
 	{
+		if (! $namespace) {
+			$namespace = '*';
+		}
 		// Transform the lines into a flat dot array:
 		$lines = array_dot($lines);
 		foreach ($lines as $item => $text) {

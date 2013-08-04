@@ -14,8 +14,8 @@ class CreateLanguagesTable extends Migration {
 		Schema::create('languages', function($table){
 			$table->engine = 'InnoDB';
 			$table->increments('id');
-			$table->string('locale', 6);
-			$table->string('name', 60);
+			$table->string('locale', 6)->unique();
+			$table->string('name', 60)->unique();
 			$table->timestamps();
 		});
 	}

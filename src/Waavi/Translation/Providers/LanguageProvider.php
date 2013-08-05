@@ -53,13 +53,44 @@ class LanguageProvider {
 	}
 
 	/**
-	 * Returns all languages.
+	 * Returns all languages excepted those that have been deleted.
 	 *
 	 * @return array  $languages
 	 */
 	public function findAll()
 	{
 		return $this->createModel()->newQuery()->get()->all();
+	}
+
+	/**
+	 * Returns all deleted languages.
+	 *
+	 * @return array  $languages
+	 */
+	public function findTrashed()
+	{
+		return $this->createModel()->newQuery()->onlyTrashed()->get()->all();
+	}
+
+	/**
+	 * Returns the deleted language with id.
+	 *
+	 *	@param integer $id
+	 * 	@return array  $languages
+	 */
+	public function findTrashedById($id)
+	{
+		return $this->createModel()->newQuery()->withTrashed()->find($id);
+	}
+
+	/**
+	 * Returns all deleted languages.
+	 *
+	 * @return array  $languages
+	 */
+	public function findAllWithTrashed()
+	{
+		return $this->createModel()->newQuery()->withTrashed()->get()->all();
 	}
 
 	/**
@@ -71,6 +102,17 @@ class LanguageProvider {
 	public function findAllExcept($language)
 	{
 		return $this->createModel()->newQuery()->where('id', '!=', $language->id)->get();
+	}
+
+	/**
+	 * Restore a deleted language.
+	 *
+	 *	@param integer $id
+	 * 	@return array  $languages
+	 */
+	public function restore($id)
+	{
+		return $this->findTrashedById($id)->restore();
 	}
 
 	/**

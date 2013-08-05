@@ -11,6 +11,12 @@ class Language extends Ardent {
 	protected $table = 'languages';
 
   /**
+   *  Allow for languages soft delete.
+   *  @var boolean
+   */
+  protected $softDelete = true;
+
+  /**
    *  Hydrate data on new entries' validation.
    *  @var boolean
    */

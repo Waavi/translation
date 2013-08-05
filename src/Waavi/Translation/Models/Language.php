@@ -1,6 +1,8 @@
 <?php namespace Waavi\Translation\Models;
 
-class Language extends \Waavi\Translation\Models\Model {
+use LaravelBook\Ardent\Ardent;
+
+class Language extends Ardent {
 
   /**
    *  Table name in the database.
@@ -47,6 +49,17 @@ class Language extends \Waavi\Translation\Models\Model {
   public function entries()
   {
   	return $this->hasMany('Waavi\Translation\Models\LanguageEntry');
+  }
+
+  /**
+   *  Since this model has a unique validation constraint, we must call Ardent::buildUniqueExclusionRules when validating an existing model, so that
+   *  the model's id is injected in the ignore id field.
+   */
+  public function validate(array $rules = array(), array $customMessages = array()) {
+    if ($this->exists) {
+      $rules = $this->buildUniqueExclusionRules();
+    }
+    return parent::validate($rules, $customMessages);
   }
 
 }

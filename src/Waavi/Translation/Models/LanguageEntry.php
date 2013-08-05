@@ -1,6 +1,8 @@
 <?php namespace Waavi\Translation\Models;
 
-class LanguageEntry extends \Waavi\Translation\Models\Model {
+use LaravelBook\Ardent\Ardent;
+
+class LanguageEntry extends Ardent {
 
   /**
    *  Table name in the database.
@@ -45,6 +47,20 @@ class LanguageEntry extends \Waavi\Translation\Models\Model {
   public function language()
   {
   	return $this->belongsTo('Waavi\Translation\Models\Language');
+  }
+
+  /**
+   *  Return the language entry in the default language that corresponds to this entry.
+   *  @param Waavi\Translation\Models\Language  $defaultLanguage
+   *  @return Waavi\Translation\Models\LanguageEntry
+   */
+  public function original($defaultLanguage)
+  {
+    if ($this->exists && $defaultLanguage && $defaultLanguage->exists) {
+      return $defaultLanguage->entries()->where('namespace', '=', $this->namespace)->where('group', '=', $this->group)->where('item', '=', $this->item)->first();
+    } else {
+      return NULL;
+    }
   }
 
   /**

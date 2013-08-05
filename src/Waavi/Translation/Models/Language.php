@@ -28,6 +28,12 @@ class Language extends Ardent {
    */
   public $forceEntityHydrationFromInput = false;
 
+  /**
+   *  List of variables that cannot be mass assigned
+   *  @var array
+   */
+  protected $guarded = array('id');
+
 	/**
    *  Validation rules
    *  @var array

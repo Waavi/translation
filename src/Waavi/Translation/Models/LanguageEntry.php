@@ -1,8 +1,6 @@
 <?php namespace Waavi\Translation\Models;
 
-use LaravelBook\Ardent\Ardent;
-
-class LanguageEntry extends Ardent {
+class LanguageEntry extends Waavi\Translation\Models\Model {
 
   /**
    *  Table name in the database.

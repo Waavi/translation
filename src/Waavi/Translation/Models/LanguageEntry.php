@@ -1,6 +1,6 @@
 <?php namespace Waavi\Translation\Models;
 
-class LanguageEntry extends Waavi\Translation\Models\Model {
+class LanguageEntry extends \Waavi\Translation\Models\Model {
 
   /**
    *  Table name in the database.

@@ -18,7 +18,7 @@ class DatabaseLoader extends Loader implements LoaderInterface {
 	public function loadRawLocale($locale, $group, $namespace = null)
 	{
 		$langArray 	= array();
-		$namespace = $namespace == '*' ? null : $namespace;
+		$namespace = $namespace ?: '*';
 		$language 	= $this->languageProvider->findByLocale($locale);
 		if ($language) {
 			$entries = $language->entries()->where('group', '=', $group)->where('namespace', '=', $namespace)->get();

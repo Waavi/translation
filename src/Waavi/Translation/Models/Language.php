@@ -62,4 +62,24 @@ class Language extends Ardent {
     return parent::validate($rules, $customMessages);
   }
 
+  /**
+   *  Transforms a uri into one containing the current locale slug.
+   *  Examples: login/ => /es/login . / => /es
+   *
+   *  @param string $uri Current uri.
+   *  @return string Target uri.
+   */
+  public function uri($uri)
+  {
+    $segments = explode('/', $uri);
+    $newUri = "/{$this->locale}/{$uri}";
+    if (sizeof($segments) && strlen($segments[0]) == 2) {
+      $newUri = "/{$this->locale}";
+      for($i = 1; $i < sizeof($segments); $i++) {
+        $newUri .= "/{$segments[$i]}";
+      }
+    }
+    return $newUri;
+  }
+
 }

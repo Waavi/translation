@@ -13,7 +13,7 @@
         "illuminate/support": "4.0.x",
         "illuminate/translation": "4.0.x",
         "illuminate/database": "4.0.*",
-        "laravelbook/ardent": "dev-master"
+        "waavi/model": "dev-master"
     },
     "autoload": {
         "classmap": [

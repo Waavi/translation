@@ -1,26 +1,14 @@
 <?php namespace Waavi\Translation\Models;
 
-use LaravelBook\Ardent\Ardent;
+use Waavi\Model\WaaviModel;
 
-class LanguageEntry extends Ardent {
+class LanguageEntry extends WaaviModel {
 
   /**
    *  Table name in the database.
    *  @var string
    */
 	protected $table = 'language_entries';
-
-  /**
-   *  Hydrate data on new entries' validation.
-   *  @var boolean
-   */
-  public $autoHydrateEntityFromInput = false;
-
-  /**
-   *  Hydrate data whenever validation is called
-   *  @var boolean
-   */
-  public $forceEntityHydrationFromInput = false;
 
   /**
    *  List of variables that cannot be mass assigned
@@ -32,7 +20,7 @@ class LanguageEntry extends Ardent {
    *  Validation rules
    *  @var array
    */
-  public static $rules = array(
+  public $rules = array(
     'language_id' => 'required',
     'namespace'   => '',
     'group'       => 'required',

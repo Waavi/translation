@@ -1,8 +1,8 @@
 <?php namespace Waavi\Translation\Models;
 
-use LaravelBook\Ardent\Ardent;
+use Waavi\Model\WaaviModel;
 
-class Language extends Ardent {
+class Language extends WaaviModel {
 
   /**
    *  Table name in the database.
@@ -17,18 +17,6 @@ class Language extends Ardent {
   protected $softDelete = true;
 
   /**
-   *  Hydrate data on new entries' validation.
-   *  @var boolean
-   */
-  public $autoHydrateEntityFromInput = false;
-
-  /**
-   *  Hydrate data whenever validation is called
-   *  @var boolean
-   */
-  public $forceEntityHydrationFromInput = false;
-
-  /**
    *  List of variables that cannot be mass assigned
    *  @var array
    */
@@ -38,7 +26,7 @@ class Language extends Ardent {
    *  Validation rules
    *  @var array
    */
-  public static $rules = array(
+  public $rules = array(
     'locale'  => 'required|unique:languages',
     'name'    => 'required|unique:languages',
   );
@@ -49,17 +37,6 @@ class Language extends Ardent {
   public function entries()
   {
   	return $this->hasMany('Waavi\Translation\Models\LanguageEntry');
-  }
-
-  /**
-   *  Since this model has a unique validation constraint, we must call Ardent::buildUniqueExclusionRules when validating an existing model, so that
-   *  the model's id is injected in the ignore id field.
-   */
-  public function validate(array $rules = array(), array $customMessages = array()) {
-    if ($this->exists) {
-      $rules = $this->buildUniqueExclusionRules();
-    }
-    return parent::validate($rules, $customMessages);
   }
 
   /**

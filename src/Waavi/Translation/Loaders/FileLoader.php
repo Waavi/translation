@@ -1,7 +1,7 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Translation\LoaderInterface;
-use Illuminate\Translation\FileLoader as LaravelFilerLoader;
+use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Waavi\Translation\Loaders\Loader;
 use Waavi\Translation\Providers\LanguageProvider as LanguageProvider;
 use Waavi\Translation\Providers\LanguageEntryProvider as LanguageEntryProvider;
@@ -25,7 +25,7 @@ class FileLoader extends Loader implements LoaderInterface {
 	public function __construct($languageProvider, $languageEntryProvider, $app)
 	{
 		parent::__construct($languageProvider, $languageEntryProvider, $app);
-		$this->laravelFileLoader = new LaravelFilerLoader($app['files'], $app['path'].'/lang');
+		$this->laravelFileLoader = new LaravelFileLoader($app['files'], $app['path'].'/lang');
 	}
 
 	/**

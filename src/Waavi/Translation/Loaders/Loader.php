@@ -149,7 +149,7 @@ class Loader implements LoaderInterface {
 								$this->loadRaw($locale, $group, $namespace);
 
 		if ($this->cacheEnabled && !$this->app['cache']->has($cacheKey)) {
-			$this->app['cache']->put($cacheKey, $langLines, $this->cacheTimeout);
+			$this->app['cache']->put($cacheKey, $lines, $this->cacheTimeout);
 		}
 		return $lines;
 	}
@@ -190,5 +190,14 @@ class Loader implements LoaderInterface {
 	public function addNamespace($namespace, $hint)
 	{
 		$this->hints[$namespace] = $hint;
+
+		if (isset($this->fileLoader))
+		{
+			$this->fileLoader->addNamespace($namespace, $hint);
+		}
+		elseif (isset($this->laravelFileLoader))
+		{
+			$this->laravelFileLoader->addNamespace($namespace, $hint);
+		}
 	}
 }

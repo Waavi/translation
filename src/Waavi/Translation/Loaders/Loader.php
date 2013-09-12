@@ -149,7 +149,7 @@ class Loader implements LoaderInterface {
 								$this->loadRaw($locale, $group, $namespace);
 
 		if ($this->cacheEnabled && !$this->app['cache']->has($cacheKey)) {
-			$this->app['cache']->put($cacheKey, $langLines, $this->cacheTimeout);
+			$this->app['cache']->put($cacheKey, $lines, $this->cacheTimeout);
 		}
 		return $lines;
 	}

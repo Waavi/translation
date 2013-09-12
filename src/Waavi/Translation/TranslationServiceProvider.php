@@ -7,6 +7,7 @@ use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\MixedLoader;
 use Waavi\Translation\Providers\LanguageProvider;
 use Waavi\Translation\Providers\LanguageEntryProvider;
+use Config;
 
 class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 
@@ -24,7 +25,6 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('waavi/translation', 'waavi/translation', __DIR__.'/../..');
 	}
 
 	/**
@@ -34,6 +34,8 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	public function register()
 	{
+		$this->package('waavi/translation', 'waavi/translation', __DIR__.'/../..');
+
 		$this->registerLoader();
 		$this->registerTranslationFileLoader();
 
@@ -67,16 +69,19 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 			$languageProvider 	= new LanguageProvider($app['config']['waavi/translation::language.model']);
 			$langEntryProvider 	= new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
 
-			$mode 					= $app['config']['waavi/translation::mode'];
-			if ($mode == 'auto')	$mode = $app['config']['app.debug'] ? 'mixed'	:	'database';
+			$mode = $app['config']['waavi/translation::mode'];
+
+			if ($mode == 'auto' || empty($mode)){
+				$mode = ($app['config']['app.debug'] ? 'mixed' : 'database');
+			}
 
 			switch ($mode) {
-				default:
 				case 'mixed':
 					return new MixedLoader($languageProvider, $langEntryProvider, $app);
+
 				case 'filesystem':
 					return new FileLoader($languageProvider, $langEntryProvider, $app);
-				default:
+
 				case 'database':
 					return new DatabaseLoader($languageProvider, $langEntryProvider, $app);
 			}

@@ -190,5 +190,14 @@ class Loader implements LoaderInterface {
 	public function addNamespace($namespace, $hint)
 	{
 		$this->hints[$namespace] = $hint;
+
+		if (isset($this->fileLoader))
+		{
+			$this->fileLoader->addNamespace($namespace, $hint);
+		}
+		elseif (isset($this->laravelFileLoader))
+		{
+			$this->laravelFileLoader->addNamespace($namespace, $hint);
+		}
 	}
 }

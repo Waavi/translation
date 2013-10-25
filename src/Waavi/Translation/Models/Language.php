@@ -48,6 +48,8 @@ class Language extends WaaviModel {
    */
   public function uri($uri)
   {
+    // Delete the forward slash if any at the beginning of the uri:
+    $uri = substr($uri, 0, 1) == '/' ? substr($uri, 1) : $uri;
     $segments = explode('/', $uri);
     $newUri = "/{$this->locale}/{$uri}";
     if (sizeof($segments) && strlen($segments[0]) == 2) {

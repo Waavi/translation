@@ -79,7 +79,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 				case 'mixed':
 					return new MixedLoader($languageProvider, $langEntryProvider, $app);
 
-				case 'filesystem':
+				default: case 'filesystem':
 					return new FileLoader($languageProvider, $langEntryProvider, $app);
 
 				case 'database':

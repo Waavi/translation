@@ -21,12 +21,13 @@ class LanguageEntry extends WaaviModel {
    *  @var array
    */
   public $rules = array(
-    'language_id' => 'required',
-    'namespace'   => '',
-    'group'       => 'required',
-    'item'        => 'required',
-    'text'        => 'required',
-    'unstable'    => '',
+    'language_id' => 'required',  // Language FK
+    'namespace'   => '',          // Language Entry namespace. Default is *
+    'group'       => 'required',  // Entry group, references the name of the file the translation was originally stored in.
+    'item'        => 'required',  // Entry code.
+    'text'        => 'required',  // Translation text.
+    'unstable'    => '',          // If this flag is set to true, the text in the default language has changed since this entry was last updated.
+    'overwrite'   => '',          // If this flag is set to false, then this entry may not be overwritten by a file entry.
   );
 
   /**
@@ -62,15 +63,26 @@ class LanguageEntry extends WaaviModel {
     $this->text = $text;
     if ($this->save()) {
       if ($isDefault) {
-        LanguageEntry::where('namespace', '=', $this->namespace)
-          ->where('group', '=', $this->group)
-          ->where('item', '=', $this->item)
-          ->where('language_id', '!=', $this->language_id)
-          ->update(array('unstable' => '1'));
+        $this->flagSiblingsUnstable();
       }
       return true;
     } else {
       return false;
+    }
+  }
+
+  /**
+   *  Flag all siblings as unstable.
+   *
+   */
+  public function flagSiblingsUnstable()
+  {
+    if ($this->id) {
+      LanguageEntry::where('namespace', '=', $this->namespace)
+        ->where('group', '=', $this->group)
+        ->where('item', '=', $this->item)
+        ->where('language_id', '!=', $this->language_id)
+        ->update(array('unstable' => '1'));
     }
   }
 

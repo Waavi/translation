@@ -27,7 +27,7 @@ class LanguageEntry extends WaaviModel {
     'item'        => 'required',  // Entry code.
     'text'        => 'required',  // Translation text.
     'unstable'    => '',          // If this flag is set to true, the text in the default language has changed since this entry was last updated.
-    'overwrite'   => '',          // If this flag is set to false, then this entry may not be overwritten by a file entry.
+    'locked'      => '',          // If this flag is set to true, then this entry's text may not be edited.
   );
 
   /**
@@ -58,17 +58,20 @@ class LanguageEntry extends WaaviModel {
    *  @param  boolean  $isDefault
    *  @return boolean
    */
-  public function updateText($text, $isDefault = false)
+  public function updateText($text, $isDefault = false, $lock = false, $force = false)
   {
-    $this->text = $text;
-    if ($this->save()) {
-      if ($isDefault) {
+    $saved            = false;
+
+    // If the text is locked, do not allow editing:
+    if (!$this->locked || $force) {
+      $this->text   = $text;
+      $this->locked = $lock;
+      $saved        = $this->save();
+      if ($saved && $isDefault) {
         $this->flagSiblingsUnstable();
       }
-      return true;
-    } else {
-      return false;
     }
+    return $saved;
   }
 
   /**

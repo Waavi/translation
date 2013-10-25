@@ -127,14 +127,9 @@ class LanguageEntryProvider {
 	      ->where('language_id', '=', $language->id)
 	      ->first();
 
-	    // If the entry already exists, its text is different from the parameters, and it may be overwritten, we do so:
+	    // If the entry already exists, we update the text:
 	    if ($entry) {
-	      if ($entry->text != $text && $entry->overwrite) {
-	        $entry->text = $text;
-	        if($entry->save() && $isDefault) {
-	        	$entry->flagSiblingsUnstable();
-	        }
-	      }
+	    	$entry->updateText($text, $isDefault);
 	    }
 	    // The entry doesn't exist:
 	    else {

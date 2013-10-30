@@ -12,7 +12,6 @@ class CreateLanguageEntriesTable extends Migration {
 	public function up()
 	{
 		Schema::create('language_entries', function($table){
-			$table->engine = 'InnoDB';
 			$table->increments('id');
 			$table->integer('language_id')->unsigned();
 			$table->string('namespace', 150)->default('*');
@@ -22,9 +21,9 @@ class CreateLanguageEntriesTable extends Migration {
 			$table->boolean('unstable')->default('0');
 			$table->timestamps();
 			$table->foreign('language_id')->references('id')->on('languages');
+
+			$table->unique(array('language_id', 'namespace', 'group', 'item'));
 		});
-		// Unique index:
-		DB::statement('ALTER TABLE `language_entries` ADD UNIQUE INDEX(`language_id`, `namespace`, `group`, `item`)');
 	}
 
 	/**

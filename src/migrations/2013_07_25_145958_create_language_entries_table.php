@@ -22,9 +22,8 @@ class CreateLanguageEntriesTable extends Migration {
 			$table->boolean('unstable')->default('0');
 			$table->timestamps();
 			$table->foreign('language_id')->references('id')->on('languages');
+			$table->unique(array('language_id', 'namespace', 'group', 'item'));
 		});
-		// Unique index:
-		DB::statement('ALTER TABLE `language_entries` ADD UNIQUE INDEX(`language_id`, `namespace`, `group`, `item`)');
 	}
 
 	/**

@@ -34,7 +34,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	public function register()
 	{
-		$this->package('waavi/translation', 'waavi/translation', __DIR__.'/../..');
+		$this->package('waavi/translation', 'waavi'.DIRECTORY_SEPARATOR.'translation', __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..');
 
 		$this->registerLoader();
 		$this->registerTranslationFileLoader();

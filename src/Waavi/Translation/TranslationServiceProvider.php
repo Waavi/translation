@@ -34,7 +34,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 	 */
 	public function register()
 	{
-		$this->package('waavi/translation', 'waavi/translation', __DIR__.'/../..');
+		$this->package('waavi/translation', 'waavi'.DIRECTORY_SEPARATOR.'translation', __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..');
 
 		$this->registerLoader();
 		$this->registerTranslationFileLoader();
@@ -79,7 +79,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider {
 				case 'mixed':
 					return new MixedLoader($languageProvider, $langEntryProvider, $app);
 
-				case 'filesystem':
+				default: case 'filesystem':
 					return new FileLoader($languageProvider, $langEntryProvider, $app);
 
 				case 'database':

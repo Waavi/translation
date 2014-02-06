@@ -25,7 +25,7 @@ class FileLoader extends Loader implements LoaderInterface {
 	public function __construct($languageProvider, $languageEntryProvider, $app)
 	{
 		parent::__construct($languageProvider, $languageEntryProvider, $app);
-		$this->laravelFileLoader = new LaravelFileLoader($app['files'], $app['path'].'/lang');
+		$this->laravelFileLoader = new LaravelFileLoader($app['files'], $app['path'].DIRECTORY_SEPARATOR.'lang');
 	}
 
 	/**

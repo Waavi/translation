@@ -127,22 +127,9 @@ class LanguageEntryProvider {
 	      ->where('language_id', '=', $language->id)
 	      ->first();
 
-	    // If the entry already exists and its text is different from the parameters:
+	    // If the entry already exists, we update the text:
 	    if ($entry) {
-	      if ($entry->text != $text) {
-	        $entry->text = $text;
-	        if($entry->save() && $isDefault) {
-	        	// If we just updated a line from the default language, flag all translations as unstable.
-	        	$this
-							->createModel()
-							->newQuery()
-							->where('namespace', '=', $namespace)
-				      ->where('group', '=', $group)
-				      ->where('item', '=', $item)
-				      ->where('language_id', '!=', $language->id)
-				      ->update(array('unstable' => '1'));
-	        }
-	      }
+	    	$entry->updateText($text, $isDefault);
 	    }
 	    // The entry doesn't exist:
 	    else {

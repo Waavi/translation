@@ -41,24 +41,61 @@ class FileLoaderCommand extends Command {
   }
 
   /**
-   * Execute the console command.
-   *
-   * @return void
-   */
-  public function fire()
-  {
-    $localeDirs = $this->finder->directories($this->path);
-    foreach($localeDirs as $localeDir) {
-      $locale = str_replace($this->path.'/', '', $localeDir);
-      $language = $this->languageProvider->findByLocale($locale);
-      if ($language) {
-        $langFiles = $this->finder->files($localeDir);
-        foreach($langFiles as $langFile) {
-          $group = str_replace(array($localeDir.'/', '.php'), '', $langFile);
-          $lines = $this->fileLoader->loadRawLocale($locale, $group);
-          $this->languageEntryProvider->loadArray($lines, $language, $group, null, $locale == $this->fileLoader->getDefaultLocale());
+    * Execute the console command.
+    *
+    * @return void
+    */
+    public function fire()
+    { 
+
+        $this->loadFiles($this->finder->directories($this->path));
+        
+        $registeredNamespaces = $this->fileLoader->getHints();
+
+        if(!empty($registeredNamespaces)) 
+        {
+            $this->loadNamespaceDirectories($registeredNamespaces);
         }
-      }
+        
     }
-  }
+
+    /**
+     * check all directories inside registered namespaces
+     * 
+     * @param  array $registeredNamespaces
+     * @return void
+     */
+    public function loadNamespaceDirectories($registeredNamespaces) 
+    {
+        foreach ($registeredNamespaces as $namespace => $directory) 
+        {
+            $this->loadFiles($this->finder->directories($directory), $namespace);
+        }
+    }
+
+    /**
+     * Load files to database
+     * 
+     * @param  array $directories
+     * @param  string $namespace
+     * @return void
+     */
+    public function loadFiles($directories, $namespace = null) 
+    {
+        foreach($directories as $directory) 
+        {
+            $locale = basename($directory);
+            $language = $this->languageProvider->findByLocale($locale);
+            if ($language) 
+            {
+                $langFiles = $this->finder->files($directory);
+                foreach($langFiles as $langFile) 
+                {
+                    $group = str_replace(array($directory.'/', '.php'), '', $langFile);
+                    $lines = $this->fileLoader->loadRawLocale($locale, $group, $namespace);
+                    $this->languageEntryProvider->loadArray($lines, $language, $group, $namespace, $locale == $this->fileLoader->getDefaultLocale());
+                }
+            }
+        }
+    }
 }

@@ -200,4 +200,15 @@ class Loader implements LoaderInterface {
 			$this->laravelFileLoader->addNamespace($namespace, $hint);
 		}
 	}
+
+	/**
+	 * Return all registered namespaces
+	 * 
+	 * @return array
+	 */
+	public function getHints() 
+	{
+		return $this->hints;
+	}
+
 }

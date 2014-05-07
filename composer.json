@@ -1,6 +1,6 @@
 {
     "name": "waavi/translation",
-    "version":  "0.9",
+    "version":  "1.0",
     "description": "A Translation package for Laravel 4 with database and cache support",
     "license": "MIT",
     "authors": [

@@ -1,9 +1,13 @@
 <?php namespace Waavi\Translation\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 use Waavi\Model\WaaviModel;
 
 class Language extends WaaviModel {
-
+  use SoftDeletingTrait; //http://laravel.com/docs/upgrade#upgrade-4.2
+  
+  protected $dates = ['deleted_at'];
+  
   /**
    *  Table name in the database.
    *  @var string
@@ -14,7 +18,7 @@ class Language extends WaaviModel {
    *  Allow for languages soft delete.
    *  @var boolean
    */
-  protected $softDelete = true;
+  //protected $softDelete = true; Commented for Laravel 4.2 Update
 
   /**
    *  List of variables that cannot be mass assigned

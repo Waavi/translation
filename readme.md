@@ -12,11 +12,11 @@ Edit composer.json:
 		"waavi/translation": "*"
 	},
 	"repositories": [
-    {
-      "type": "vcs",
-      "url":  "git@github.com:Waavi/translation.git"
-    }
-  ],
+    	{
+      		"type": "vcs",
+      		"url":  "git@github.com:Waavi/translation.git"
+    	}
+	],
 
 In app/config/app.php, replace the following entry from the providers array:
 

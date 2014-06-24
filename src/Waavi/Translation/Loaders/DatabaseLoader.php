@@ -6,7 +6,6 @@ use Waavi\Translation\Providers\LanguageProvider as LanguageProvider;
 use Waavi\Translation\Providers\LanguageEntryProvider as LanguageEntryProvider;
 
 class DatabaseLoader extends Loader implements LoaderInterface {
-
 	/**
 	 * Load the messages strictly for the given locale.
 	 *
@@ -17,17 +16,51 @@ class DatabaseLoader extends Loader implements LoaderInterface {
 	 */
 	public function loadRawLocale($locale, $group, $namespace = null)
 	{
-		$langArray 	= array();
+		$result = array();
 		$namespace = $namespace ?: '*';
-		$language 	= $this->languageProvider->findByLocale($locale);
-		if ($language) {
-			$entries = $language->entries()->where('group', '=', $group)->where('namespace', '=', $namespace)->get();
+
+		$fallback_locale = \Config::get("app.fallback_locale");
+
+		$fallback_language = $fallback_locale !== null && $locale != $fallback_locale ?
+			$this->languageProvider->findByLocale($fallback_locale) : null;
+
+		$language = $this->languageProvider->findByLocale($locale);
+
+		$load_language_entries = function($language_entity) use ($group, $namespace){
+			$lang_entries = array();
+			$entries = $language_entity->entries()->where('group', '=', $group)->where('namespace', '=', $namespace)->get();
+
 			if ($entries) {
 				foreach($entries as $entry) {
-					array_set($langArray, $entry->item, $entry->text);
+					array_set($lang_entries, $entry->item, $entry->text);
 				}
 			}
+
+			return $lang_entries;
+		};
+
+		if($language){
+			$result = $load_language_entries($language);
 		}
-		return $langArray;
+
+		if($fallback_language){
+			$fallback_result = $load_language_entries($fallback_language);
+			$result = self::arrayMergeRecursiveDistinct($fallback_result, $result);
+		}
+
+		return $result;
+	}
+
+	private static function arrayMergeRecursiveDistinct(array &$array1, array &$array2)
+	{
+		$merged = $array1;
+
+		foreach($array2 as $key => & $value)
+		{
+			$merged[$key] = is_array($value) && isset($merged[$key]) && is_array($merged[$key]) ?
+				arrayMergeRecursiveDistinct($merged[$key], $value) : $value;
+		}
+
+		return $merged;
 	}
 }

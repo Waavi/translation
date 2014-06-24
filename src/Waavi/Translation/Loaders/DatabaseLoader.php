@@ -58,7 +58,7 @@ class DatabaseLoader extends Loader implements LoaderInterface {
 		foreach($array2 as $key => & $value)
 		{
 			$merged[$key] = is_array($value) && isset($merged[$key]) && is_array($merged[$key]) ?
-				arrayMergeRecursiveDistinct($merged[$key], $value) : $value;
+				self::arrayMergeRecursiveDistinct($merged[$key], $value) : $value;
 		}
 
 		return $merged;

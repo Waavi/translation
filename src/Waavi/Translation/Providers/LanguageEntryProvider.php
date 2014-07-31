@@ -38,8 +38,39 @@ class LanguageEntryProvider {
 	 */
 	public function findByKey($language, $key)
 	{
-		return $this->createModel()->newQuery()->where('key', 'LIKE', "$key%")->get();
+		$namespacedItemResolver = new \Illuminate\Support\NamespacedItemResolver();
+
+		$parsedKey = $namespacedItemResolver->parseKey($key);
+		if ($parsedKey[0]=='') $parsedKey[0] = '*';
+
+		return $this->createModel()->newQuery()
+																	->where('language_id', '=', $language)
+																	->where('namespace', '=', $parsedKey[0])
+																	->where('group','=', $parsedKey[1])
+																	->where('item','=', $parsedKey[2])->first();
 	}
+
+	/**
+	 * Find the entries with a key that starts with the provided key, or initiate it.
+	 *
+	 * @param  string  	$key
+	 * @return Eloquent List.
+	 */
+	public function findOrNewByKey($language, $key)
+	{
+		$namespacedItemResolver = new \Illuminate\Support\NamespacedItemResolver();
+
+		$parsedKey = $namespacedItemResolver->parseKey($key);
+		if ($parsedKey[0]=='') $parsedKey[0] = '*';
+
+		$entry = $this->findByKey($language, $key);
+
+		return (is_null($entry) ? $this->initiate(array('language_id' => $language,
+																									'namespace' => $parsedKey[0],
+																									'group' => $parsedKey[1],
+																									'item' => $parsedKey[2])) : $entry );
+	}
+
 
 	/**
 	 * Find all entries for a given language.
@@ -88,16 +119,29 @@ class LanguageEntryProvider {
 	}
 
 	/**
-	 * Creates a language.
+	 * Initiate a new languageEntry.
+	 *
+	 * @param  array  $attributes
+	 * @return Cartalyst\Sentry\languages\GroupInterface
+	 */
+	public function initiate(array $attributes)
+	{
+		$languageEntry = $this->createModel();
+		$languageEntry->fill($attributes);
+		return $languageEntry;
+	}
+
+	/**
+	 * Creates a languageEntry.
 	 *
 	 * @param  array  $attributes
 	 * @return Cartalyst\Sentry\languages\GroupInterface
 	 */
 	public function create(array $attributes)
 	{
-		$language = $this->createModel();
-		$language->fill($attributes)->save();
-		return $language;
+		$languageEntry = $this->createModel();
+		$languageEntry->fill($attributes)->save();
+		return $languageEntry;
 	}
 
 	/**

@@ -151,3 +151,7 @@ For example, should you define your models as Language and LanguageEntry in /app
 	'language_entry'	=>	array(
 		'model' 	=>	'LanguageEntry',
 	),
+
+## Laravel 4.2 Users
+
+If you are using laravel 4.2 and above, and is experiencing problems retrieving data after installing Waavi/Translation, please navigate to the file `vendor/src/Waavi/Translation/Models/Language.php` and comment out the following portion of the code: `protected $softDelete = true;`.

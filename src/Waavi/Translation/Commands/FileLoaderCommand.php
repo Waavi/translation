@@ -40,25 +40,74 @@ class FileLoaderCommand extends Command {
     $this->path                   = app_path().DIRECTORY_SEPARATOR.'lang';
   }
 
-  /**
-   * Execute the console command.
-   *
-   * @return void
-   */
-  public function fire()
-  {
-    $localeDirs = $this->finder->directories($this->path);
-    foreach($localeDirs as $localeDir) {
-      $locale = str_replace($this->path.DIRECTORY_SEPARATOR, '', $localeDir);
-      $language = $this->languageProvider->findByLocale($locale);
-      if ($language) {
-        $langFiles = $this->finder->files($localeDir);
-        foreach($langFiles as $langFile) {
-          $group = str_replace(array('/', $localeDir.DIRECTORY_SEPARATOR, '.php'), array(DIRECTORY_SEPARATOR,'',''), $langFile);
-          $lines = $this->fileLoader->loadRawLocale($locale, $group);
-          $this->languageEntryProvider->loadArray($lines, $language, $group, null, $locale == $this->fileLoader->getDefaultLocale());
-        }
-      }
-    }
-  }
+	/**
+	 * Execute the console command.
+	 *
+	 * @return void
+	 */
+	public function fire()
+	{
+		$localeDirs = $this->finder->directories($this->path);
+
+		foreach($localeDirs as $localeDir)
+		{
+			$locale = str_replace($this->path.'/', '', $localeDir);
+			$language = $this->languageProvider->findByLocale($locale);
+
+			if ($language)
+			{
+				$langFiles = $this->finder->files($localeDir);
+				$langDirectories = $this->finder->directories($localeDir);
+
+				foreach($langDirectories as $langDirectory)
+				{
+					$group = str_replace($localeDir.'/', '', $langDirectory);
+					$lines = $this->fireSubDir($localeDir, $langDirectory, $locale);
+					$this->languageEntryProvider->loadArray($lines, $language, $group, null, $locale == $this->fileLoader->getDefaultLocale());
+				}
+
+				foreach($langFiles as $langFile)
+				{
+					$group = str_replace(array($localeDir.'/', '.php'), '', $langFile);
+					$lines = $this->fileLoader->loadRawLocale($locale, $group);
+					$this->languageEntryProvider->loadArray($lines, $language, $group, null, $locale == $this->fileLoader->getDefaultLocale());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get translations from subfolders.
+	 *
+	 * @return array
+	 */
+	private function fireSubDir($localeDir, $langDirectory, $locale)
+	{
+		$array    = array();
+		$allFiles = $this->finder->allFiles($langDirectory);
+
+		foreach($allFiles as $file)
+		{
+			$filePathname = $file->getPathname();
+			$relativePath = $file->getRelativePath();
+			$dirGroup = str_replace(array($localeDir.'/', '.php'), '', $filePathname);
+			$fileGroup = str_replace(array($langDirectory.'/', '.php'), '', $filePathname);
+
+			$lines = $this->fileLoader->loadRawLocale($locale, $dirGroup);
+
+			if( empty($relativePath) )
+			{
+				$lines = $this->fileLoader->loadRawLocale($locale, $dirGroup);
+				$array = array_merge($array, array($fileGroup => $lines) );
+			}
+			else
+			{
+				$lines = $this->fileLoader->loadRawLocale($locale, $dirGroup);
+				$fileDot = str_replace('/', '.', $fileGroup);
+				$array = array_merge_recursive($array, array_undot(array($fileDot => $lines)));
+			}
+		}
+
+		return $array;
+	}
 }

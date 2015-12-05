@@ -1,9 +1,8 @@
-<?php
+<?php namespace Waavi\Translation\Test\Localizer;
 
-// PHPUnit wrappers:
-use Way\Tests\Assert;
+use Waavi\Translation\Test\TestCase;
 
-class TranslatorTest extends TestCase
+class LocalizerTest extends TestCase
 {
 
     public function setUp()
@@ -21,19 +20,19 @@ class TranslatorTest extends TestCase
 
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->exists);
 
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->english->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->exists);
     }
 
     public function test_namespace_not_required_defaults_to_asterisk()
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
         Assert::equals('*', $entry->namespace);
     }
 
@@ -59,7 +58,7 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', '');
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->exists);
     }
 
     /**
@@ -69,8 +68,8 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
 
         $this->setExpectedException('App\Utils\Exceptions\ValidatorException');
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
@@ -83,7 +82,7 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->exists);
 
         Event::shouldReceive('fire')->once()->with('translation.updated', Mockery::any());
         $entry->setText('Nuevo Texto');
@@ -98,8 +97,8 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
 
         Event::shouldReceive('fire')->once()->with('translation.updated', Mockery::any());
         $entry->setTextAndLock('Nuevo Texto');
@@ -114,8 +113,8 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
 
         Event::shouldReceive('fire')->once()->with('translation.updated', Mockery::any());
         $entry->setTextAndLock('Nuevo Texto');
@@ -133,8 +132,8 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
 
         Event::shouldReceive('fire')->once()->with('translation.updated', Mockery::any());
         $entry->setTextAndLock('Nuevo Texto');
@@ -154,8 +153,8 @@ class TranslatorTest extends TestCase
     {
         Event::shouldReceive('fire')->once()->with('translation.new', Mockery::any());
         $entry = Translator::insert($this->spanish->id, 'grupo', 'elemento', 'Texto', '*');
-        Assert::true($entry->errors()->isEmpty());
-        Assert::true($entry->exists);
+        $this->assertTrue($entry->errors()->isEmpty());
+        $this->assertTrue($entry->exists);
 
         // Mark the entry as unstable:
         $entry->unstable = 1;

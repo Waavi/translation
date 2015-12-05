@@ -7,11 +7,11 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false"
+         stopOnFailure="true"
          syntaxCheck="false"
 >
     <testsuites>
-        <testsuite name="Package Test Suite">
+        <testsuite name="Translation Test Suite">
             <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>

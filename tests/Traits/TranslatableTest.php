@@ -1,10 +1,6 @@
-<?php
+<?php namespace Waavi\Translation\Test\Traits;
 
-// PHPUnit wrappers:
-use App\Translator\Models\LanguageEntry;
-
-// Models:
-use Way\Tests\Assert;
+use Waavi\Translation\Test\TestCase;
 
 class TranslatableTest extends TestCase
 {
@@ -52,9 +48,9 @@ class TranslatableTest extends TestCase
     }
 }
 
-class Dummy extends Illuminate\Database\Eloquent\Model
+class Dummy extends \Illuminate\Database\Eloquent\Model
 {
-    use \App\Translator\Traits\Translatable;
+    use \Waavi\Translation\Traits\Translatable;
 
     protected $fillable = ['title', 'text'];
 

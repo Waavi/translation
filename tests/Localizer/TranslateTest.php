@@ -1,7 +1,7 @@
-<?php
+<?php namespace Waavi\Translation\Test\Localizer;
 
 // PHPUnit wrappers:
-use Way\Tests\Assert;
+use Waavi\Translation\Test\TestCase;
 
 class TranslateTest extends TestCase
 {

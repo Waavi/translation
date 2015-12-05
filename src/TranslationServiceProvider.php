@@ -7,7 +7,9 @@ use Waavi\Translation\Facades\Translator;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\MixedLoader;
+use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
+use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 
 class TranslationServiceProvider extends LaravelTranslationServiceProvider
@@ -41,9 +43,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
         $this->registerLoader();
-        $this->app['command.translator:load'] = $this->app->make(FileLoaderCommand::class);
-        $this->commands('translator:load');
-
+        $this->registerCommand();
     }
 
     /**
@@ -96,6 +96,19 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
             return $trans;
         });
+    }
+
+    protected function registerCommand()
+    {
+        $app                   = $this->app;
+        $languageRepository    = new LanguageRepository(new Language);
+        $translationRepository = new TranslationRepository(new Translation);
+        $laravelFileLoader     = new LaravelFileLoader($app['files'], base_path() . $app['config']->get('translator.translations_dir'));
+        $fileLoader            = new FileLoader($app['config']->get('app.locale'), $laravelFileLoader);
+        $command               = new FileLoaderCommand($languageRepository, $translationRepository, $fileLoader, $app['config']);
+
+        $this->app['command.translator:load'] = $command;
+        $this->commands('command.translator:load');
     }
 
     /**

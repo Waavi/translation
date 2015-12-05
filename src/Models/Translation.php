@@ -2,8 +2,9 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class LanguageEntry extends Model
+class Translation extends Model
 {
+    use \Illuminate\Database\Eloquent\SoftDeletes;
 
     /**
      *  Table name in the database.
@@ -18,26 +19,13 @@ class LanguageEntry extends Model
     protected $fillable = ['language_id', 'namespace', 'group', 'item', 'text', 'unstable'];
 
     /**
-     *  Validation rules
-     *  @var array
-     */
-    public $rules = [
-        'language_id' => 'required', // Language FK
-        'namespace'   => '',         // Language Entry namespace. Default is *
-        'group'       => 'required', // Entry group, references the name of the file the translation was originally stored in.
-        'item'        => 'required', // Entry code.
-        'text'        => 'required', // Translation text.
-        'unstable'    => '',         // If this flag is set to true, the text in the default language has changed since this entry was last updated.
-        'locked'      => '',         // If this flag is set to true, then this entry's text may not be edited.
-    ];
-
-    /**
      *    Each language entry belongs to a language.
      */
     public function language()
     {
-        return $this->belongsTo(Waavi\Translation\Models\Language::class);
+        return $this->belongsTo(Language::class, 'locale', 'locale');
     }
+
     /**
      *  Returns the full translation code for an entry: namespace.group.item
      *  @return string
@@ -45,32 +33,6 @@ class LanguageEntry extends Model
     public function getCodeAttribute()
     {
         return "{$this->namespace}.{$this->group}.{$this->item}";
-    }
-
-    /**
-     * Validate the model instance
-     *
-     * @return bool
-     */
-    public function isValid()
-    {
-        if (!parent::isValid()) {
-            throw new ValidatorException($this->errors());
-        }
-
-        // Check if an entry with the same language id and code, and different id, exits:
-        $clone          = new LanguageEntry;
-        $duplicatedCode = $clone
-            ->where('language_id', $this->language_id)
-            ->where('namespace', $this->namespace)
-            ->where('group', $this->group)
-            ->where('item', $this->item)
-            ->count() > 0;
-        if (!$this->exists && $duplicatedCode) {
-            $this->errors()->add('code', Lang::get('validation.unique', ['attribute' => 'code']));
-            throw new ValidatorException($this->errors());
-        }
-        return true;
     }
 
     /**

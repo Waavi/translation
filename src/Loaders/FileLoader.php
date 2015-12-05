@@ -2,12 +2,15 @@
 
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\LoaderInterface;
-use Waavi\Translation\Loaders\Loader;
-use Waavi\Translation\Providers\LanguageEntryProvider as LanguageEntryProvider;
-use Waavi\Translation\Providers\LanguageProvider as LanguageProvider;
 
 class FileLoader extends Loader implements LoaderInterface
 {
+    /**
+     * The default locale.
+     *
+     * @var string
+     */
+    protected $defaultLocale;
 
     /**
      * The laravel file loader instance.
@@ -17,16 +20,16 @@ class FileLoader extends Loader implements LoaderInterface
     protected $laravelFileLoader;
 
     /**
-     *     Create a new mixed loader instance.
+     *  Create a new mixed loader instance.
      *
-     *     @param  \Waavi\Lang\Providers\LanguageProvider              $languageProvider
-     *     @param     \Waavi\Lang\Providers\LanguageEntryProvider        $languageEntryProvider
-     *    @param     \Illuminate\Foundation\Application                      $app
+     *  @param  string                              $defaultLocale
+     *  @param  \Illuminate\Translation\FileLoader  $laravelFileLoader
+     *  @return void
      */
-    public function __construct($languageProvider, $languageEntryProvider, $app)
+    public function __construct($defaultLocale, LaravelFileLoader $laravelFileLoader)
     {
-        parent::__construct($languageProvider, $languageEntryProvider, $app);
-        $this->laravelFileLoader = new LaravelFileLoader($app['files'], base_path() . '/resources/lang');
+        parent::__construct($defaultLocale);
+        $this->laravelFileLoader = $this->laravelFileLoader;
     }
 
     /**
@@ -37,10 +40,21 @@ class FileLoader extends Loader implements LoaderInterface
      * @param  string  $namespace
      * @return array
      */
-    public function loadRawLocale($locale, $group, $namespace = null)
+    public function loadSource($locale, $group, $namespace = '*')
     {
-        // $namespace = $namespace ?: '*';
         return $this->laravelFileLoader->load($locale, $group, $namespace);
     }
 
+    /**
+     * Add a new namespace to the loader.
+     *
+     * @param  string  $namespace
+     * @param  string  $hint
+     * @return void
+     */
+    public function addNamespace($namespace, $hint)
+    {
+        $this->hints[$namespace] = $hint;
+        $this->laravelFileLoader->addNamespace($namespace, $hint);
+    }
 }

@@ -1,33 +1,63 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Translation\LoaderInterface;
-use Waavi\Translation\Loaders\Loader;
-use Waavi\Translation\Providers\LanguageProvider as LanguageProvider;
+use Waavi\Translation\Repositories\LanguageRepository;
+use Waavi\Translation\Repositories\TranslationRepository;
 
 class DatabaseLoader extends Loader implements LoaderInterface
 {
+    /**
+     *  The default locale.
+     *  @var string
+     */
+    protected $defaultLocale;
 
     /**
-     * Load the messages strictly for the given locale.
-     *
-     * @param  Language      $language
-     * @param  string          $group
-     * @param  string          $namespace
-     * @return array
+     *  Translations repository.
+     *  @var \Waavi\Translation\Repositories\TranslationRepository
      */
-    public function loadRawLocale($locale, $group, $namespace = null)
+    protected $translationRepository;
+
+    /**
+     *  Create a new mixed loader instance.
+     *
+     *  @param  string                                                  $defaultLocale
+     *  @param  \Waavi\Translation\Repositories\TranslationRepository   $translationRepository
+     */
+    public function __construct($defaultLocale, TranslationRepository $translationRepository)
     {
-        $langArray = [];
-        $namespace = $namespace ?: '*';
-        $language  = $this->languageProvider->findByLocale($locale);
-        if ($language) {
-            $entries = $language->entries()->where('group', '=', $group)->where('namespace', '=', $namespace)->get();
-            if ($entries) {
-                foreach ($entries as $entry) {
-                    array_set($langArray, $entry->item, $entry->text);
-                }
-            }
+        parent::__construct($defaultLocale);
+        $this->translationRepository = $translationRepository;
+    }
+
+    /**
+     *  Load the messages strictly for the given locale.
+     *
+     *  @param  string  $locale
+     *  @param  string  $group
+     *  @param  string  $namespace
+     *  @return array
+     */
+    public function loadSource($locale, $group, $namespace = '*')
+    {
+        $result       = [];
+        $translations = $this->translationRepository->getGroup($locale, $group, $namespace);
+        foreach ($translations as $translation) {
+            array_set($result, $translation->item, $translation->text);
         }
-        return $langArray;
+        return $result;
+        $language = $this->languageRepository->findByLocale($locale);
+    }
+
+    /**
+     *  Add a new namespace to the loader.
+     *
+     *  @param  string  $namespace
+     *  @param  string  $hint
+     *  @return void
+     */
+    public function addNamespace($namespace, $hint)
+    {
+        $this->hints[$namespace] = $hint;
     }
 }

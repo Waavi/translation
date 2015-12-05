@@ -1,13 +1,14 @@
 <?php namespace Waavi\Translation;
 
+use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
 use Waavi\Translation\Commands\FileLoaderCommand;
 use Waavi\Translation\Facades\Translator;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\MixedLoader;
-use Waavi\Translation\Providers\LanguageEntryProvider;
-use Waavi\Translation\Providers\LanguageProvider;
+use Waavi\Translation\Models\Translation;
+use Waavi\Translation\Repositories\TranslationRepository;
 
 class TranslationServiceProvider extends LaravelTranslationServiceProvider
 {
@@ -28,10 +29,6 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->publishes([
             __DIR__ . '/../config/translator.php' => config_path('translator.php'),
         ]);
-
-        //$this->app->singleton('translator', Translator::class);
-        $this->app['command.translator:load'] = $this->app->make(FileLoaderCommand::class);
-        $this->commands('translator:load');
     }
 
     /**
@@ -44,20 +41,9 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
         $this->registerLoader();
-        $this->registerTranslationFileLoader();
+        $this->app['command.translator:load'] = $this->app->make(FileLoaderCommand::class);
+        $this->commands('translator:load');
 
-        $this->app['translator'] = $this->app->share(function ($app) {
-            $loader = $app['translation.loader'];
-
-            // When registering the translator component, we'll need to set the default
-            // locale as well as the fallback locale. So, we'll grab the application
-            // configuration so we can easily get both of these values from there.
-            $locale = $app['config']['app.locale'];
-
-            $trans = new Translator($loader, $locale);
-
-            return $trans;
-        });
     }
 
     /**
@@ -69,40 +55,46 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     {
         $app                             = $this->app;
         $this->app['translation.loader'] = $this->app->share(function ($app) {
-            $languageProvider  = new LanguageProvider($app['config']['waavi/translation::language.model']);
-            $langEntryProvider = new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
-
-            $mode = $app['config']['waavi/translation::mode'];
-
-            if ($mode == 'auto' || empty($mode)) {
-                $mode = ($app['config']['app.debug'] ? 'mixed' : 'database');
-            }
-
-            switch ($mode) {
+            $source        = $app['config']->get('translator.source');
+            $defaultLocale = $app['config']->get('app.locale');
+            $loader        = null;
+            switch ($source) {
                 case 'mixed':
-                    return new MixedLoader($languageProvider, $langEntryProvider, $app);
-
-                default:case 'filesystem':
-                    return new FileLoader($languageProvider, $langEntryProvider, $app);
-
+                    $laravelFileLoader = new LaravelFileLoader($app['files'], base_path() . $config->get('translator.translations_dir'));
+                    $fileLoader        = new FileLoader($defaultLocale, $laravelFileLoader);
+                    $databaseLoader    = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
+                    $loader            = new MixedLoader($defaultLocale, $fileLoader, $databaseLoader);
                 case 'database':
-                    return new DatabaseLoader($languageProvider, $langEntryProvider, $app);
+                    $loader = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
+                default:case 'files':
+                    $laravelFileLoader = new LaravelFileLoader($app['files'], base_path() . $config->get('translator.translations_dir'));
+                    $loader            = new FileLoader($defaultLocale, $laravelFileLoader);
             }
+            if ($app['config']->get('translator.cache.enabled')) {
+                $loader = new CacheLoader($defaultLocale, $app['cache'], $loader, $app['config']->get('translator.cache.timeout'), $app['config']->get('translator.cache.suffix'));
+            }
+            return $loader;
         });
     }
 
     /**
-     * Register the translation file loader command.
+     *  Register the translator alias
      *
-     * @return void
+     *  @return void
      */
-    public function registerTranslationFileLoader()
+    protected function registerTranslator()
     {
-        $this->app['translator.load'] = $this->app->share(function ($app) {
-            $languageProvider  = new LanguageProvider($app['config']['waavi/translation::language.model']);
-            $langEntryProvider = new LanguageEntryProvider($app['config']['waavi/translation::language_entry.model']);
-            $fileLoader        = new FileLoader($languageProvider, $langEntryProvider, $app);
-            return new Commands\FileLoaderCommand($languageProvider, $langEntryProvider, $fileLoader);
+        $this->app['translator'] = $this->app->share(function ($app) {
+            $loader = $app['translation.loader'];
+
+            // When registering the translator component, we'll need to set the default
+            // locale as well as the fallback locale. So, we'll grab the application
+            // configuration so we can easily get both of these values from there.
+            $locale = $app['config']['app.locale'];
+
+            $trans = new Translator($loader, $locale);
+
+            return $trans;
         });
     }
 

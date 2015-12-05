@@ -1,50 +1,67 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Translation\LoaderInterface;
-use Waavi\Translation\Loaders\Loader;
-use Waavi\Translation\Providers\LanguageEntryProvider as LanguageEntryProvider;
-use Waavi\Translation\Providers\LanguageProvider as LanguageProvider;
 
 class MixedLoader extends Loader implements LoaderInterface
 {
+    /**
+     *  The default locale.
+     *  @var string
+     */
+    protected $defaultLocale;
 
     /**
-     *    The file loader.
-     *    @var \Waavi\Translation\Loaders\FileLoader
+     *  The file loader.
+     *  @var \Waavi\Translation\Loaders\FileLoader
      */
     protected $fileLoader;
 
     /**
-     *    The database loader.
-     *    @var \Waavi\Translation\Loaders\DatabaseLoader
+     *  The database loader.
+     *  @var \Waavi\Translation\Loaders\DatabaseLoader
      */
     protected $databaseLoader;
 
     /**
-     *     Create a new mixed loader instance.
+     *  Create a new mixed loader instance.
      *
-     *     @param  \Waavi\Lang\Providers\LanguageProvider              $languageProvider
-     *     @param     \Waavi\Lang\Providers\LanguageEntryProvider        $languageEntryProvider
-     *    @param     \Illuminate\Foundation\Application                      $app
+     *  @param  string          $defaultLocale
+     *  @param  FileLoader      $fileLoader
+     *  @param  DatabaseLoader  $databaseLoader
      */
-    public function __construct($languageProvider, $languageEntryProvider, $app)
+    public function __construct($defaultLocale, FileLoader $fileLoader, DatabaseLoader $databaseLoader)
     {
-        parent::__construct($languageProvider, $languageEntryProvider, $app);
-        $this->fileLoader     = new FileLoader($languageProvider, $languageEntryProvider, $app);
-        $this->databaseLoader = new DatabaseLoader($languageProvider, $languageEntryProvider, $app);
+        parent::__construct($defaultLocale);
+        $this->fileLoader     = $fileLoader;
+        $this->databaseLoader = $databaseLoader;
     }
 
     /**
-     * Load the messages strictly for the given locale.
+     *  Load the messages strictly for the given locale.
      *
-     * @param  Language      $language
-     * @param  string          $group
-     * @param  string          $namespace
-     * @return array
+     *  @param  string   $locale
+     *  @param  string   $group
+     *  @param  string   $namespace
+     *  @return array
      */
-    public function loadRawLocale($locale, $group, $namespace = null)
+    public function loadSource($locale, $group, $namespace = '*')
     {
-        $namespace = $namespace ?: '*';
-        return array_merge($this->databaseLoader->loadRawLocale($locale, $group, $namespace), $this->fileLoader->loadRawLocale($locale, $group, $namespace));
+        return array_replace_recursive(
+            $this->databaseLoader->loadSource($locale, $group, $namespace),
+            $this->fileLoader->loadSource($locale, $group, $namespace),
+        );
+    }
+
+    /**
+     *  Add a new namespace to the loader.
+     *
+     *  @param  string  $namespace
+     *  @param  string  $hint
+     *  @return void
+     */
+    public function addNamespace($namespace, $hint)
+    {
+        $this->hints[$namespace] = $hint;
+        $this->fileLoader->addNamespace($namespace, $hint);
     }
 }

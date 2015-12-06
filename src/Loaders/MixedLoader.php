@@ -48,7 +48,7 @@ class MixedLoader extends Loader implements LoaderInterface
     {
         return array_replace_recursive(
             $this->databaseLoader->loadSource($locale, $group, $namespace),
-            $this->fileLoader->loadSource($locale, $group, $namespace),
+            $this->fileLoader->loadSource($locale, $group, $namespace)
         );
     }
 

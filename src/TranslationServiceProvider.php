@@ -3,10 +3,11 @@
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
 use Waavi\Translation\Commands\FileLoaderCommand;
-use Waavi\Translation\Facades\Translator;
+use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\MixedLoader;
+use Waavi\Translation\Middleware\TranslationMiddleware;
 use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
 use Waavi\Translation\Repositories\LanguageRepository;
@@ -14,13 +15,6 @@ use Waavi\Translation\Repositories\TranslationRepository;
 
 class TranslationServiceProvider extends LaravelTranslationServiceProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     /**
      * Bootstrap the application events.
      *
@@ -42,9 +36,10 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
-        $this->registerLoader();
+        parent::register();
         $this->registerCommand();
         $this->app->singleton('urilocalizer', UriLocalizer::class);
+        $this->app[\Illuminate\Routing\Router::class]->middleware('localize', TranslationMiddleware::class);
     }
 
     /**
@@ -54,8 +49,8 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
      */
     protected function registerLoader()
     {
-        $app                             = $this->app;
-        $this->app['translation.loader'] = $this->app->share(function ($app) {
+        $app = $this->app;
+        $this->app->singleton('translation.loader', function ($app) {
             $source        = $app['config']->get('translator.source');
             $defaultLocale = $app['config']->get('app.locale');
             $loader        = null;
@@ -72,30 +67,10 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     $loader            = new FileLoader($defaultLocale, $laravelFileLoader);
             }
             if ($app['config']->get('translator.cache.enabled')) {
-                $loader = new CacheLoader($defaultLocale, $app['cache'], $loader, $app['config']->get('translator.cache.timeout'), $app['config']->get('translator.cache.suffix'));
+                $cacheStore = $app['cache']->store($app['config']->get('cache.default'));
+                $loader     = new CacheLoader($defaultLocale, $cacheStore, $loader, $app['config']->get('translator.cache.timeout'), $app['config']->get('translator.cache.suffix'));
             }
             return $loader;
-        });
-    }
-
-    /**
-     *  Register the translator alias
-     *
-     *  @return void
-     */
-    protected function registerTranslator()
-    {
-        $this->app['translator'] = $this->app->share(function ($app) {
-            $loader = $app['translation.loader'];
-
-            // When registering the translator component, we'll need to set the default
-            // locale as well as the fallback locale. So, we'll grab the application
-            // configuration so we can easily get both of these values from there.
-            $locale = $app['config']['app.locale'];
-
-            $trans = new Translator($loader, $locale);
-
-            return $trans;
         });
     }
 
@@ -111,15 +86,4 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->app['command.translator:load'] = $command;
         $this->commands('command.translator:load');
     }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['translator', 'translation.loader'];
-    }
-
 }

@@ -54,7 +54,7 @@ trait Translatable
     {
         if ($this->isTranslatable($attribute) and !empty($value)) {
             // Flag language entry to be saved:
-            $translation                     = $this->getTranslation($attribute, $value);
+            $translation                    = $this->getTranslation($attribute, $value);
             $this->translations[$attribute] = compact('translation', 'value');
             // Set translation attribute:
             $translationAttribute                    = $this->getTranslationAttribute($attribute);
@@ -70,7 +70,7 @@ trait Translatable
      *  @param  string $attribute
      *  @return Translation
      */
-    public function getTranslation($attribute)
+    public function getTranslationModel($attribute)
     {
         // Get the translation code related to this attribute:
         $translationAttribute  = $this->getTranslationAttribute($attribute);
@@ -78,14 +78,14 @@ trait Translatable
         $translationRepository = App::make('App\Translator\Repositories\TranslationRepository');
         $defaultLocale         = App::make('config')->get('app.locale');
         $defaultLanguage       = App::make('App\Translator\Repositories\LanguageRepository')->findByLocale($defaultLocale);
-        $translation         = $translationRepository->getModel();
+        $translation           = $translationRepository->getModel();
         // If a translation code is set, query the database:
         if ($translationCode) {
             $translation = $translationRepository->findByCodeAndLanguage($translationCode, $defaultLanguage) ?: $translationRepository->getModel();
         }
         // If no language entry was found, then set a new one:
         if (!$translation->exists) {
-            $reflected                  = new \ReflectionClass($this);
+            $reflected                = new \ReflectionClass($this);
             $translation->language_id = $defaultLanguage->id;
             $translation->namespace   = '*';
             $translation->group       = 'translatable';

@@ -60,14 +60,14 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
             $loader        = null;
             switch ($source) {
                 case 'mixed':
-                    $laravelFileLoader = new LaravelFileLoader($app['files'], base_path() . $config->get('translator.translations_dir'));
+                    $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
                     $fileLoader        = new FileLoader($defaultLocale, $laravelFileLoader);
                     $databaseLoader    = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
                     $loader            = new MixedLoader($defaultLocale, $fileLoader, $databaseLoader);
                 case 'database':
                     $loader = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
                 default:case 'files':
-                    $laravelFileLoader = new LaravelFileLoader($app['files'], base_path() . $config->get('translator.translations_dir'));
+                    $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
                     $loader            = new FileLoader($defaultLocale, $laravelFileLoader);
             }
             if ($app['config']->get('translator.cache.enabled')) {
@@ -101,11 +101,11 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     protected function registerCommand()
     {
         $app                   = $this->app;
+        $defaultLocale         = $app['config']->get('app.locale');
         $languageRepository    = new LanguageRepository(new Language);
         $translationRepository = new TranslationRepository(new Translation);
-        $laravelFileLoader     = new LaravelFileLoader($app['files'], base_path() . $app['config']->get('translator.translations_dir'));
-        $fileLoader            = new FileLoader($app['config']->get('app.locale'), $laravelFileLoader);
-        $command               = new FileLoaderCommand($languageRepository, $translationRepository, $fileLoader, $app['config']);
+        $translationsPath      = $app->basePath() . '/resources/lang';
+        $command               = new FileLoaderCommand($languageRepository, $translationRepository, $app['files'], $translationsPath, $defaultLocale);
 
         $this->app['command.translator:load'] = $command;
         $this->commands('command.translator:load');

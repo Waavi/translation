@@ -13,6 +13,8 @@
     <testsuites>
         <testsuite name="Translation Test Suite">
             <directory suffix=".php">./tests/</directory>
+            <exclude>/temp</exclude>
+            <exclude>/lang</exclude>
         </testsuite>
     </testsuites>
 </phpunit>

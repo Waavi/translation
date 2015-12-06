@@ -29,7 +29,7 @@ class FileLoader extends Loader implements LoaderInterface
     public function __construct($defaultLocale, LaravelFileLoader $laravelFileLoader)
     {
         parent::__construct($defaultLocale);
-        $this->laravelFileLoader = $this->laravelFileLoader;
+        $this->laravelFileLoader = $laravelFileLoader;
     }
 
     /**

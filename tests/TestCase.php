@@ -2,9 +2,8 @@
 
 namespace Waavi\Translation\Test;
 
-use File;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Route;
+use Waavi\Translation\Repositories\LanguageRepository;
 
 abstract class TestCase extends Orchestra
 {
@@ -12,9 +11,7 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
         //$this->app['cache']->clear();
-        $this->initializeDirectory($this->getTempDirectory());
         $this->setUpDatabase($this->app);
-        $this->setUpRoutes($this->app);
     }
 
     /**
@@ -44,7 +41,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
             'driver'   => 'sqlite',
-            'database' => $this->getTempDirectory() . '/database.sqlite',
+            'database' => ':memory:',
             'prefix'   => '',
         ]);
         $app['config']->set('app.key', 'sF5r4kJy5HEcOEx3NWxUcYj1zLZLHxuu');
@@ -55,39 +52,10 @@ abstract class TestCase extends Orchestra
      */
     protected function setUpDatabase($app)
     {
-        file_put_contents($this->getTempDirectory() . '/database.sqlite', null);
         $this->artisan('migrate', ['--realpath' => realpath(__DIR__ . '/../database/migrations')]);
-    }
-
-    /**
-     * @param \Illuminate\Foundation\Application $app
-     */
-    protected function setUpRoutes($app)
-    {
-        Route::any('/', function () {
-            return 'home of ' . (auth()->check() ? auth()->user()->id : 'anonymous');
-        });
-        Route::any('/random', function () {
-            return str_random();
-        });
-        Route::any('/redirect', function () {
-            return redirect('/');
-        });
-        Route::any('/uncacheable', ['middleware' => 'doNotCacheResponse', function () {
-            return 'uncacheable ' . str_random();
-        }]);
-    }
-
-    public function getTempDirectory($suffix = '')
-    {
-        return __DIR__ . '/temp' . ($suffix == '' ? '' : '/' . $suffix);
-    }
-
-    protected function initializeDirectory($directory)
-    {
-        if (File::isDirectory($directory)) {
-            File::deleteDirectory($directory);
-        }
-        File::makeDirectory($directory);
+        // Seed the spanish and english languages
+        $languageRepository = \App::make(LanguageRepository::class);
+        $languageRepository->create(['locale' => 'en', 'name' => 'English']);
+        $languageRepository->create(['locale' => 'es', 'name' => 'Spanish']);
     }
 }

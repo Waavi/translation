@@ -3,7 +3,7 @@
 use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
 
-class TranslationRepository
+class TranslationRepository extends Repository
 {
     /**
      * The model being queried.
@@ -12,9 +12,59 @@ class TranslationRepository
      */
     protected $model;
 
+    public $rules = [
+        'locale'    => 'required',
+        'namespace' => '',         // Language Entry namespace. Default is *
+        'group'     => 'required', // Entry group, references the name of the file the translation was originally stored in.
+        'item'      => 'required', // Entry code.
+        'text'      => 'required', // Translation text.
+        'unstable'  => '',         // If this flag is set to true, the text in the default language has changed since this entry was last updated.
+        'locked'    => '',         // If this flag is set to true, then this entry's text may not be edited.
+    ];
+
     public function __construct(Translation $model)
     {
         $this->model = $model;
+    }
+
+    protected function createModel()
+    {
+        return new Translation;
+    }
+
+    /**
+     *  Loads messages into the database
+     *  @param array            $lines
+     *  @param string     $locale
+     *  @param string       $group
+     *  @param string       $namespace
+     *  @param boolean      $isDefault
+     *  @return void
+     */
+    public function loadArray(array $lines, $locale, $group, $namespace = '*', $isDefault = false)
+    {
+        // Transform the lines into a flat dot array:
+        $lines = array_dot($lines);
+        foreach ($lines as $item => $text) {
+            // Check if the entry exists in the database:
+            $translation = $this
+                ->createModel()
+                ->newQuery()
+                ->where('namespace', $namespace)
+                ->where('group', $group)
+                ->where('item', $item)
+                ->where('locale', $locale)
+                ->first();
+
+            // If the translation already exists, we update the text:
+            if ($translation) {
+                $translation->updateText($text, $isDefault);
+            }
+            // The entry doesn't exist:
+            else {
+                $this->create(compact('locale', 'namespace', 'group', 'item', 'text'));
+            }
+        }
     }
 
     /**
@@ -176,6 +226,19 @@ class TranslationRepository
     }
 
     /**
+     *  Return all translations for the given locale, group and namespace.
+     *
+     *  @param  string  $locale
+     *  @param  string  $group
+     *  @param  string  $namespace
+     *  @return Translation
+     */
+    public function getGroup($locale, $group, $namespace)
+    {
+        return $this->model->where('locale', $locale)->where('group', $group)->where('namespace', $namespace)->get();
+    }
+
+    /**
      *  Return all entries with the given code.
      *
      *  @param  string $code
@@ -211,5 +274,29 @@ class TranslationRepository
     {
         list($namespace, $group, $item) = Lang::parseKey($code);
         return $this->model->where('language_id', $language->id)->where('namespace', $namespace)->where('group', $group)->where('item', $item)->first();
+    }
+
+    public function lock(Translation $translation)
+    {
+        $translation->lock();
+        $translation->save();
+    }
+
+    public function isValid($data)
+    {
+        $validator = \Validator::make($data, $this->rules);
+        return $validator->passes();
+        $clone          = new LanguageEntry;
+        $duplicatedCode = $clone
+            ->where('language_id', $this->language_id)
+            ->where('namespace', $this->namespace)
+            ->where('group', $this->group)
+            ->where('item', $this->item)
+            ->count() > 0;
+        if (!$this->exists && $duplicatedCode) {
+            $this->errors()->add('code', Lang::get('validation.unique', ['attribute' => 'code']));
+            throw new ValidatorException($this->errors());
+        }
+        return true;
     }
 }

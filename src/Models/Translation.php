@@ -16,7 +16,7 @@ class Translation extends Model
      *  List of variables that can be mass assigned
      *  @var array
      */
-    protected $fillable = ['language_id', 'namespace', 'group', 'item', 'text', 'unstable'];
+    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
 
     /**
      *    Each language entry belongs to a language.
@@ -77,6 +77,11 @@ class Translation extends Model
         Event::fire('translation.updated', [$this]);
     }
 
+    public function lock()
+    {
+        $this->locked = 1;
+    }
+
     /**
      *  Return the language entry in the default language that corresponds to this entry.
      *  @param Waavi\Translation\Models\Language  $defaultLanguage
@@ -120,10 +125,10 @@ class Translation extends Model
     public function flagSiblingsUnstable()
     {
         if ($this->id) {
-            LanguageEntry::where('namespace', '=', $this->namespace)
+            Translation::where('namespace', '=', $this->namespace)
                 ->where('group', '=', $this->group)
                 ->where('item', '=', $this->item)
-                ->where('language_id', '!=', $this->language_id)
+                ->where('locale', '!=', $this->locale)
                 ->update(['unstable' => '1']);
         }
     }
@@ -137,7 +142,7 @@ class Translation extends Model
     public function getSuggestedTranslations($language)
     {
         $self = $this;
-        return $language->entries()
+        return $language->translations()
             ->select("{$this->table}.*")
             ->join("{$this->table} as e", function ($join) use ($self) {
                 $join

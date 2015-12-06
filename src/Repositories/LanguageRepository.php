@@ -2,7 +2,7 @@
 
 use Waavi\Translation\Models\Language;
 
-class LanguageRepository
+class LanguageRepository extends Repository
 {
     /**
      * The model being queried.
@@ -11,9 +11,28 @@ class LanguageRepository
      */
     protected $model;
 
+    /**
+     *  Validation rules
+     *  @var array
+     */
+    public $rules = [
+        'locale' => 'required|unique:languages',
+        'name'   => 'required|unique:languages',
+    ];
+
     public function __construct(Language $model)
     {
         $this->model = $model;
+    }
+
+    public function create(array $fields)
+    {
+        return Language::create($fields);
+    }
+
+    public function availableLocales()
+    {
+        return $this->model->all()->lists('locale')->toArray();
     }
 
     /**

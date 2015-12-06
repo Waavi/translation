@@ -35,6 +35,11 @@ class LanguageRepository extends Repository
         return $this->model->all()->lists('locale')->toArray();
     }
 
+    public function isValidLocale($locale)
+    {
+        return $this->model->whereLocale($locale)->count() > 0;
+    }
+
     /**
      *    Find a Language by its locale
      *

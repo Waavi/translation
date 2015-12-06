@@ -4,28 +4,66 @@ use Waavi\Translation\Test\TestCase;
 
 class TranslationMiddlewareTest extends TestCase
 {
-    public function test_extract_locale()
+    /**
+     * @test
+     */
+    public function it_will_redirect_to_default_if_no_locale()
     {
-        $candidates = ['es', 'bullshit'];
-        $locale     = Translator::extractFirstValidLocale($candidates);
-        Assert::equals('es', $locale);
+        $response   = $this->call('GET', '/');
+        $statusCode = $response->getStatusCode();
 
-        $candidates = ['crap', 'en', 'bullshit'];
-        $locale     = Translator::extractFirstValidLocale($candidates);
-        Assert::equals('en', $locale);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertTrue($response->headers->has('location'));
+        $this->assertEquals('http://localhost/en', $response->headers->get('location'));
     }
 
-    public function testReturnsFirstIfTwoValid()
+    /**
+     * @test
+     */
+    public function it_will_redirect_to_browser_locale_before_default()
     {
-        $candidates = ['crap', 'en', 'es', 'bullshit'];
-        $locale     = Translator::extractFirstValidLocale($candidates);
-        Assert::equals('en', $locale);
+        $response   = $this->call('GET', '/', [], [], [], ['HTTP_ACCEPT_LANGUAGE' => 'es']);
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertTrue($response->headers->has('location'));
+        $this->assertEquals('http://localhost/es', $response->headers->get('location'));
     }
 
-    public function testReturnsNullIfNoneValid()
+    /**
+     * @test
+     */
+    public function it_will_redirect_if_invalid_locale()
     {
-        $candidates = ['crap', 'bullshit'];
-        $locale     = Translator::extractFirstValidLocale($candidates);
-        Assert::null($locale);
+        $response   = $this->call('GET', '/ca');
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertTrue($response->headers->has('location'));
+        $this->assertEquals('http://localhost/en/ca', $response->headers->get('location'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_will_not_redirect_if_valid_locale()
+    {
+        $response   = $this->call('GET', '/es');
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('Hola mundo', $response->getContent());
+    }
+
+    /**
+     *  @test
+     */
+    public function it_will_ignore_post_requests()
+    {
+        $response   = $this->call('POST', '/');
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('POST answer', $response->getContent());
     }
 }

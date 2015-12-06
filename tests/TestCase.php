@@ -12,6 +12,7 @@ abstract class TestCase extends Orchestra
         parent::setUp();
         //$this->app['cache']->clear();
         $this->setUpDatabase($this->app);
+        $this->setUpRoutes($this->app);
     }
 
     /**
@@ -30,6 +31,7 @@ abstract class TestCase extends Orchestra
     {
         return [
             'UriLocalizer' => \Waavi\Translation\Facades\UriLocalizer::class,
+            'Translator'   => \Waavi\Translation\Facades\Translator::class,
         ];
     }
 
@@ -57,5 +59,27 @@ abstract class TestCase extends Orchestra
         $languageRepository = \App::make(LanguageRepository::class);
         $languageRepository->create(['locale' => 'en', 'name' => 'English']);
         $languageRepository->create(['locale' => 'es', 'name' => 'Spanish']);
+    }
+
+    /**
+     * @param \Illuminate\Foundation\Application $app
+     */
+    protected function setUpRoutes($app)
+    {
+        \Route::get('/', ['middleware' => 'localize', function () {
+            return 'Whoops';
+        }]);
+        \Route::get('/ca', ['middleware' => 'localize', function () {
+            return 'Whoops ca';
+        }]);
+        \Route::post('/', ['middleware' => 'localize', function () {
+            return 'POST answer';
+        }]);
+        \Route::get('/es', ['middleware' => 'localize', function () {
+            return 'Hola mundo';
+        }]);
+        \Route::get('/en', ['middleware' => 'localize', function () {
+            return 'Hello world';
+        }]);
     }
 }

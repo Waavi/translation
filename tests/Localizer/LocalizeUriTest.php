@@ -1,107 +1,64 @@
 <?php namespace Waavi\Translation\Test\Localizer;
 
 // PHPUnit wrappers:
+use UriLocalizer;
 use Waavi\Translation\Test\TestCase;
 
 class LocalizeUriTest extends TestCase
 {
-
     /**
-     *  Test the localize uri method works with the homepage:
-     *
-     *    @return void
+     * @test
      */
-    public function testHomeWithSlash()
+    public function test_home_no_locale()
     {
-        $result = Translator::localizeUri('es', '/');
-        Assert::equals($result, '/es');
+        $this->assertEquals('/es', UriLocalizer::localize('/', 'es'));
+        $this->assertEquals('/es', UriLocalizer::localize('', 'es'));
     }
 
     /**
-     *  Test the localize uri method works with the homepage:
-     *
-     *    @return void
+     * @test
      */
-    public function testHomeWithoutSlash()
+    public function test_home_with_locale()
     {
-        $result = Translator::localizeUri('es', '');
-        Assert::equals($result, '/es');
+        $this->assertEquals('/es', UriLocalizer::localize('/en', 'es'));
+        $this->assertEquals('/es', UriLocalizer::localize('en', 'es'));
     }
 
     /**
-     *  Test the localize uri method works with the homepage:
-     *
-     *    @return void
+     * @test
      */
-    public function testWithoutSlash()
+    public function test_random_page_no_locale()
     {
-        $result = Translator::localizeUri('es', 'my-profile');
-        Assert::equals('/es/my-profile', $result);
+        $this->assertEquals('/es/random', UriLocalizer::localize('/random', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('random', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('/random/', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('random/', 'es'));
     }
 
     /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
+     * @test
      */
-    public function testWithSlash()
+    public function test_random_page_with_locale()
     {
-        $result = Translator::localizeUri('es', 'my-profile');
-        Assert::equals('/es/my-profile', $result);
+        $this->assertEquals('/es/random', UriLocalizer::localize('/en/random', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('en/random', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('/en/random/', 'es'));
+        $this->assertEquals('/es/random', UriLocalizer::localize('en/random/', 'es'));
     }
 
     /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
+     * @test
      */
-    public function testWithTrailingSlash()
+    public function it_ignores_unexesting_locales()
     {
-        $result = Translator::localizeUri('es', 'my-profile/');
-        Assert::equals('/es/my-profile', $result);
+        $this->assertEquals('/es/ca/random', UriLocalizer::localize('/ca/random', 'es'));
     }
 
     /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
+     * @test
      */
-    public function testWithLocale()
+    public function it_maintains_get_parameters()
     {
-        $result = Translator::localizeUri('es', 'en/my-profile/');
-        Assert::equals('/es/my-profile', $result);
-    }
-
-    /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
-     */
-    public function testWithLocaleAndSlash()
-    {
-        $result = Translator::localizeUri('es', '/en/my-profile/');
-        Assert::equals('/es/my-profile', $result);
-    }
-
-    /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
-     */
-    public function testWithLocaleAndTrailingSlash()
-    {
-        $result = Translator::localizeUri('es', 'en/my-profile/yeah/');
-        Assert::equals('/es/my-profile/yeah', $result);
-    }
-
-    /**
-     *  Test that it works with uris starting with a trailing slash
-     *
-     *    @return void
-     */
-    public function testWithGetParameters()
-    {
-        $result = Translator::localizeUri('es', 'my-profile?name=paco&jsurname=');
-        Assert::equals('/es/my-profile?name=paco&jsurname=', $result);
+        $this->assertEquals('/es/random?param1=value1&param2=', UriLocalizer::localize('random?param1=value1&param2=', 'es'));
     }
 }

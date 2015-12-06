@@ -138,7 +138,7 @@ class TranslationRepository extends Repository
      *  @param  Language        $language
      *  @return Translation
      */
-    public function findTranslation(Translation $entry, Language $language)
+    public function translate(Translation $entry, $locale)
     {
         return $this->model->where('language_id', $language->id)->where('namespace', $entry->namespace)->where('group', $entry->group)->where('item', $entry->item)->first();
     }

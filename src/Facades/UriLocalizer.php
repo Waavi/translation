@@ -2,7 +2,7 @@
 
 use \Illuminate\Support\Facades\Facade;
 
-class Localizer extends Facade
+class UriLocalizer extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -11,6 +11,6 @@ class Localizer extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'Localizer';
+        return 'urilocalizer';
     }
 }

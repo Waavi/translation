@@ -29,7 +29,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageAliases($app)
     {
         return [
-            'Localizer' => \Waavi\Translation\Localizer::class,
+            'UriLocalizer' => \Waavi\Translation\Facades\UriLocalizer::class,
         ];
     }
 

@@ -1,16 +1,9 @@
 <?php namespace Waavi\Translation\Test\Middleware;
 
-// PHPUnit wrappers:
 use Waavi\Translation\Test\TestCase;
 
-class ExtractLocaleTest extends TestCase
+class TranslationMiddlewareTest extends TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        factory(App\Translator\Models\Language::class)->create(['locale' => 'en']);
-    }
-
     public function test_extract_locale()
     {
         $candidates = ['es', 'bullshit'];

@@ -44,6 +44,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
         $this->registerLoader();
         $this->registerCommand();
+        $this->app->singleton('urilocalizer', UriLocalizer::class);
     }
 
     /**

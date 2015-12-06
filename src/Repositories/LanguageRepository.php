@@ -64,4 +64,23 @@ class LanguageRepository extends Repository
     {
         return $this->model->where('locale', '!=', $locale)->get();
     }
+
+    /**
+     *  Compute percentage translate of the given language with respect to the reference language.
+     *
+     *  @param  Language   $language
+     *  @param  Language   $reference
+     *  @return int
+     */
+    public function percentTranslated(Language $language, Language $reference)
+    {
+        $referenceNumEntries = $reference->entries()->count();
+        $languageNumEntries  = $language->entries()->count();
+
+        if (!$referenceNumEntries) {
+            return 0;
+        }
+
+        return round($languageNumEntries * 100 / $referenceNumEntries);
+    }
 }

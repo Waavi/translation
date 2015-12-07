@@ -53,7 +53,7 @@ abstract class Loader implements LoaderInterface
      * @param  string  $namespace
      * @return array
      */
-    abstract protected function loadSource($locale, $group, $namespace = null);
+    abstract public function loadSource($locale, $group, $namespace = null);
 
     /**
      * Add a new namespace to the loader.

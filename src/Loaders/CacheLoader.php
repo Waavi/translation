@@ -73,9 +73,9 @@ class CacheLoader extends Loader implements LoaderInterface
         if ($this->cache->has($key)) {
             return $this->cache->get($key);
         } else {
-            $text = $this->fallback->load($locale, $group, $namespace);
-            $this->cache->put($key, $text, $this->cacheTimeout);
-            return $text;
+            $source = $this->fallback->load($locale, $group, $namespace);
+            $this->cache->put($key, $source, $this->cacheTimeout);
+            return $source;
         }
     }
 
@@ -99,7 +99,7 @@ class CacheLoader extends Loader implements LoaderInterface
      *  @param  string  $namespace
      *  @return array
      */
-    protected function generateCacheKey($locale, $group, $namespace)
+    public function generateCacheKey($locale, $group, $namespace)
     {
         $langKey = md5("{$locale}-{$group}-{$namespace}");
         return "{$this->cacheSuffix}-{$langKey}";

@@ -395,9 +395,11 @@ class TranslationRepositoryTest extends TestCase
 
         $translations = $this->translationRepository->getItems('en', '*', 'file');
         $this->assertNotNull($translations);
-        $this->assertEquals(2, $translations->count());
-        $this->assertEquals('Simple', $translations[1]->text);
-        $this->assertEquals('Complex', $translations[0]->text);
+        $this->assertEquals(2, count($translations));
+        $this->assertEquals('simple', $translations[1]['item']);
+        $this->assertEquals('Simple', $translations[1]['text']);
+        $this->assertEquals('complex', $translations[0]['item']);
+        $this->assertEquals('Complex', $translations[0]['text']);
     }
 
     /**

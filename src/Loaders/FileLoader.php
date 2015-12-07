@@ -42,7 +42,7 @@ class FileLoader extends Loader implements LoaderInterface
      */
     public function loadSource($locale, $group, $namespace = '*')
     {
-        return $this->laravelFileLoader->load($locale, $group, $namespace);
+        return array_dot($this->laravelFileLoader->load($locale, $group, $namespace));
     }
 
     /**

@@ -42,7 +42,7 @@ class DatabaseLoader extends Loader implements LoaderInterface
         $result       = [];
         $translations = $this->translationRepository->getItems($locale, $namespace, $group);
         foreach ($translations as $translation) {
-            array_set($result, $translation->item, $translation->text);
+            array_set($result, $translation['item'], $translation['text']);
         }
         return $result;
     }

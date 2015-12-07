@@ -316,11 +316,16 @@ class TranslationRepository extends Repository
      *  Return all items for a given locale, namespace and group
      *
      *  @param  string $code
-     *  @return Collection
+     *  @return array
      */
     public function getItems($locale, $namespace, $group)
     {
-        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->get();
+        return $this->model
+            ->whereLocale($locale)
+            ->whereNamespace($namespace)
+            ->whereGroup($group)
+            ->get()
+            ->toArray();
     }
 
     /**

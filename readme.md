@@ -11,6 +11,16 @@ Keeping a project's translations properly updated is cumbersome. Usually transla
 
 This package allows developers to leverage their database and cache to manage multilanguage sites, while still working on language files during development and benefiting from all the features Laravel's Translation bundle has, like pluralization or replacement.
 
+## Laravel compatibility
+
+Laravel 5 is released!!
+
+ Laravel  | laravel-localization
+:---------|:----------
+ 4.x  	  | 1.0.x
+ 5.0.x    | 2.0.x
+ 5.1.x    | 2.1.x
+
 ## Features
 
  - Allow dynamic changes to the site's text and translations.

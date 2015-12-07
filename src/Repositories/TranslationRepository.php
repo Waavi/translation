@@ -1,6 +1,7 @@
 <?php namespace Waavi\Translation\Repositories;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Support\NamespacedItemResolver;
 use Illuminate\Validation\Factory as Validator;
 use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
@@ -106,6 +107,53 @@ class TranslationRepository extends Repository
             $this->flagAsUnstable($translation->namespace, $translation->group, $translation->item);
         }
         return $saved;
+    }
+
+    /**
+     *  Insert or Update entry by translation code for the default locale.
+     *
+     *  @param  string  $code
+     *  @param  string  $text
+     *  @return boolean
+     */
+    public function updateDefaultByCode($code, $text)
+    {
+        list($namespace, $group, $item) = $this->parseCode($code);
+        $locale                         = $this->defaultLocale;
+        $translation                    = $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
+        if (!$translation) {
+            return $this->create(compact('locale', 'namespace', 'group', 'item', 'text'));
+        }
+        return $this->update($translation->id, $text);
+    }
+
+    /**
+     *  Delete all entries by code
+     *
+     *  @param  string  $code
+     *  @return boolean
+     */
+    public function deleteByCode($code)
+    {
+        list($namespace, $group, $item) = $this->parseCode($code);
+        $this->model->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->delete();
+    }
+
+    /**
+     *  Parse a translation code into its components
+     *
+     *  @param  string $code
+     *  @return boolean
+     */
+    public function parseCode($code)
+    {
+        $segments = (new NamespacedItemResolver)->parseKey($code);
+
+        if (is_null($segments[0])) {
+            $segments[0] = '*';
+        }
+
+        return $segments;
     }
 
     /**
@@ -233,6 +281,21 @@ class TranslationRepository extends Repository
 
         $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
         return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
+    }
+
+    /**
+     *  Find a translation per namespace, group and item values
+     *
+     *  @param  string  $locale
+     *  @param  string  $namespace
+     *  @param  string  $group
+     *  @param  string  $item
+     *  @return Translation
+     */
+    public function findByLangCode($locale, $code)
+    {
+        list($namespace, $group, $item) = $this->parseCode($code);
+        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
     }
 
     /**

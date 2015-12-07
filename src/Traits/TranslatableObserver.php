@@ -13,9 +13,12 @@ class TranslatableObserver
      */
     public function saved($model)
     {
-        foreach ($model->languageEntries as $pendingUpdate) {
-            extract($pendingUpdate);
-            $languageEntry->setText($value);
+        $translationRepository = \App::make(TranslationRepository::class);
+        foreach ($model->translatableAttributes() as $attribute) {
+            // If the value of the translatable attribute has changed:
+            if ($model->isDirty($attribute)) {
+                $translationRepository->updateDefaultByCode($model->translationCodeFor($attribute), $model->getRawAttribute($attribute));
+            }
         }
     }
 
@@ -27,10 +30,9 @@ class TranslatableObserver
      */
     public function deleted($model)
     {
-        $repository = new TranslationRepository(new Translation);
-        foreach ($model->getTranslatableAttributes() as $attribute) {
-            $transAttribute = $attribute . '_translation';
-            $repository->deleteByCode($model->$transAttribute);
+        $translationRepository = \App::make(TranslationRepository::class);
+        foreach ($model->translatableAttributes() as $attribute) {
+            $translationRepository->deleteByCode($model->translationCodeFor($attribute));
         }
     }
 }

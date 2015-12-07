@@ -2,17 +2,9 @@
 
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
-use \App;
 
 trait Translatable
 {
-    /**
-     *  List of language entries related to translatable attributes.
-     *
-     *  @var array
-     */
-    public $translations = [];
-
     /**
      *  Register Model observer.
      *
@@ -31,15 +23,16 @@ trait Translatable
      */
     public function getAttribute($attribute)
     {
-        // Check if we've been request for the raw value of a translatable attribute
+        // Return the raw value of a translatable attribute if requested
         if ($this->rawValueRequested($attribute)) {
-            return $this->getRawValue($attribute);
+            $rawAttribute = snake_case(str_replace('raw', '', $attribute));
+            return $this->attributes[$rawAttribute];
         }
-        // Check if a translation exists for the given attribute:
+        // Return the translation for the given attribute if available
         if ($this->isTranslated($attribute)) {
-            return $this->getTranslation($attribute);
+            return $this->translate($attribute);
         }
-        // Return parent implementation
+        // Return parent
         return parent::getAttribute($attribute);
     }
 
@@ -52,58 +45,27 @@ trait Translatable
      */
     public function setAttribute($attribute, $value)
     {
-        if ($this->isTranslatable($attribute) and !empty($value)) {
-            // Flag language entry to be saved:
-            $translation                    = $this->getTranslation($attribute, $value);
-            $this->translations[$attribute] = compact('translation', 'value');
-            // Set translation attribute:
-            $translationAttribute                    = $this->getTranslationAttribute($attribute);
-            $translationCode                         = $translation->group . '.' . $translation->item;
-            $this->attributes[$translationAttribute] = $translationCode;
+        if ($this->isTranslatable($attribute) && !empty($value)) {
+            // If a translation code has not yet been set, generate one:
+            if (!$this->translationCodeFor($attribute)) {
+                $reflected                                    = new \ReflectionClass($this);
+                $group                                        = 'translatable';
+                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::quickRandom();
+                $this->attributes["{$attribute}_translation"] = "$group.$item";
+            }
         }
         return parent::setAttribute($attribute, $value);
     }
 
     /**
-     *  Get the language entry related to an attribute. If none exists, then created one.
+     *  Get the set translation code for the give attribute
      *
-     *  @param  string $attribute
-     *  @return Translation
-     */
-    public function getTranslationModel($attribute)
-    {
-        // Get the translation code related to this attribute:
-        $translationAttribute  = $this->getTranslationAttribute($attribute);
-        $translationCode       = array_get($this->attributes, $translationAttribute, false);
-        $translationRepository = App::make('App\Translator\Repositories\TranslationRepository');
-        $defaultLocale         = App::make('config')->get('app.locale');
-        $defaultLanguage       = App::make('App\Translator\Repositories\LanguageRepository')->findByLocale($defaultLocale);
-        $translation           = $translationRepository->getModel();
-        // If a translation code is set, query the database:
-        if ($translationCode) {
-            $translation = $translationRepository->findByCodeAndLanguage($translationCode, $defaultLanguage) ?: $translationRepository->getModel();
-        }
-        // If no language entry was found, then set a new one:
-        if (!$translation->exists) {
-            $reflected                = new \ReflectionClass($this);
-            $translation->language_id = $defaultLanguage->id;
-            $translation->namespace   = '*';
-            $translation->group       = 'translatable';
-            $translation->item        = strtolower($reflected->getShortName()) . '-' . strtolower($attribute) . '-' . Str::quickRandom();
-        }
-        return $translation;
-    }
-
-    /**
-     *  Allow to query $model->rawAttribute to get the raw field value instead of the translation.
-     *
-     *  @param  string  $attribute
+     *  @param string $attribute
      *  @return string
      */
-    public function getRawValue($attribute)
+    public function translationCodeFor($attribute)
     {
-        $rawAttribute = snake_case(str_replace('raw', '', $attribute));
-        return $this->attributes[$rawAttribute];
+        return array_get($this->attributes, "{$attribute}_translation", false);
     }
 
     /**
@@ -116,9 +78,14 @@ trait Translatable
     {
         if (strrpos($attribute, 'raw') === 0) {
             $rawAttribute = snake_case(str_replace('raw', '', $attribute));
-            return isset($this->attributes[$rawAttribute]);
+            return $this->isTranslatable($rawAttribute);
         }
         return false;
+    }
+
+    public function getRawAttribute($attribute)
+    {
+        return array_get($this->attributes, $attribute, '');
     }
 
     /**
@@ -126,13 +93,13 @@ trait Translatable
      *  If a translation does not exist yet, one will be created.
      *
      *  @param  string $attribute
-     *  @return Translation
+     *  @return LanguageEntry
      */
-    public function getTranslation($attribute)
+    public function translate($attribute)
     {
-        $translationCode = array_get($this->attributes, $this->getTranslationAttribute($attribute), $attribute);
-        $translation     = Lang::get($translationCode);
-        return $translation != $translationCode ? $translation : parent::getAttribute($attribute);
+        $translationCode = array_get($this->attributes, "{$attribute}_translation", false);
+        $translation     = $translationCode ? \App::make('translator')->get($translationCode) : false;
+        return $translation ?: parent::getAttribute($attribute);
     }
 
     /**
@@ -153,18 +120,7 @@ trait Translatable
      */
     public function isTranslated($attribute)
     {
-        return $this->isTranslatable($attribute) && isset($this->attributes[$this->getTranslationAttribute($attribute)]);
-    }
-
-    /**
-     *  Return the translation attribute name given the translatable attribute.
-     *
-     *  @param  string $attribute
-     *  @return string
-     */
-    public function getTranslationAttribute($attribute)
-    {
-        return "{$attribute}_translation";
+        return $this->isTranslatable($attribute) && isset($this->attributes["{$attribute}_translation"]);
     }
 
     /**
@@ -172,7 +128,7 @@ trait Translatable
      *
      *  @return  array
      */
-    public function getTranslatableAttributes()
+    public function translatableAttributes()
     {
         return $this->translatableAttributes;
     }

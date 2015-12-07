@@ -31,19 +31,19 @@ class TranslatableTest extends TestCase
     public function test_it_works()
     {
         $dummy        = new Dummy;
-        $dummy->title = 'Título del dummy';
-        $dummy->text  = 'Texto del dummy';
+        $dummy->title = 'Dummy title';
+        $dummy->text  = 'Dummy text';
         $saved        = $dummy->save() ? true : false;
         $this->assertTrue($saved);
         $this->assertEquals(1, Dummy::count());
-        // Check that there is a language entry in the database:
-        $textTranslation  = $this->translationRepository->findByCode('en', 'translation', 'translatable', 'waavi.translation.test.dummy.text');
-        $titleTranslation = $this->translationRepository->findByCode('en', 'translation', 'translatable', 'waavi.translation.test.dummy.title');
-        $this->assertEquals('Título del dummy', $titleTranslation->text);
-        $this->assertEquals('Título del dummy', $dummy->title);
         $this->assertEquals('slug', $dummy->slug);
-        $this->assertEquals('Texto del dummy', $textTranslation->text);
-        $this->assertEquals('Texto del dummy', $dummy->text);
+        // Check that there is a language entry in the database:
+        $titleTranslation = $this->translationRepository->findByLangCode('en', $dummy->translationCodeFor('title'));
+        $this->assertEquals('Dummy title', $titleTranslation->text);
+        $this->assertEquals($dummy->translationCodeFor('title'), $dummy->title);
+        $textTranslation = $this->translationRepository->findByLangCode('en', $dummy->translationCodeFor('text'));
+        $this->assertEquals('Dummy text', $textTranslation->text);
+        $this->assertEquals($dummy->translationCodeFor('text'), $dummy->text);
         // Delete it:
         $deleted = $dummy->delete();
         $this->assertTrue($deleted);

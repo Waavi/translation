@@ -8,7 +8,6 @@ use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
 use Waavi\Translation\Loaders\MixedLoader;
 use Waavi\Translation\Middleware\TranslationMiddleware;
-use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
@@ -58,10 +57,10 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                 case 'mixed':
                     $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
                     $fileLoader        = new FileLoader($defaultLocale, $laravelFileLoader);
-                    $databaseLoader    = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
+                    $databaseLoader    = new DatabaseLoader($defaultLocale, $app->make(TranslationRepository::class));
                     $loader            = new MixedLoader($defaultLocale, $fileLoader, $databaseLoader);
                 case 'database':
-                    $loader = new DatabaseLoader($defaultLocale, new TranslationRepository(new Translation));
+                    $loader = new DatabaseLoader($defaultLocale, $app->make(TranslationRepository::class));
                 default:case 'files':
                     $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
                     $loader            = new FileLoader($defaultLocale, $laravelFileLoader);
@@ -78,8 +77,8 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     {
         $app                   = $this->app;
         $defaultLocale         = $app['config']->get('app.locale');
-        $languageRepository    = new LanguageRepository(new Language);
-        $translationRepository = new TranslationRepository(new Translation);
+        $languageRepository    = $app->make(LanguageRepository::class);
+        $translationRepository = $app->make(TranslationRepository::class);
         $translationsPath      = $app->basePath() . '/resources/lang';
         $command               = new FileLoaderCommand($languageRepository, $translationRepository, $app['files'], $translationsPath, $defaultLocale);
 

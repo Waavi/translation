@@ -118,7 +118,8 @@ class LoadTest extends TestCase
             'item'      => 'login.label',
             'text'      => 'No override',
         ]);
-        $this->translationRepository->lock($trans);
+        $trans->locked = true;
+        $trans->save();
 
         $file = realpath(__DIR__ . '/../lang/en/auth.php');
         $this->command->loadFile($file, 'en');

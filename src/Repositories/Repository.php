@@ -61,54 +61,17 @@ class Repository
     }
 
     /**
-     *  Retrieve a single record by its attributes.
-     *
-     *  @param integer $id
-     *  @return \Illuminate\Database\Eloquent\Model
-     */
-    public function findByAttributes(array $attributes, $related = [])
-    {
-        $results = $this->model->with($related);
-        foreach ($attributes as $attribute => $value) {
-            $results = $results->where($attribute, '=', $value);
-        }
-
-        return $results->first();
-    }
-
-    /**
-     *  Create a new record.
-     *
-     *  @param array $attributes
-     *  @return \Illuminate\Database\Eloquent\Model
-     */
-    public function create(array $attributes)
-    {
-        $class = get_class($this->model);
-        return $class::create($attributes);
-    }
-
-    /**
-     *  Edit a record.
-     *
-     *  @param  \Illuminate\Database\Eloquent\Model $model
-     *  @param  array $attributes
-     *  @return \Illuminate\Database\Eloquent\Model
-     */
-    public function edit($model, array $attributes)
-    {
-        $model->fill($attributes);
-        return $model->save();
-    }
-
-    /**
      *  Remove a record.
      *
      *  @param  \Illuminate\Database\Eloquent\Model $model
      *  @return boolean
      */
-    public function delete($model)
+    public function delete($id)
     {
+        $model = $this->model->where('id', $id)->first();
+        if (!$model) {
+            return false;
+        }
         return $model->delete();
     }
 

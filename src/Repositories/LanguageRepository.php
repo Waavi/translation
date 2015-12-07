@@ -1,5 +1,7 @@
 <?php namespace Waavi\Translation\Repositories;
 
+use Illuminate\Config\Repository as Config;
+use Illuminate\Validation\Factory as Validator;
 use Waavi\Translation\Models\Language;
 
 class LanguageRepository extends Repository
@@ -7,37 +9,59 @@ class LanguageRepository extends Repository
     /**
      * The model being queried.
      *
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var \Waavi\Translation\Models\Language
      */
     protected $model;
 
     /**
-     *  Validation rules
-     *  @var array
+     *  Validator
+     *
+     *  @var \Illuminate\Validation\Validator
      */
-    public $rules = [
-        'locale' => 'required|unique:languages',
-        'name'   => 'required|unique:languages',
-    ];
+    protected $validator;
 
-    public function __construct(Language $model)
+    /**
+     *  Validation errors.
+     *
+     *  @var \Illuminate\Support\MessageBag
+     */
+    protected $errors;
+
+    /**
+     *  Constructor
+     *  @param  \Waavi\Translation\Models\Language      $model  Bade model for queries.
+     *  @param  \Illuminate\Validation\Validator        $validator  Validator factory
+     *  @return void
+     */
+    public function __construct(Language $model, Validator $validator, Config $config)
     {
-        $this->model = $model;
+        $this->model         = $model;
+        $this->validator     = $validator;
+        $this->defaultLocale = $config->get('app.locale');
     }
 
-    public function create(array $fields)
+    /**
+     *  Insert a new language entry into the database.
+     *  If the attributes are not valid, a null response is given and the errors can be retrieved through validationErrors()
+     *
+     *  @param  array   $attributes     Model attributes
+     *  @return boolean
+     */
+    public function create(array $attributes)
     {
-        return Language::create($fields);
+        return $this->validate($attributes) ? Language::create($attributes) : null;
     }
 
-    public function availableLocales()
+    /**
+     *  Insert a new language entry into the database.
+     *  If the attributes are not valid, a null response is given and the errors can be retrieved through validationErrors()
+     *
+     *  @param  array   $attributes     Model attributes
+     *  @return boolean
+     */
+    public function update(array $attributes)
     {
-        return $this->model->all()->lists('locale')->toArray();
-    }
-
-    public function isValidLocale($locale)
-    {
-        return $this->model->whereLocale($locale)->count() > 0;
+        return $this->validate($attributes) ? (boolean) Language::where('id', $attributes['id'])->update($attributes) : false;
     }
 
     /**
@@ -51,7 +75,7 @@ class LanguageRepository extends Repository
     }
 
     /**
-     *  Find a Language by its locale
+     *  Find a deleted Language by its locale
      *
      *  @return Language | null
      */
@@ -71,21 +95,72 @@ class LanguageRepository extends Repository
     }
 
     /**
-     *  Compute percentage translate of the given language with respect to the reference language.
+     *  Returns a list of all available locales.
      *
-     *  @param  Language   $language
-     *  @param  Language   $reference
+     *  @return array
+     */
+    public function availableLocales()
+    {
+        return $this->model->distinct()->get()->lists('locale')->toArray();
+    }
+
+    /**
+     *  Checks if a language with the given locale exists.
+     *
+     *  @return boolean
+     */
+    public function isValidLocale($locale)
+    {
+        return $this->model->whereLocale($locale)->count() > 0;
+    }
+
+    /**
+     *  Compute percentage translate of the given language.
+     *
+     *  @param  string   $locale
+     *  @param  string   $referenceLocale
      *  @return int
      */
-    public function percentTranslated(Language $language, Language $reference)
+    public function percentTranslated($locale)
     {
-        $referenceNumEntries = $reference->entries()->count();
-        $languageNumEntries  = $language->entries()->count();
+        $lang          = $this->findByLocale($locale);
+        $referenceLang = $this->findByLocale($this->defaultLocale);
 
-        if (!$referenceNumEntries) {
-            return 0;
+        $langEntries      = $lang->translations()->count();
+        $referenceEntries = $referenceLang->translations()->count();
+
+        return $referenceEntries > 0 ? (int) round($langEntries * 100 / $referenceEntries) : 0;
+    }
+
+    /**
+     *  Validate the given attributes
+     *
+     *  @param  array    $attributes
+     *  @return boolean
+     */
+    public function validate(array $attributes)
+    {
+        $id    = array_get($attributes, 'id', 'NULL');
+        $table = $this->model->getTable();
+        $rules = [
+            'locale' => "required|unique:{$table},locale,{$id}",
+            'name'   => "required|unique:{$table},name,{$id}",
+        ];
+        $validator = $this->validator->make($attributes, $rules);
+        if ($validator->fails()) {
+            $this->errors = $validator->errors();
+            return false;
         }
+        return true;
+    }
 
-        return round($languageNumEntries * 100 / $referenceNumEntries);
+    /**
+     *  Returns the validations errors of the last action executed.
+     *
+     *  @return \Illuminate\Support\MessageBag
+     */
+    public function validationErrors()
+    {
+        return $this->errors;
     }
 }

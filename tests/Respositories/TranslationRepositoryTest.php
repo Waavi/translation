@@ -1,5 +1,6 @@
 <?php namespace Waavi\Translation\Test\Repositories;
 
+use Waavi\Translation\Models\Translation;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 use Waavi\Translation\Test\TestCase;
@@ -395,8 +396,8 @@ class TranslationRepositoryTest extends TestCase
         $translations = $this->translationRepository->getItems('en', '*', 'file');
         $this->assertNotNull($translations);
         $this->assertEquals(2, $translations->count());
-        $this->assertEquals('Simple', $translations[0]->text);
-        $this->assertEquals('Complex', $translations[1]->text);
+        $this->assertEquals('Simple', $translations[1]->text);
+        $this->assertEquals('Complex', $translations[0]->text);
     }
 
     /**
@@ -435,13 +436,13 @@ class TranslationRepositoryTest extends TestCase
      */
     public function it_translates_text()
     {
-        $array = ['simple' => 'Castellano'];
-        $this->translationRepository->loadArray($array, 'es', 'file', 'namespace');
-        $array = ['simple' => 'Simple', 'complex' => 'Complex'];
-        $this->translationRepository->loadArray($array, 'en', 'file', 'namespace');
+        $array = ['lang' => 'Castellano'];
+        $this->translationRepository->loadArray($array, 'es', 'file');
+        $array = ['lang' => 'English', 'other' => 'Random'];
+        $this->translationRepository->loadArray($array, 'en', 'file');
 
-        $this->assertEquals(['Castellano'], $this->translationRepository->translateText('Simple', 'en', 'es'));
-        $this->assertEquals(['Simple'], $this->translationRepository->translateText('Castellano', 'es', 'en'));
+        $this->assertEquals(['Castellano'], $this->translationRepository->translateText('English', 'en', 'es'));
+        $this->assertEquals(['English'], $this->translationRepository->translateText('Castellano', 'es', 'en'));
         $this->assertEquals([], $this->translationRepository->translateText('Complex', 'en', 'es'));
     }
 
@@ -454,10 +455,10 @@ class TranslationRepositoryTest extends TestCase
         $this->translationRepository->loadArray($array, 'es', 'file');
 
         $this->translationRepository->flagAsUnstable('*', 'file', 'complex');
-
         $translations = $this->translationRepository->pendingReview('es');
         $this->assertEquals(1, $translations->count());
         $this->translationRepository->flagAsReviewed(2);
+        $translations = $this->translationRepository->pendingReview('es');
         $this->assertEquals(0, $translations->count());
     }
 }

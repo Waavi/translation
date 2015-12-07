@@ -49,6 +49,7 @@ class TranslationRepository extends Repository
         $this->model         = $model;
         $this->app           = $app;
         $this->defaultLocale = $app['config']->get('app.locale');
+        $this->database      = $app['db'];
     }
 
     /**
@@ -184,20 +185,22 @@ class TranslationRepository extends Repository
     public function randomUntranslated($locale)
     {
         $table = $this->model->getTable();
-        return $this->model
-            ->newQuery()
-            ->from($table)
+        $id    = $this->database->table($table)
+            ->select($table . '.id')
+            ->whereRaw("$table.locale = '$this->defaultLocale'")
             ->whereNotExists(function ($query) use ($table, $locale) {
                 $query
+                    ->select($this->database->raw(1))
                     ->from("$table as e")
-                    ->where('e.locale', $locale)
-                    ->where('e.namespace', "$table.namespace")
-                    ->where('e.group', "$table.group")
-                    ->where('e.item', "$table.item");
+                    ->whereRaw("e.locale = '$locale'")
+                    ->whereRaw("e.namespace = $table.namespace")
+                    ->whereRaw("e.'group' = $table.'group'")
+                    ->whereRaw("e.item = $table.item");
             })
-            ->where("$table.locale", $this->defaultLocale)
             ->orderByRaw("RANDOM()")
             ->first();
+
+        return $id ? $this->find($id->id) : null;
     }
 
     /**
@@ -210,21 +213,25 @@ class TranslationRepository extends Repository
      */
     public function untranslated($locale, $perPage = 0, $text = null)
     {
-        $untranslated = $text ? $this->model->where('text', 'like', "%$text%") : $this->model;
-        $table        = $this->model->getTable();
-        $untranslated = $untranslated
-            ->newQuery()
-            ->from($table)
-            ->where("$table.locale", $this->defaultLocale)
+
+        $table = $this->model->getTable();
+        $ids   = $this->database->table($table)
+            ->select($table . '.id')
+            ->whereRaw("$table.locale = '$this->defaultLocale'")
             ->whereNotExists(function ($query) use ($table, $locale) {
                 $query
+                    ->select($this->database->raw(1))
                     ->from("$table as e")
-                    ->where('e.locale', $locale)
-                    ->where('e.namespace', "$table.namespace")
-                    ->where('e.group', "$table.group")
-                    ->where('e.item', "$table.item");
-            });
+                    ->whereRaw("e.locale = '$locale'")
+                    ->whereRaw("e.namespace = $table.namespace")
+                    ->whereRaw("e.'group' = $table.'group'")
+                    ->whereRaw("e.item = $table.item");
+            })
+            ->get();
 
+        $ids = array_pluck($ids, 'id');
+
+        $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
         return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
     }
 
@@ -313,17 +320,21 @@ class TranslationRepository extends Repository
         $table = $this->model->getTable();
 
         $results = $this->model
-            ->join("{$table} as e", function ($join) use ($table, $text, $textLocale) {
+            ->newQuery()
+            ->select($table . '.text')
+            ->from($table)
+            ->leftJoin("{$table} as e", function ($join) use ($table, $text, $textLocale) {
                 $join->on('e.namespace', '=', "{$table}.namespace")
                     ->on('e.group', '=', "{$table}.group")
-                    ->on('e.item', '=', "{$table}.item")
-                    ->on('e.locale', '=', $textLocale)
-                    ->on('e.text', '=', $text);
+                    ->on('e.item', '=', "{$table}.item");
             })
-            ->whereRaw($targetLocale)
-            ->groupBy("{$table}.text")
+            ->where("{$table}.locale", $targetLocale)
+            ->where('e.locale', $textLocale)
+            ->where('e.text', $text)
             ->get()
             ->toArray();
+
+        $results = array_unique($results);
 
         return array_pluck($results, 'text');
     }
@@ -348,12 +359,7 @@ class TranslationRepository extends Repository
      */
     public function flagAsReviewed($id)
     {
-        $translation = $this->find($id);
-        if (!$translation) {
-            return false;
-        }
-        $translation->flagAsReviewed();
-        return $translation->save();
+        $this->model->where('id', $id)->update(['unstable' => '0']);
     }
 
     /**

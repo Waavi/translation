@@ -1,6 +1,10 @@
 <?php namespace Waavi\Translation\Test\Traits;
 
+use Illuminate\Database\Eloquent\Model;
+use Waavi\Translation\Repositories\LanguageRepository;
+use Waavi\Translation\Repositories\TranslationRepository;
 use Waavi\Translation\Test\TestCase;
+use Waavi\Translation\Traits\Translatable;
 
 class TranslatableTest extends TestCase
 {
@@ -26,7 +30,7 @@ class TranslatableTest extends TestCase
      */
     public function test_it_works()
     {
-        $dummy        = new Dummy();
+        $dummy        = new Dummy;
         $dummy->title = 'Título del dummy';
         $dummy->text  = 'Texto del dummy';
         $saved        = $dummy->save() ? true : false;
@@ -48,9 +52,9 @@ class TranslatableTest extends TestCase
     }
 }
 
-class Dummy extends \Illuminate\Database\Eloquent\Model
+class Dummy extends Model
 {
-    use \Waavi\Translation\Traits\Translatable;
+    use Translatable;
 
     protected $fillable = ['title', 'text'];
 

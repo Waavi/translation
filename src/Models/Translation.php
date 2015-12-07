@@ -17,7 +17,7 @@ class Translation extends Model
     protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
 
     /**
-     *    Each language entry belongs to a language.
+     *  Each translation belongs to a language.
      */
     public function language()
     {
@@ -35,18 +35,26 @@ class Translation extends Model
 
     /**
      *  Flag this entry as Reviewed
-     *  @return boolean
+     *  @return void
      */
     public function flagAsReviewed()
     {
         $this->unstable = 0;
     }
 
+    /**
+     *  Set the translation to the locked state
+     *  @return void
+     */
     public function lock()
     {
         $this->locked = 1;
     }
 
+    /**
+     *  Check if the translation is locked
+     *  @return boolean
+     */
     public function isLocked()
     {
         return (boolean) $this->locked;

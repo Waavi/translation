@@ -76,6 +76,11 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         });
     }
 
+    /**
+     * Register the translator:load language file loader.
+     *
+     * @return void
+     */
     protected function registerCommand()
     {
         $app                   = $this->app;

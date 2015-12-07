@@ -74,11 +74,23 @@ class UriLocalizer
         return $query ? $path . '?' . $query : $path;
     }
 
+    /**
+     *  Remove the front slash from a string
+     *
+     *  @param  string $path
+     *  @return string
+     */
     protected function removeFrontSlash($path)
     {
         return strlen($path) > 0 && substr($path, 0, 1) === '/' ? substr($path, 1) : $path;
     }
 
+    /**
+     *  Remove the trailing slash from a string
+     *
+     *  @param  string $path
+     *  @return string
+     */
     protected function removeTrailingSlash($path)
     {
         return strlen($path) > 0 && substr($path, -1) === '/' ? substr($path, 0, -1) : $path;

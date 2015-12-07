@@ -9,6 +9,15 @@ use Waavi\Translation\UriLocalizer;
 
 class TranslationMiddleware
 {
+    /**
+     *  Constructor
+     *
+     *  @param  Waavi\Translation\UriLocalizer                      $uriLocalizer
+     *  @param  Waavi\Translation\Repositories\LanguageRepository   $languageRepository
+     *  @param  Illuminate\Config\Repository                        $config                 Laravel config
+     *  @param  Illuminate\View\Factory                             $viewFactory
+     *  @param  Illuminate\Translation\Translator                   $translator
+     */
     public function __construct(UriLocalizer $uriLocalizer, LanguageRepository $languageRepository, Config $config, ViewFactory $viewFactory, Translator $translator)
     {
         $this->uriLocalizer       = $uriLocalizer;
@@ -47,7 +56,7 @@ class TranslationMiddleware
             $this->translator->setLocale($uriLocale);
             $this->viewFactory->share('currentLanguage', $currentLanguage);
             $this->viewFactory->share('selectableLanguages', $selectableLanguages);
-            $this->viewFactory->share('selectableLanguages', $altLocalizedUrls);
+            $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);
             return $next($request);
         }
 

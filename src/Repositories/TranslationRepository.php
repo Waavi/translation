@@ -29,16 +29,6 @@ class TranslationRepository extends Repository
      */
     protected $errors;
 
-    public $rules = [
-        'locale'    => 'required',
-        'namespace' => '',         // Language Entry namespace. Default is *
-        'group'     => 'required', // Entry group, references the name of the file the translation was originally stored in.
-        'item'      => 'required', // Entry code.
-        'text'      => 'required', // Translation text.
-        'unstable'  => '',         // If this flag is set to true, the text in the default language has changed since this entry was last updated.
-        'locked'    => '',         // If this flag is set to true, then this entry's text may not be edited.
-    ];
-
     /**
      *  Constructor
      *  @param  \Waavi\Translation\Models\Translation   $model  Bade model for queries.
@@ -128,35 +118,6 @@ class TranslationRepository extends Repository
     }
 
     /**
-     *  Delete all entries by code
-     *
-     *  @param  string  $code
-     *  @return boolean
-     */
-    public function deleteByCode($code)
-    {
-        list($namespace, $group, $item) = $this->parseCode($code);
-        $this->model->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->delete();
-    }
-
-    /**
-     *  Parse a translation code into its components
-     *
-     *  @param  string $code
-     *  @return boolean
-     */
-    public function parseCode($code)
-    {
-        $segments = (new NamespacedItemResolver)->parseKey($code);
-
-        if (is_null($segments[0])) {
-            $segments[0] = '*';
-        }
-
-        return $segments;
-    }
-
-    /**
      *  Delete a translation. If the translation is of the default language, delete all translations with the same namespace, group and item
      *
      *  @param  integer $id
@@ -174,6 +135,18 @@ class TranslationRepository extends Repository
         } else {
             return $translation->delete();
         }
+    }
+
+    /**
+     *  Delete all entries by code
+     *
+     *  @param  string  $code
+     *  @return boolean
+     */
+    public function deleteByCode($code)
+    {
+        list($namespace, $group, $item) = $this->parseCode($code);
+        $this->model->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->delete();
     }
 
     /**
@@ -225,33 +198,6 @@ class TranslationRepository extends Repository
     }
 
     /**
-     *  Find a random entry that is present in the default locale but not in the given one.
-     *
-     *  @param  string $locale       Locale to translate to.
-     *  @return Translation
-     */
-    public function randomUntranslated($locale)
-    {
-        $table = $this->model->getTable();
-        $id    = $this->database->table($table)
-            ->select($table . '.id')
-            ->whereRaw("$table.locale = '$this->defaultLocale'")
-            ->whereNotExists(function ($query) use ($table, $locale) {
-                $query
-                    ->select($this->database->raw(1))
-                    ->from("$table as e")
-                    ->whereRaw("e.locale = '$locale'")
-                    ->whereRaw("e.namespace = $table.namespace")
-                    ->whereRaw("e.'group' = $table.'group'")
-                    ->whereRaw("e.item = $table.item");
-            })
-            ->orderByRaw("RANDOM()")
-            ->first();
-
-        return $id ? $this->find($id->id) : null;
-    }
-
-    /**
      *  List all entries in the default locale that do not exist for the target locale.
      *
      *  @param      string    $target     Language to translate to.
@@ -281,35 +227,6 @@ class TranslationRepository extends Repository
 
         $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
         return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
-    }
-
-    /**
-     *  Find a translation per namespace, group and item values
-     *
-     *  @param  string  $locale
-     *  @param  string  $namespace
-     *  @param  string  $group
-     *  @param  string  $item
-     *  @return Translation
-     */
-    public function findByLangCode($locale, $code)
-    {
-        list($namespace, $group, $item) = $this->parseCode($code);
-        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
-    }
-
-    /**
-     *  Find a translation per namespace, group and item values
-     *
-     *  @param  string  $locale
-     *  @param  string  $namespace
-     *  @param  string  $group
-     *  @param  string  $item
-     *  @return Translation
-     */
-    public function findByCode($locale, $namespace, $group, $item)
-    {
-        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
     }
 
     /**
@@ -373,6 +290,62 @@ class TranslationRepository extends Repository
         }
 
         return $perPage ? $query->paginate($perPage) : $query->get();
+    }
+
+    /**
+     *  Find a random entry that is present in the default locale but not in the given one.
+     *
+     *  @param  string $locale       Locale to translate to.
+     *  @return Translation
+     */
+    public function randomUntranslated($locale)
+    {
+        $table = $this->model->getTable();
+        $id    = $this->database->table($table)
+            ->select($table . '.id')
+            ->whereRaw("$table.locale = '$this->defaultLocale'")
+            ->whereNotExists(function ($query) use ($table, $locale) {
+                $query
+                    ->select($this->database->raw(1))
+                    ->from("$table as e")
+                    ->whereRaw("e.locale = '$locale'")
+                    ->whereRaw("e.namespace = $table.namespace")
+                    ->whereRaw("e.'group' = $table.'group'")
+                    ->whereRaw("e.item = $table.item");
+            })
+            ->orderByRaw("RANDOM()")
+            ->first();
+
+        return $id ? $this->find($id->id) : null;
+    }
+
+    /**
+     *  Find a translation per namespace, group and item values
+     *
+     *  @param  string  $locale
+     *  @param  string  $namespace
+     *  @param  string  $group
+     *  @param  string  $item
+     *  @return Translation
+     */
+    public function findByLangCode($locale, $code)
+    {
+        list($namespace, $group, $item) = $this->parseCode($code);
+        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
+    }
+
+    /**
+     *  Find a translation per namespace, group and item values
+     *
+     *  @param  string  $locale
+     *  @param  string  $namespace
+     *  @param  string  $group
+     *  @param  string  $item
+     *  @return Translation
+     */
+    public function findByCode($locale, $namespace, $group, $item)
+    {
+        return $this->model->whereLocale($locale)->whereNamespace($namespace)->whereGroup($group)->whereItem($item)->first();
     }
 
     /**
@@ -465,5 +438,22 @@ class TranslationRepository extends Repository
     public function validationErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     *  Parse a translation code into its components
+     *
+     *  @param  string $code
+     *  @return boolean
+     */
+    public function parseCode($code)
+    {
+        $segments = (new NamespacedItemResolver)->parseKey($code);
+
+        if (is_null($segments[0])) {
+            $segments[0] = '*';
+        }
+
+        return $segments;
     }
 }

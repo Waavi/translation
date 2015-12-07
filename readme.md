@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/waavi/translation.svg?style=flat-square)](https://packagist.org/packages/waavi/translation)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/waavi/translation/master.svg?style=flat-square)](https://travis-ci.org/waavi/translation)
+[![Build Status](https://img.shields.io/travis/Waavi/translation/master.svg?style=flat-square)](https://travis-ci.org/Waavi/translation)
 [![Total Downloads](https://img.shields.io/packagist/dt/waavi/translation.svg?style=flat-square)](https://packagist.org/packages/waavi/translation)
 
 ## Upgrading Laravel's localization module

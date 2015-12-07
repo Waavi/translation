@@ -22,7 +22,7 @@ class CreateTranslationsTable extends Migration
             $table->boolean('unstable')->default(false);
             $table->boolean('locked')->default(false);
             $table->timestamps();
-            $table->foreign('locale')->references('locale')->on('languages');
+            $table->foreign('locale')->references('locale')->on('translator_languages');
             $table->unique(['locale', 'namespace', 'group', 'item']);
         });
     }

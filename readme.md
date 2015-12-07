@@ -19,7 +19,6 @@ Laravel 5 is released!!
 :---------|:----------
  4.x  	  | 1.0.x
  5.0.x    | 2.0.x
- 5.1.x    | 2.1.x
 
 ## Features
 
@@ -86,9 +85,9 @@ Example:
 
 	Output for different keys with 'es' locale:
 
-		Lang::get('validations.missing_name') 		-> 		'Falta el nombre'
-		Lang::get('validations.missing_surname') 	-> 		'Surname is missing'
-		Lang::get('validations.missing_email') 		-> 		'missing_email'
+		trans('validations.missing_name') 		-> 		'Falta el nombre'
+		trans('validations.missing_surname') 	-> 		'Surname is missing'
+		trans('validations.missing_email') 		-> 		'missing_email'
 
 #### Database
 
@@ -117,9 +116,9 @@ Example:
 
 	Output for different keys with es locale:
 
-		Lang::get('validations.missing.name')   ->    'No se ha indicado nombre'
-		Lang::get('validations.min_number')     ->    'Number is too small'
-		Lang::get('validations.missing.email')  ->    'missing_email'
+		trans('validations.missing.name')   ->    'No se ha indicado nombre'
+		trans('validations.min_number')     ->    'Number is too small'
+		trans('validations.missing.email')  ->    'missing_email'
 
 #### Mixed mode
 

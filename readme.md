@@ -1,42 +1,57 @@
+# Better localization management for Laravel
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/waavi/translation.svg?style=flat-square)](https://packagist.org/packages/waavi/translation)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/waavi/translation/master.svg?style=flat-square)](https://travis-ci.org/waavi/translation)
+[![Total Downloads](https://img.shields.io/packagist/dt/waavi/translation.svg?style=flat-square)](https://packagist.org/packages/waavi/translation)
+
 ## Upgrading Laravel's localization module
 
 Keeping a project's translations properly updated is cumbersome. Usually translators do not have access to the codebase, and even when they do it's hard to keep track of which translations are missing for each language or when updates to the original text require that translations be revised.
 
 This package allows developers to leverage their database and cache to manage multilanguage sites, while still working on language files during development and benefiting from all the features Laravel's Translation bundle has, like pluralization or replacement.
 
+## Features
+
+ - Allow dynamic changes to the site's text and translations.
+ - Cache your localization entries.
+ - Load your translation files into the database.
+ - Force your urls to be localized (ex: /home -> /es/home) and set the locale automatically through the browser's config.
+ - Localize your model attributes.
+
 ## Installation
 
-Edit composer.json:
+Require through composer
+
+	composer require waavi/translation 2.0.x
+
+Or manually edit your composer.json file:
 
 	"require": {
-		"waavi/translation": "*"
-	},
-	"repositories": [
-    {
-      "type": "vcs",
-      "url":  "git@github.com:Waavi/translation.git"
-    }
-  ],
+		"waavi/translation": "2.0.x"
+	}
 
-In app/config/app.php, replace the following entry from the providers array:
+Publish both the configuration file and the migrations:
 
-	'Illuminate\Translation\TranslationServiceProvider'
+	php artisan vendor:publish
+
+Once installed, in your project's config/app.php file replace the following entry from the providers array:
+
+	Illuminate\Translation\TranslationServiceProvider::class
 
 with:
 
-	'Waavi\Translation\TranslationServiceProvider'
+	Waavi\Translation\TranslationServiceProvider::class
 
 Execute the database migrations:
 
-	php artisan migrate --package=waavi/translation
+	php artisan migrate
 
-You may publish the package's configuration if you so choose:
+You may check the package's configuration file at:
 
-	php artisan config:publish waavi/translation
+	config/translator.php
 
-## Usage
-
-This translations bundle is designed to adapt to your workflow. Translations are accessed just like in Laravel, with replacements and pluralization working as expected. The only difference is how your translations are managed.
+## Use
 
 ### Modes of operation
 
@@ -59,7 +74,7 @@ Example:
 			'missing_name'			=>	'Falta el nombre',
 		);
 
-	Output for different keys with es locale:
+	Output for different keys with 'es' locale:
 
 		Lang::get('validations.missing_name') 		-> 		'Falta el nombre'
 		Lang::get('validations.missing_surname') 	-> 		'Surname is missing'
@@ -70,7 +85,7 @@ Example:
 You may choose to load translations exclusively from the database. If you leverage your cache, this might be the best option when the site is live and you allow translators to add and update language entries through the database. In order to use the database mode of operation you must:
 
 * Run the migrations detailed in the installation instructions.
-* Add your languages of choice to the database.
+* Add your languages of choice to the database (see Managing Database Languages)
 * Load your language files into the database using ` php artisan translator:load `
 
 Example:
@@ -84,17 +99,17 @@ Example:
 	The relevant content in the language_entries table is:
 		| id | language_id | namespace | group       | item	           | text                       |
 		---------------------------------------------------------------------------------------------
-		| 1  | 1           | NULL      | validations | missing_name    | Name is missing            |
-		| 2  | 2           | NULL      | validations | missing_surname | Surname is missing         |
+		| 1  | 1           | NULL      | validations | missing.name    | Name is missing            |
+		| 2  | 2           | NULL      | validations | missing.surname | Surname is missing         |
 		| 3  | 1           | NULL      | validations | min_number      | Number is too small        |
-		| 4  | 2           | NULL      | validations | missing_name    | No se ha indicado nombre   |
-		| 5  | 2           | NULL      | validations | missing_surname | No se ha indicado apellido |
+		| 4  | 2           | NULL      | validations | missing.name    | No se ha indicado nombre   |
+		| 5  | 2           | NULL      | validations | missing.surname | No se ha indicado apellido |
 
 	Output for different keys with es locale:
 
-		Lang::get('validations.missing_name')   ->    'No se ha indicado nombre'
+		Lang::get('validations.missing.name')   ->    'No se ha indicado nombre'
 		Lang::get('validations.min_number')     ->    'Number is too small'
-		Lang::get('validations.missing_email')  ->    'missing_email'
+		Lang::get('validations.missing.email')  ->    'missing_email'
 
 #### Mixed mode
 
@@ -104,14 +119,10 @@ Example:
 
 	When the content of the language files and the database is the same as in the previous two examples, this is the output for Lang::get:
 
-		Lang::get('validations.missing_name')     ->    'Falta el nombre'
-		Lang::get('validations.missing_surname')  ->    'No se ha indicado apellido'
-		Lang::get('validations.min_number')       ->    'Number is too small'
-		Lang::get('validations.missing_email')    ->    'missing_email'
-
-#### Auto mode (default)
-
-When in auto mode, the mode of operation is set by the value of 'debug' in app/config/app.php. When true, mixed mode is selected. When false, database mode is selected.
+		trans('validations.missing_name')     ->    'Falta el nombre'
+		trans('validations.missing_surname')  ->    'No se ha indicado apellido'
+		trans('validations.min_number')       ->    'Number is too small'
+		trans('validations.missing_email')    ->    'missing_email'
 
 ### Loading your files into the database
 
@@ -125,29 +136,8 @@ When loading the contents of the language files, non-existing entries will be ad
 
 Since querying the database everytime a language group must be loaded is grossly inefficient, you may choose to leverage Laravel's cache system. This module will use the same cache configuration as defined by you in app/config/cache.php.
 
-By default, the cache will be deactivated if the value of 'debug' in app/config/app.php is true, and activated when debug is false. You may customize this behaviour in the package's config file.
+Entries in the cache will be prefixed by default with 'translation-'. You may change this through your environment variables or the config/translator.php config file.
 
-Entries in the cache will be prefixed with 'waavi|translation|'
+## Managing languages and translations in the Database
 
-## The models
 
-If you need to extend either the Language Model or the LanguageEntry model, you will need to extend both of them since they reference eachother. Once you've created your own models, remember to update the config file.
-
-For example, should you define your models as Language and LanguageEntry in /app/models you will have to edit the config file so its contents are:
-
-	/*
-	|--------------------------------------------------------------------------
-	| Language
-	|--------------------------------------------------------------------------
-	|
-	| Configuration specific to the language management component. You may extend
-	| the default models or implement their corresponding interfaces if you need to.
-	|
-	*/
-	'language'				=>	array(
-		'model' 	=>	'Language',
-	),
-
-	'language_entry'	=>	array(
-		'model' 	=>	'LanguageEntry',
-	),

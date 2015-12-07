@@ -101,7 +101,7 @@ class LanguageRepository extends Repository
      */
     public function availableLocales()
     {
-        return $this->model->distinct()->get()->lists('locale')->toArray();
+        return $this->model->distinct()->get()->lists('locale'); //->toArray();
     }
 
     /**

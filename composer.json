@@ -1,7 +1,7 @@
 {
     "name": "waavi/translation",
     "version":  "2.0",
-    "description": "A Translation package for Laravel 5.1 with database and cache support",
+    "description": "A Translation package for Laravel 5 with database and cache support",
     "keywords": [
         "waavi",
         "laravel-translator",
@@ -19,16 +19,16 @@
         }
     ],
     "require": {
-        "illuminate/support": "5.1.x",
-        "illuminate/translation": "5.1.x",
-        "illuminate/database": "5.1.x",
-        "illuminate/console": "5.1.x",
-        "illuminate/filesystem": "5.1.x",
-        "illuminate/config": "5.1.x"
+        "illuminate/support": "5.0.x",
+        "illuminate/translation": "5.0.x",
+        "illuminate/database": "5.0.x",
+        "illuminate/console": "5.0.x",
+        "illuminate/filesystem": "5.0.x",
+        "illuminate/config": "5.0.x"
     },
     "require-dev": {
         "phpunit/phpunit" : "^4",
-        "orchestra/testbench": "3.1.x",
+        "orchestra/testbench": "3.0.x",
         "mockery/mockery": "^0.9.4"
     },
     "autoload": {

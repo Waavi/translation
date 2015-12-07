@@ -1,3 +1,7 @@
+### For Laravel 5, please use the [2.0 branch](https://github.com/waavi/translation)!
+
+If you are using Laravel 5, please check out the [2.0 branch](https://github.com/waavi/translation). Several bug fixes as well as new features are included on this package.
+
 ## Upgrading Laravel's localization module
 
 Keeping a project's translations properly updated is cumbersome. Usually translators do not have access to the codebase, and even when they do it's hard to keep track of which translations are missing for each language or when updates to the original text require that translations be revised.

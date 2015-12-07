@@ -8,7 +8,7 @@ class TranslatableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        Schema::create('dummies', function ($table) {
+        \Schema::create('dummies', function ($table) {
             $table->increments('id');
             $table->string('title')->nullable();
             $table->string('title_translation')->nullable();
@@ -17,6 +17,8 @@ class TranslatableTest extends TestCase
             $table->string('text_translation')->nullable();
             $table->timestamps();
         });
+        $this->languageRepository    = \App::make(LanguageRepository::class);
+        $this->translationRepository = \App::make(TranslationRepository::class);
     }
 
     /**
@@ -28,23 +30,21 @@ class TranslatableTest extends TestCase
         $dummy->title = 'Título del dummy';
         $dummy->text  = 'Texto del dummy';
         $saved        = $dummy->save() ? true : false;
-        Assert::true($saved);
-        Assert::equals(1, Dummy::count());
+        $this->assertTrue($saved);
+        $this->assertEquals(1, Dummy::count());
         // Check that there is a language entry in the database:
-        $entries = App::make('App\Translator\Repositories\LanguageEntryRepository')->getByCode($dummy->title_translation);
-        Assert::equals(1, $entries->count());
-        Assert::equals('Título del dummy', $entries->first()->text);
-        Assert::equals('Título del dummy', $dummy->title);
-        Assert::equals('slug', $dummy->slug);
-        $entries = App::make('App\Translator\Repositories\LanguageEntryRepository')->getByCode($dummy->text_translation);
-        Assert::equals(1, $entries->count());
-        Assert::equals('Texto del dummy', $entries->first()->text);
-        Assert::equals('Texto del dummy', $dummy->text);
+        $textTranslation  = $this->translationRepository->findByCode('en', 'translation', 'translatable', 'waavi.translation.test.dummy.text');
+        $titleTranslation = $this->translationRepository->findByCode('en', 'translation', 'translatable', 'waavi.translation.test.dummy.title');
+        $this->assertEquals('Título del dummy', $titleTranslation->text);
+        $this->assertEquals('Título del dummy', $dummy->title);
+        $this->assertEquals('slug', $dummy->slug);
+        $this->assertEquals('Texto del dummy', $textTranslation->text);
+        $this->assertEquals('Texto del dummy', $dummy->text);
         // Delete it:
         $deleted = $dummy->delete();
-        Assert::true($deleted);
-        Assert::equals(0, Dummy::count());
-        Assert::equals(0, LanguageEntry::count());
+        $this->assertTrue($deleted);
+        $this->assertEquals(0, Dummy::count());
+        $this->assertEquals(0, $this->translationRepository->count());
     }
 }
 

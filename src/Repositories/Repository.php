@@ -89,4 +89,14 @@ class Repository
         }
         return $model;
     }
+
+    /**
+     *  Returns total number of entries in DB.
+     *
+     *  @return integer
+     */
+    public function count()
+    {
+        return $this->model->count();
+    }
 }

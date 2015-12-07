@@ -9,9 +9,7 @@ php:
 matrix:
   allow_failures:
     - php: 7.0
-  include:
-    - php: 5.5
-      env: 'COMPOSER_FLAGS="--prefer-stable --prefer-lowest"'
+    - php: hhvm
 
 before_script:
   - travis_retry composer self-update

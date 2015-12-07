@@ -1,7 +1,6 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Translation\LoaderInterface;
-use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 
 class DatabaseLoader extends Loader implements LoaderInterface
@@ -41,12 +40,11 @@ class DatabaseLoader extends Loader implements LoaderInterface
     public function loadSource($locale, $group, $namespace = '*')
     {
         $result       = [];
-        $translations = $this->translationRepository->getGroup($locale, $group, $namespace);
+        $translations = $this->translationRepository->getItems($locale, $namespace, $group);
         foreach ($translations as $translation) {
             array_set($result, $translation->item, $translation->text);
         }
         return $result;
-        $language = $this->languageRepository->findByLocale($locale);
     }
 
     /**

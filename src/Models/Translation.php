@@ -4,8 +4,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Translation extends Model
 {
-    use \Illuminate\Database\Eloquent\SoftDeletes;
-
     /**
      *  Table name in the database.
      *  @var string

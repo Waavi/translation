@@ -22,7 +22,6 @@ class CreateTranslationsTable extends Migration
             $table->boolean('unstable')->default(false);
             $table->boolean('locked')->default(false);
             $table->timestamps();
-            $table->softDeletes();
             $table->foreign('locale')->references('locale')->on('languages');
             $table->unique(['locale', 'namespace', 'group', 'item']);
         });

@@ -15,7 +15,7 @@ This package allows developers to leverage their database and cache to manage mu
 
 Laravel 5 is released!!
 
- Laravel  | laravel-localization
+ Laravel  | translation
 :---------|:----------
  4.x  	  | 1.0.x
  5.0.x    | 2.0.x

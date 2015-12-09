@@ -48,4 +48,12 @@ class LoadTest extends TestCase
         $this->laravelLoader->shouldReceive('load')->with('es', 'group', 'name')->andReturn($es);
         $this->assertEquals($expected, $this->fileLoader->load('es', 'group', 'name'));
     }
+
+    /**
+     *  @test
+     */
+    public function it_returns_translation_code_if_text_not_found()
+    {
+        $this->assertEquals('auth.code', trans('auth.code'));
+    }
 }

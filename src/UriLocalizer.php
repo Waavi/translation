@@ -1,12 +1,29 @@
 <?php namespace Waavi\Translation;
 
+use Illuminate\Http\Request;
 use Waavi\Translation\Repositories\LanguageRepository;
 
 class UriLocalizer
 {
-    public function __construct(LanguageRepository $languageRepository)
+    public function __construct(LanguageRepository $languageRepository, Request $request)
     {
+        $this->request            = $request;
         $this->languageRepository = $languageRepository;
+    }
+
+    /**
+     *  Returns the locale present in the current url, if any.
+     *
+     *  @return string
+     */
+    public function localeFromRequest()
+    {
+        $url = $this->request->getUri();
+        if ($this->languageRepository->hasTable()) {
+            return $this->getLocaleFromUrl($url);
+        } else {
+            return '';
+        }
     }
 
     /**

@@ -13,6 +13,16 @@ class Repository
     }
 
     /**
+     *  Check if the model's table exists
+     *
+     *  @return boolean
+     */
+    public function hasTable()
+    {
+        return $this->model->getConnection()->getSchemaBuilder()->hasTable($this->model->getTable());
+    }
+
+    /**
      *  Retrieve all records.
      *
      *  @param array $related Related object to include.

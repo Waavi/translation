@@ -25,6 +25,14 @@ class LanguageRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function test_has_table()
+    {
+        $this->assertTrue($this->languageRepository->hasTable());
+    }
+
+    /**
+     * @test
+     */
     public function test_create_disallows_duplicate_locale()
     {
         $this->assertNull($this->languageRepository->create(['locale' => 'en', 'name' => 'Catalan']));

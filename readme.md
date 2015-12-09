@@ -266,6 +266,6 @@ You will also need to add the following to your config/app.php aliases:
 
 For every route where you apply the localization middleware, you must prepend the current locale, for example:
 
-	Route::group(['prefix' => \UriLocalizer::getLocaleFromUrl(\Request::getUri()), 'middleware' => 'localize')], function () {
+	Route::group(['prefix' => \UriLocalizer::localeFromRequest(), 'middleware' => 'localize')], function () {
 	    /* ... */
 	});

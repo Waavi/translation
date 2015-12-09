@@ -1,6 +1,5 @@
 {
     "name": "waavi/translation",
-    "version":  "2.0",
     "description": "A Translation package for Laravel 5 with database and cache support",
     "keywords": [
         "waavi",

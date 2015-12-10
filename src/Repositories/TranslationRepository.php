@@ -198,38 +198,6 @@ class TranslationRepository extends Repository
     }
 
     /**
-     *  List all entries in the default locale that do not exist for the target locale.
-     *
-     *  @param      string    $target     Language to translate to.
-     *  @param      integer   $perPage    If greater than zero, return a paginated list with $perPage items per page.
-     *  @param      string    $text       [optional] Show only entries with the given text in them in the reference language.
-     *  @return     Collection
-     */
-    public function untranslated($locale, $perPage = 0, $text = null)
-    {
-
-        $table = $this->model->getTable();
-        $ids   = $this->database->table($table)
-            ->select($table . '.id')
-            ->whereRaw("$table.locale = '$this->defaultLocale'")
-            ->whereNotExists(function ($query) use ($table, $locale) {
-                $query
-                    ->select($this->database->raw(1))
-                    ->from("$table as e")
-                    ->whereRaw("e.locale = '$locale'")
-                    ->whereRaw("e.namespace = $table.namespace")
-                    ->whereRaw("e.'group' = $table.'group'")
-                    ->whereRaw("e.item = $table.item");
-            })
-            ->get();
-
-        $ids = array_pluck($ids, 'id');
-
-        $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
-        return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
-    }
-
-    /**
      *  Return all items for a given locale, namespace and group
      *
      *  @param  string $code
@@ -293,6 +261,38 @@ class TranslationRepository extends Repository
     }
 
     /**
+     *  List all entries in the default locale that do not exist for the target locale.
+     *
+     *  @param      string    $target     Language to translate to.
+     *  @param      integer   $perPage    If greater than zero, return a paginated list with $perPage items per page.
+     *  @param      string    $text       [optional] Show only entries with the given text in them in the reference language.
+     *  @return     Collection
+     */
+    public function untranslated($locale, $perPage = 0, $text = null)
+    {
+
+        $table = $this->model->getTable();
+        $ids   = $this->database->table($table)
+            ->select($table . '.id')
+            ->whereRaw("$table.locale = '$this->defaultLocale'")
+            ->whereNotExists(function ($query) use ($table, $locale) {
+                $query
+                    ->select($this->database->raw(1))
+                    ->from("$table as e")
+                    ->whereRaw("`e`.`locale` = '$locale'")
+                    ->whereRaw("`e`.`namespace` = `$table`.`namespace`")
+                    ->whereRaw("`e`.`group` = `$table`.`group`")
+                    ->whereRaw("`e`.`item` = `$table`.`item`");
+            })
+            ->get();
+
+        $ids = array_pluck($ids, 'id');
+
+        $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
+        return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
+    }
+
+    /**
      *  Find a random entry that is present in the default locale but not in the given one.
      *
      *  @param  string $locale       Locale to translate to.
@@ -301,22 +301,24 @@ class TranslationRepository extends Repository
     public function randomUntranslated($locale)
     {
         $table = $this->model->getTable();
-        $id    = $this->database->table($table)
+        $ids   = $this->database->table($table)
             ->select($table . '.id')
             ->whereRaw("$table.locale = '$this->defaultLocale'")
             ->whereNotExists(function ($query) use ($table, $locale) {
                 $query
                     ->select($this->database->raw(1))
                     ->from("$table as e")
-                    ->whereRaw("e.locale = '$locale'")
-                    ->whereRaw("e.namespace = $table.namespace")
-                    ->whereRaw("e.'group' = $table.'group'")
-                    ->whereRaw("e.item = $table.item");
+                    ->whereRaw("`e`.`locale` = '$locale'")
+                    ->whereRaw("`e`.`namespace` = `$table`.`namespace`")
+                    ->whereRaw("`e`.`group` = `$table`.`group`")
+                    ->whereRaw("`e`.`item` = `$table`.`item`");
             })
-            ->orderByRaw("RANDOM()")
-            ->first();
-
-        return $id ? $this->find($id->id) : null;
+            ->get();
+        if (count($ids) <= 0) {
+            return null;
+        }
+        shuffle($ids);
+        return $this->find($ids[0]->id);
     }
 
     /**

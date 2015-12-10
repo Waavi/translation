@@ -19,11 +19,7 @@ class UriLocalizer
     public function localeFromRequest()
     {
         $url = $this->request->getUri();
-        if ($this->languageRepository->hasTable()) {
-            return $this->getLocaleFromUrl($url);
-        } else {
-            return '';
-        }
+        return $this->getLocaleFromUrl($url);
     }
 
     /**

@@ -17,7 +17,7 @@ class Repository
      *
      *  @return boolean
      */
-    public function hasTable()
+    public function tableExists()
     {
         return $this->model->getConnection()->getSchemaBuilder()->hasTable($this->model->getTable());
     }

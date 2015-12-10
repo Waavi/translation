@@ -27,7 +27,7 @@ class LanguageRepositoryTest extends TestCase
      */
     public function test_has_table()
     {
-        $this->assertTrue($this->languageRepository->hasTable());
+        $this->assertTrue($this->languageRepository->tableExists());
     }
 
     /**

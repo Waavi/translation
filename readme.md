@@ -5,11 +5,28 @@
 [![Build Status](https://img.shields.io/travis/Waavi/translation/master.svg?style=flat-square)](https://travis-ci.org/Waavi/translation)
 [![Total Downloads](https://img.shields.io/packagist/dt/waavi/translation.svg?style=flat-square)](https://packagist.org/packages/waavi/translation)
 
-## Upgrading Laravel's localization module
+## Introduction
 
 Keeping a project's translations properly updated is cumbersome. Usually translators do not have access to the codebase, and even when they do it's hard to keep track of which translations are missing for each language or when updates to the original text require that translations be revised.
 
 This package allows developers to leverage their database and cache to manage multilanguage sites, while still working on language files during development and benefiting from all the features Laravel's Translation bundle has, like pluralization or replacement.
+
+## Table of contents
+
+- [Laravel compatibility](#laravel-compatibility)
+- [Features overview](#features-overview)
+- [Installation](#installation)
+- [Set source for translations](#translations-source)
+  - [Load translations from files](#load-translations-from-files)
+  - [Load translations from the database](#load-translations-from-the-database)
+  - [Mixed mode](#mixed-mode)
+  - [Loading your files into the database](#loading-your-files-into-the-database)
+- [Cache translations](#cache-translations)
+- [Managing languages and translations in the Database](#managing-languages-and-translations-in-the-database)
+  - [Managing Languages](#managing-languages)
+  - [Managing Translations](#managing-translations)
+- [Model attributes translation](#model-attributes-translation)
+- [Uri localization](#uri-localization)
 
 ## Laravel compatibility
 
@@ -19,7 +36,7 @@ This package allows developers to leverage their database and cache to manage mu
  5.0.x    | 2.0.x
  5.1.x    | 2.1.x
 
-## Features
+## Features overview
 
  - Allow dynamic changes to the site's text and translations.
  - Cache your localization entries.
@@ -36,7 +53,7 @@ Require through composer
 Or manually edit your composer.json file:
 
 	"require": {
-		"waavi/translation": "2.0.x"
+		"waavi/translation": "2.1.x"
 	}
 
 Publish both the configuration file and the migrations:
@@ -59,25 +76,34 @@ You may check the package's configuration file at:
 
 	config/translator.php
 
-## Use
+## Translations source
 
-### Modes of operation
+This package allows you to load translation from the regular Laravel localization files (in /resources/lang), from the database, from cache or in a mix of the previous for development. You may configure the desired mode of operation through the translator.php config file and/or the TRANSLATION_SOURCE environment variable. Accepted values are:
 
-You may configure the mode of operation through the config.php file. You may choose the one most appropiate for your workflow and environment.
+ - 'files'		To load translations from Laravel's language files (default)
+ - 'database'	To load translations from the database
+ - 'mixed'		To load translations both from the filesystem and the database, with the file system having priority.
 
-#### File based
+For cache configuration, please go to [cache configuration](#cache-translations)
 
-If you do not wish to leverage your database for translations, you may choose to load language lines exclusively through language files. This mode differs from Laravel in that, in case a line is not found in the specified locale, instead of returning the key right away, we first check the default language for an entry.
+### Load translations from files
+
+If you do not wish to leverage your database for translations, you may choose to load language lines exclusively through language files. This mode differs from Laravel in that, in case a line is not found in the specified locale, instead of returning the key right away, we first check the default language for an entry. In case you wish to use this mode exclusively, you will need to set the 'available_locales' config file:
+
+	config/translator.php
+		'available_locales' => ['en', 'es', 'fr'],
 
 Example:
 
-	The content in en/validations.php is:
+	The content in en/validations.php, where 'en' is the default locale, is:
+
 		array(
 			'missing_name'			=>	'Name is missing',
 			'missing_surname'		=>	'Surname is missing',
 		);
 
 	The content in es/validations.php is:
+
 		array(
 			'missing_name'			=>	'Falta el nombre',
 		);
@@ -88,116 +114,141 @@ Example:
 		trans('validations.missing_surname') 	-> 		'Surname is missing'
 		trans('validations.missing_email') 		-> 		'missing_email'
 
-#### Database
+### Load translations from the database
 
-You may choose to load translations exclusively from the database. If you leverage your cache, this might be the best option when the site is live and you allow translators to add and update language entries through the database. In order to use the database mode of operation you must:
-
-* Run the migrations detailed in the installation instructions.
-* Add your languages of choice to the database (see Managing Database Languages)
-* Load your language files into the database using ` php artisan translator:load `
+You may choose to load translations exclusively from the database. This is very useful if you intend to allow users or administrators to live edit the site's text and translations. In a live production environment, you will usually want this source mode to be activated with the translation's cache. Please see [Loading your files into the database](#loading-your-files-into-the-database) for details on the steps required to use this source mode.
 
 Example:
 
 	The content in the languages table is:
+
 		| id | locale | name    |
 		-------------------------
 		| 1  | en     | english |
 		| 2  | es     | spanish |
 
 	The relevant content in the language_entries table is:
-		| id | language_id | namespace | group       | item	           | text                       |
-		---------------------------------------------------------------------------------------------
-		| 1  | 1           | NULL      | validations | missing.name    | Name is missing            |
-		| 2  | 2           | NULL      | validations | missing.surname | Surname is missing         |
-		| 3  | 1           | NULL      | validations | min_number      | Number is too small        |
-		| 4  | 2           | NULL      | validations | missing.name    | No se ha indicado nombre   |
-		| 5  | 2           | NULL      | validations | missing.surname | No se ha indicado apellido |
+
+		| id | locale | namespace | group       | item	          | text                    |
+		-------------------------------------------------------------------------------------
+		| 1  | en     | NULL      | validations | missing.name    | Name is missing         |
+		| 2  | en     | NULL      | validations | missing.surname | Surname is missing      |
+		| 3  | en     | NULL      | validations | min_number      | Number is too small     |
+		| 4  | es     | NULL      | validations | missing.name    | Falta nombre   			|
+		| 5  | es     | NULL      | validations | missing.surname | Falta apellido 			|
 
 	Output for different keys with es locale:
 
-		trans('validations.missing.name')   ->    'No se ha indicado nombre'
+		trans('validations.missing.name')   ->    'Falta nombre'
 		trans('validations.min_number')     ->    'Number is too small'
 		trans('validations.missing.email')  ->    'missing_email'
 
-#### Mixed mode
+### Mixed mode
 
-In mixed mode, both the language files and the database are queried when looking for a group of language lines. Entries found in the filesystem take precedence over the database.
+In mixed mode, both the language files and the database are queried when looking for a group of language lines. Entries found in the filesystem take precedence over the database. This source mode is useful when in development, so that both the filesystem and the user entries are taken into consideration.
 
 Example:
 
-	When the content of the language files and the database is the same as in the previous two examples, this is the output for Lang::get:
+	When files and database are set like in the previous examples:
 
 		trans('validations.missing_name')     ->    'Falta el nombre'
-		trans('validations.missing_surname')  ->    'No se ha indicado apellido'
+		trans('validations.missing_surname')  ->    'Falta apellido'
 		trans('validations.min_number')       ->    'Number is too small'
 		trans('validations.missing_email')    ->    'missing_email'
 
 ### Loading your files into the database
 
-When uploading your code to the live site, you must load your file contents into the database if you're using either the auto, database or mixed modes of operations. To refresh your database you may use the following artisan command:
+When using either the database or mixed translation sources, you will need to first load your translations into the database. To do so, follow these steps:
 
-	php artisan translator:load
+* Run the migrations detailed in the installation instructions.
+* Add your languages of choice to the database (see [Managing Database Languages](#managing-database-languages))
+* Load your language files into the database using the provided Artisan command:
 
-When loading the contents of the language files, non-existing entries will be added and existing ones will be updated (nothing is erased by default, you'll see why). In case the text on a default locale entry is updated, its current translations are flagged as 'unstable' so as to signal that a translator should check them to see if they're still valid. This is useful when small changes in the text shouldn't be reflected in the translations, or these are still somewhat valid despite the fact of not having been updated.
+	` php artisan translator:load `
 
-Both vendor and subdirectories are supported. Please keep in mind that when loading an entry inside a subdirectory, Laravel 5 has changed the syntax to:
+When executing the artisan command, the following will happen:
+
+- Non existing entries will be created.
+- Existing entries will be updated **except if they're locked**. When allowing users to live edit the translations, it is recommended you do it throught the updateAndLock method provided in the [Translations repository](#managing-translations). This prevents entries being overwritten when reloading translations from files.
+- When an entry in the default locale is edited, all of its translations will be flagged as **pending review**. This gives translators the oportunity to review translations that might not be correct, but doesn't delete them so as to avoid minor errata changes in the source text from erasing all translations. See [Managing translations](#managing-translations) for details on how to work with unstable translations.
+
+Both vendor files and subdirectories are supported. Please keep in mind that when loading an entry inside a subdirectory, Laravel 5 has changed the syntax to:
 
 	trans('subdir/file.entry')
 	trans('package::subdir/file.entry')
 
-## Caching results
+## Cache translations
 
 Since querying the database everytime a language group must be loaded is grossly inefficient, you may choose to leverage Laravel's cache system. This module will use the same cache configuration as defined by you in app/config/cache.php.
 
-Entries in the cache will be prefixed by default with 'translation' suffix. You may change this through your environment variables or the config/translator.php config file.
+You may enable or disable the cache through the translator.php config file or the 'TRANSLATION_CACHE_ENABLED' environment variable. Config options are:
+
+ Env key  | type	|description
+:---------|:--------|:-----------
+ TRANSLATION_CACHE_ENABLED 	| boolean| Enable / disable the translations cache
+ TRANSLATION_CACHE_TIMEOUT  | integer| Minutes translation items should be kept in the cache.
+ TRANSLATION_CACHE_SUFFIX   | string | Default is 'translation'. This will be the cache suffix applied to all translation cache entries.
 
 ## Managing languages and translations in the Database
 
 The recommended way of managing both languages and translations is through the provided repositories. You may circumvent this by saving changes directly through the Language and Translation models, however validation is no longer executed automatically on model save and could lead to instability and errors.
 
-Both the Language and the Translation repository provide the following methods:
+Both the Language and the Translation repositories provide the following methods:
 
-	all($related = [], $perPage = 0);		// Retrieve all records from the DB. Pagination is optional
-	trashed($related = [], $perPage = 0);	// Retrieve all trashed records from the DB. Pagination is optional
-	find($id, $related = []);				// Find a record by id
-	findTrashed($id, $related = []);		// Find a trashed record by id
-	delete($id);							// Delete a record by id
-	restore($id);							// Restore a record by id
-	count();								// Return the total number of entries
+ Method   | Description
+:---------|:--------
+hasTable();									| Returns true if the corresponding table exists in the database, false otherwise
+all($related = [], $perPage = 0); 			| Retrieve all records from the DB. A paginated record will be return if the second argument is > 0, with $perPage items returned per page
+find($id);									| Find a record by id
+create($attributes);						| Validates the given attributes and inserts a new record. Returns false if validation errors occured
+delete($id);								| Delete a record by id
+restore($id);								| Restore a record by id
+count();									| Return the total number of entries
+validate(array $attributes);				| Checks if the given attributes are valid
+validationErrors();							| Get validation errors for create and update methods
 
 ### Managing Languages
 
-Language management should be done through the Waavi\Translation\Repositories\LanguageRepository to ensure proper data validation before inserts and updates. It is recommended that you instantiate this class through Dependency Injection. The provided methods are:
+Language management should be done through the **\Waavi\Translation\Repositories\LanguageRepository** to ensure proper data validation before inserts and updates. It is recommended that you instantiate this class through Dependency Injection.
 
-	create($attributes);					// Creates a Language entry. Returns false if errors.
-	update(array $attributes);				// Updates a Language entry (id, name, locale)
-	findByLocale($locale);					// Find a record by locale
-	findTrashedByLocale($locale);			// Finds a trashed record by locale
-	allExcept($locale);						// Returns a list of all languages excluding the given locale
-	availableLocales();						// Returns a list of all available locales
-	isValidLocale($locale);					// Checks if a language exists with the given locale
-	percentTranslated($locale);				// Returns the percent translated for the given locale
-	validate(array $attributes);			// Both locale and name must be unique
-	validationErrors();						// Get validation errors for create and update
+A valid Language record requires both its name and locale to be unique. It is recommended you use the native name for each language (Ex: English, Español, Français)
+
+The provided methods are:
+
+ Method   | Description
+:---------|:--------
+update(array $attributes);				| Updates a Language entry [id, name, locale]
+trashed($related = [], $perPage = 0);	| Retrieve all trashed records from the DB.
+findTrashed($id, $related = []);		| Find a trashed record by id
+findByLocale($locale);					| Find a record by locale
+findTrashedByLocale($locale);			| Finds a trashed record by locale
+allExcept($locale);						| Returns a list of all languages excluding the given locale
+availableLocales();						| Returns a list of all available locales
+isValidLocale($locale);					| Checks if a language exists with the given locale
+percentTranslated($locale);				| Returns the percent translated for the given locale
+
 
 ### Managing Translations
 
-Translation management should be done through the Waavi\Translation\Repositories\TranslationRepository to ensure proper data validation before inserts and updates. It is recommended that you instantiate this class through Dependency Injection. The provided methods are:
+Translation management should be done through the **\Waavi\Translation\Repositories\TranslationRepository** to ensure proper data validation before inserts and updates. It is recommended that you instantiate this class through Dependency Injection.
 
-	create(array $attributes);							// Create a Translation
-	update($id, $text);									// Update an unlocked entry
-	updateAndLock($id, $text);							// Update and lock an entry
-	allByLocale($locale, $perPage = 0);					// Get all by locale
-	untranslated($locale, $perPage = 0, $text = null);	// Get all untranslated entries
-	pendingReview($locale, $perPage = 0);				// List all entries pending review
-	search($locale, $partialCode, $perPage = 0);		// Search by partial code.
-	randomUntranslated($locale);						// Get a random untranslated entry
-	translateText($text, $textLocale, $targetLocale);	// Translate text to another locale
-	flagAsReviewed($id);								// Flag entry as reviewed
-	validate(array $attributes);						// No conflicting entries
-	validationErrors();									// Get validation errors for create and update
+A valid translation entry cannot have the same locale and language code than another.
 
-Several things to consider are:
+The provided methods are:
+
+ Method   | Description
+:---------|:--------
+update($id, $text);									| Update an unlocked entry
+updateAndLock($id, $text);							| Update and lock an entry (locked or not) 
+allByLocale($locale, $perPage = 0);					| Get all by locale
+untranslated($locale, $perPage = 0, $text = null);	| Get all untranslated entries. If $text is set, entries will be filtered by partial matches to translation value.
+pendingReview($locale, $perPage = 0);				| List all entries pending review
+search($locale, $term, $perPage = 0);				| Search by all entries by locale and a partial match to both the text value and the translation code.
+randomUntranslated($locale);						| Get a random untranslated entry
+translateText($text, $textLocale, $targetLocale);	| Translate text to another locale
+flagAsReviewed($id);								| Flag entry as reviewed
+
+Things to consider:
 
  - You may lock translations so that they can only be updated through updateAndLock. The language file loader uses the update method and will not be able to override locked translations.
  - When a text entry belonging to the default locale is updated, all of its siblings are marked as pending review.
@@ -207,6 +258,7 @@ Several things to consider are:
 
 You can also use the translation management system to manage your model attributes translations. To do this, you only need to:
 
+ - Make sure either the database or mixed source are set.
  - Make sure your models use the Waavi\Translation\Translatable\Trait
  - In your model, add a translatableAttributes array with the names of the attributes you wish to be available for translation.
  - For every field you wish to translate, make sure there is a corresponding attributeName_translation field in your database.
@@ -225,7 +277,7 @@ Example:
 
     class Example extends Model
 	{
-	    use Translatable;
+	    use \Waavi\Translation\Translatable\Trait;
 	    protected $translatableAttributes = ['title', 'text'];
 	}
 
@@ -242,12 +294,12 @@ For example, if a user visits the url /home, the following would happen:
  	- the following data will be available in your views:
  		- currentLanguage: current selected Language instance.
  		- selectableLanguages: list of all languages the visitor can switch to (except the current one)
- 		- altLocalizedUrls: a list of all localized urls for the current resource except this one, formatted as ['locale' => 'en', 'url' => '/en/home']
+ 		- altLocalizedUrls: a list of all localized urls for the current resource except this one, formatted as ['locale' => 'en', 'name' => 'English', 'url' => '/en/home']
  - If no locale is present:
- 	- Check the first two letters of the browers locale (for example 'en-us' => 'en')
- 	- If this is a valid locale, redirect the visitor to that locale => /en/home
- 	- If not, redirect to default locale => /es/home
- 	- Redirects will keep input data in the url if any
+ 	- Check the first two letters of the brower's accepted locale HTTP_ACCEPT_LANGUAGE (for example 'en-us' => 'en')
+ 	- If this is a valid locale, redirect the visitor to that locale => /es/home
+ 	- If not, redirect to default locale => /en/home
+ 	- Redirects will keep input data in the url, if any
 
 You may choose to activate this Middleware globally by adding the middleware to your App\Http\Kernel file:
 
@@ -256,16 +308,23 @@ You may choose to activate this Middleware globally by adding the middleware to 
         \Waavi\Translation\Middleware\TranslationMiddleware::class,
     ]
 
-Or to apply it selectively through the 'localize' route middleware, which is already registered when installing the package.
+Or to apply it selectively through the **'localize'** route middleware, which is already registered when installing the package through the ServiceProvider.
 
-You will also need to add the following to your config/app.php aliases:
+It is recommended you add the following alias to your config/app.php aliases:
 
 	'aliases'         => [
+		/* ... */
 		'UriLocalizer'	=> Waavi\Translation\Facades\UriLocalizer::class,
     ];
 
-For every route where you apply the localization middleware, you must prepend the current locale, for example:
+Every localized route must be prefixed with the current locale:
 
+	// If the middleware is globally applied:
+	Route::group(['prefix' => \UriLocalizer::localeFromRequest()], function(){
+		/* Your routes here */
+	});
+
+	// For selectively chosen routes:
 	Route::group(['prefix' => \UriLocalizer::localeFromRequest(), 'middleware' => 'localize')], function () {
-	    /* ... */
+	    /* Your routes here */
 	});

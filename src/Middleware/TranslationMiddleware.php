@@ -51,7 +51,11 @@ class TranslationMiddleware
             $selectableLanguages = $this->languageRepository->allExcept($uriLocale);
             $altLocalizedUrls    = [];
             foreach ($selectableLanguages as $lang) {
-                $altLocalizedUrls[] = ['locale' => $lang->locale, 'url' => $this->uriLocalizer->localize($currentUrl, $lang->locale)];
+                $altLocalizedUrls[] = [
+                    'locale' => $lang->locale,
+                    'name'   => $lang->name,
+                    'url'    => $this->uriLocalizer->localize($currentUrl, $lang->locale),
+                ];
             }
             $this->translator->setLocale($uriLocale);
             $this->viewFactory->share('currentLanguage', $currentLanguage);

@@ -40,10 +40,10 @@ class TranslatableTest extends TestCase
         // Check that there is a language entry in the database:
         $titleTranslation = $this->translationRepository->findByLangCode('en', $dummy->translationCodeFor('title'));
         $this->assertEquals('Dummy title', $titleTranslation->text);
-        $this->assertEquals($dummy->translationCodeFor('title'), $dummy->title);
+        $this->assertEquals('Dummy title', $dummy->title);
         $textTranslation = $this->translationRepository->findByLangCode('en', $dummy->translationCodeFor('text'));
         $this->assertEquals('Dummy text', $textTranslation->text);
-        $this->assertEquals($dummy->translationCodeFor('text'), $dummy->text);
+        $this->assertEquals('Dummy text', $dummy->text);
         // Delete it:
         $deleted = $dummy->delete();
         $this->assertTrue($deleted);

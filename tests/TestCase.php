@@ -47,6 +47,7 @@ abstract class TestCase extends Orchestra
             'prefix'   => '',
         ]);
         $app['config']->set('app.key', 'sF5r4kJy5HEcOEx3NWxUcYj1zLZLHxuu');
+        $app['config']->set('translator.source', 'database');
     }
 
     /**

@@ -42,6 +42,13 @@ class LanguageRepository extends Repository
     protected $defaultAvailableLocales;
 
     /**
+     *  Config repository.
+     *
+     *  @var Config
+     */
+    protected $config;
+
+    /**
      *  Constructor
      *  @param  \Waavi\Translation\Models\Language      $model  Bade model for queries.
      *  @param  \Illuminate\Validation\Validator        $validator  Validator factory
@@ -53,6 +60,7 @@ class LanguageRepository extends Repository
         $this->validator               = $validator;
         $this->defaultLocale           = $config->get('app.locale');
         $this->defaultAvailableLocales = $config->get('translator.available_locales', []);
+        $this->config                  = $config;
     }
 
     /**
@@ -116,7 +124,15 @@ class LanguageRepository extends Repository
      */
     public function availableLocales()
     {
-        return $this->tableExists() ? $this->model->distinct()->get()->lists('locale')->toArray() : $this->defaultAvailableLocales;
+        if ($this->config->has('translator.locales')) {
+            return $this->config->get('translator.locales');
+        }
+        if ($this->tableExists()) {
+            $locales = $this->model->distinct()->get()->lists('locale')->toArray();
+            $this->config->set('translator.locales', $locales);
+            return $locales;
+        }
+        return $this->defaultAvailableLocales;
     }
 
     /**

@@ -17,9 +17,10 @@ class SimpleRepository implements CacheRepositoryInterface
      * @param  \Illuminate\Contracts\Cache\Store  $store
      * @return void
      */
-    public function __construct(Store $store)
+    public function __construct(Store $store, $cacheTag)
     {
-        $this->store = $store;
+        $this->store    = $store;
+        $this->cacheTag = $cacheTag;
     }
 
     /**
@@ -101,7 +102,7 @@ class SimpleRepository implements CacheRepositoryInterface
      */
     protected function getKey($locale, $group, $namespace)
     {
-        return md5("{$locale}-{$group}-{$namespace}");
+        return md5("{$this->cacheTag}-{$locale}-{$group}-{$namespace}");
     }
 
 }

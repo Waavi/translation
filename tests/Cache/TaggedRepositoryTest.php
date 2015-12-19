@@ -10,7 +10,7 @@ class TaggedRepositoryTest extends TestCase
     {
         // During the parent's setup, both a 'es' 'Spanish' and 'en' 'English' languages are inserted into the database.
         parent::setUp();
-        $this->repo = new TaggedRepository(new ArrayStore);
+        $this->repo = new TaggedRepository(new ArrayStore, 'translation');
     }
 
     /**

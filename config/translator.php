@@ -35,5 +35,6 @@ return [
     'cache'             => [
         'enabled' => env('TRANSLATION_CACHE_ENABLED', true),
         'timeout' => env('TRANSLATION_CACHE_TIMEOUT', 60),
+        'suffix'  => env('TRANSLATION_CACHE_SUFFIX', 'translation'),
     ],
 ];

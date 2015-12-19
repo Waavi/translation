@@ -16,7 +16,7 @@ class TaggedRepository implements CacheRepositoryInterface
      *
      * @var string
      */
-    protected $translationTag;
+    protected $cacheTag;
 
     /**
      * Create a new cache repository instance.
@@ -24,10 +24,10 @@ class TaggedRepository implements CacheRepositoryInterface
      * @param  \Illuminate\Contracts\Cache\Store  $store
      * @return void
      */
-    public function __construct(Store $store)
+    public function __construct(Store $store, $cacheTag)
     {
-        $this->store          = $store;
-        $this->translationTag = 'waavi_translation';
+        $this->store    = $store;
+        $this->cacheTag = $cacheTag;
     }
 
     /**
@@ -54,7 +54,7 @@ class TaggedRepository implements CacheRepositoryInterface
     public function get($locale, $group, $namespace)
     {
         $key = $this->getKey($locale, $group, $namespace);
-        return $this->store->tags([$this->translationTag, $key])->get($key);
+        return $this->store->tags([$this->cacheTag, $key])->get($key);
     }
 
     /**
@@ -70,7 +70,7 @@ class TaggedRepository implements CacheRepositoryInterface
     public function put($locale, $group, $namespace, $content, $minutes)
     {
         $key = $this->getKey($locale, $group, $namespace);
-        $this->store->tags([$this->translationTag, $key])->put($key, $content, $minutes);
+        $this->store->tags([$this->cacheTag, $key])->put($key, $content, $minutes);
     }
 
     /**
@@ -97,7 +97,7 @@ class TaggedRepository implements CacheRepositoryInterface
      */
     public function flushAll()
     {
-        $this->store->tags([$this->translationTag])->flush();
+        $this->store->tags([$this->cacheTag])->flush();
     }
 
     /**
@@ -110,6 +110,6 @@ class TaggedRepository implements CacheRepositoryInterface
      */
     protected function getKey($locale, $group, $namespace)
     {
-        return md5("{$this->translationTag}-{$locale}-{$group}-{$namespace}");
+        return md5("{$this->cacheTag}-{$locale}-{$group}-{$namespace}");
     }
 }

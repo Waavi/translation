@@ -41,7 +41,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
         parent::register();
-        $this->registerCommand();
+        $this->registerFileLoader();
         $this->app->singleton('urilocalizer', UriLocalizer::class);
         $this->app[\Illuminate\Routing\Router::class]->middleware('localize', TranslationMiddleware::class);
         // Fix issue with laravel prepending the locale to localize resource routes:
@@ -77,7 +77,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
             }
             if ($app['config']->get('translator.cache.enabled')) {
                 $cacheStore      = $app['cache']->getStore();
-                $cacheRepository = CacheRepositoryFactory::make($cacheStore);
+                $cacheRepository = CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
                 $loader          = new CacheLoader($defaultLocale, $cacheRepository, $loader, $app['config']->get('translator.cache.timeout'));
             }
             return $loader;
@@ -89,7 +89,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
      *
      * @return void
      */
-    protected function registerCommand()
+    protected function registerFileLoader()
     {
         $app                   = $this->app;
         $defaultLocale         = $app['config']->get('app.locale');

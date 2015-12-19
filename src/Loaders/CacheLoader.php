@@ -1,7 +1,7 @@
 <?php namespace Waavi\Translation\Loaders;
 
-use Illuminate\Cache\Repository as Cache;
 use Illuminate\Translation\LoaderInterface;
+use Waavi\Translation\Cache\CacheRepositoryInterface as Cache;
 
 class CacheLoader extends Loader implements LoaderInterface
 {
@@ -34,28 +34,19 @@ class CacheLoader extends Loader implements LoaderInterface
     protected $cacheTimeout;
 
     /**
-     *  The cache key suffix
-     *
-     *  @var string
-     */
-    protected $cacheSuffix;
-
-    /**
      *  Create a new mixed loader instance.
      *
-     *  @param  string                              $defaultLocale
-     *  @param  \Illuminate\Cache\Repository        $cache              Cache repository.
-     *  @param  \Waavi\Translation\Loaders\Loader   $fallback           Translation loader to use on cache miss.
-     *  @param  integer                             $cacheTimeout       In minutes.
-     *  @param  string                              $cacheSuffix        Suffix for the cache.
+     *  @param  string                                                      $defaultLocale
+     *  @param  \Waavi\Translation\Contracts\CacheRepositoryInterface       $cache              Cache repository.
+     *  @param  \Waavi\Translation\Loaders\Loader                           $fallback           Translation loader to use on cache miss.
+     *  @param  integer                                                     $cacheTimeout       In minutes.
      */
-    public function __construct($defaultLocale, Cache $cache, Loader $fallback, $cacheTimeout, $cacheSuffix)
+    public function __construct($defaultLocale, Cache $cache, Loader $fallback, $cacheTimeout)
     {
         parent::__construct($defaultLocale);
         $this->cache        = $cache;
         $this->fallback     = $fallback;
         $this->cacheTimeout = $cacheTimeout;
-        $this->cacheSuffix  = $cacheSuffix;
     }
 
     /**
@@ -68,13 +59,11 @@ class CacheLoader extends Loader implements LoaderInterface
      */
     public function loadSource($locale, $group, $namespace = '*')
     {
-        $key = $this->generateCacheKey($locale, $group, $namespace);
-
-        if ($this->cache->has($key)) {
-            return $this->cache->get($key);
+        if ($this->cache->has($locale, $group, $namespace)) {
+            return $this->cache->get($locale, $group, $namespace);
         } else {
             $source = $this->fallback->load($locale, $group, $namespace);
-            $this->cache->put($key, $source, $this->cacheTimeout);
+            $this->cache->put($locale, $group, $namespace, $source, $this->cacheTimeout);
             return $source;
         }
     }
@@ -89,19 +78,5 @@ class CacheLoader extends Loader implements LoaderInterface
     public function addNamespace($namespace, $hint)
     {
         $this->fallback->addNamespace($namespace, $hint);
-    }
-
-    /**
-     *  Generates a cache key based on the locale, group and namespace
-     *
-     *  @param  string  $locale
-     *  @param  string  $group
-     *  @param  string  $namespace
-     *  @return array
-     */
-    public function generateCacheKey($locale, $group, $namespace)
-    {
-        $langKey = md5("{$locale}-{$group}-{$namespace}");
-        return "{$this->cacheSuffix}-{$langKey}";
     }
 }

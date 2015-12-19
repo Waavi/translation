@@ -2,6 +2,7 @@
 
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
+use Waavi\Translation\Cache\RepositoryFactory as CacheRepositoryFactory;
 use Waavi\Translation\Commands\FileLoaderCommand;
 use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
@@ -75,8 +76,9 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     break;
             }
             if ($app['config']->get('translator.cache.enabled')) {
-                $cacheStore = $app['cache']->store($app['config']->get('cache.default'));
-                $loader     = new CacheLoader($defaultLocale, $cacheStore, $loader, $app['config']->get('translator.cache.timeout'), $app['config']->get('translator.cache.suffix'));
+                $cacheStore      = $app['cache']->getStore();
+                $cacheRepository = CacheRepositoryFactory::make($cacheStore);
+                $loader          = new CacheLoader($defaultLocale, $cacheRepository, $loader, $app['config']->get('translator.cache.timeout'));
             }
             return $loader;
         });

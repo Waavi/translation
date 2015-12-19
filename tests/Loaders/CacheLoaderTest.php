@@ -1,6 +1,6 @@
 <?php namespace Waavi\Translation\Test\Loaders;
 
-use Illuminate\Cache\Repository as Cache;
+use Waavi\Translation\Cache\SimpleRepository as Cache;
 use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\Loader;
 use Waavi\Translation\Test\TestCase;
@@ -27,9 +27,8 @@ class CacheLoaderTest extends TestCase
      */
     public function it_returns_from_cache_if_hit()
     {
-        $key = $this->cacheLoader->generateCacheKey('en', 'group', 'name');
-        $this->cache->shouldReceive('has')->with($key)->once()->andReturn(true);
-        $this->cache->shouldReceive('get')->with($key)->once()->andReturn('cache hit');
+        $this->cache->shouldReceive('has')->with('en', 'group', 'name')->once()->andReturn(true);
+        $this->cache->shouldReceive('get')->with('en', 'group', 'name')->once()->andReturn('cache hit');
         $this->assertEquals('cache hit', $this->cacheLoader->loadSource('en', 'group', 'name'));
     }
 
@@ -38,10 +37,9 @@ class CacheLoaderTest extends TestCase
      */
     public function it_returns_from_fallback_and_stores_in_cache_if_miss()
     {
-        $key = $this->cacheLoader->generateCacheKey('en', 'group', 'name');
-        $this->cache->shouldReceive('has')->with($key)->once()->andReturn(false);
+        $this->cache->shouldReceive('has')->with('en', 'group', 'name')->once()->andReturn(false);
         $this->fallback->shouldReceive('load')->with('en', 'group', 'name')->once()->andReturn('cache miss');
-        $this->cache->shouldReceive('put')->with($key, 'cache miss', 60)->once()->andReturn(true);
+        $this->cache->shouldReceive('put')->with('en', 'group', 'name', 'cache miss', 60)->once()->andReturn(true);
         $this->assertEquals('cache miss', $this->cacheLoader->loadSource('en', 'group', 'name'));
     }
 }

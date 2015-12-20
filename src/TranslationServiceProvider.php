@@ -3,6 +3,7 @@
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
 use Waavi\Translation\Cache\RepositoryFactory as CacheRepositoryFactory;
+use Waavi\Translation\Commands\CacheFlushCommand;
 use Waavi\Translation\Commands\FileLoaderCommand;
 use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
@@ -42,6 +43,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
         parent::register();
         $this->registerFileLoader();
+        $this->registerCacheFlusher();
         $this->app->singleton('urilocalizer', UriLocalizer::class);
         $this->app[\Illuminate\Routing\Router::class]->middleware('localize', TranslationMiddleware::class);
         // Fix issue with laravel prepending the locale to localize resource routes:
@@ -100,5 +102,20 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
         $this->app['command.translator:load'] = $command;
         $this->commands('command.translator:load');
+    }
+
+    /**
+     *  Flushes the translation cache
+     *
+     *  @return void
+     */
+    public function registerCacheFlusher()
+    {
+        $cacheStore      = $this->app['cache']->getStore();
+        $cacheRepository = CacheRepositoryFactory::make($cacheStore, $this->app['config']->get('translator.cache.suffix'));
+        $command         = new CacheFlushCommand($cacheRepository, $this->app['config']->get('translator.cache.enabled'));
+
+        $this->app['command.translator:flush'] = $command;
+        $this->commands('command.translator:flush');
     }
 }

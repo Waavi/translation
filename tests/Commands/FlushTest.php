@@ -1,6 +1,6 @@
 <?php namespace Waavi\Translation\Test\Commands;
 
-use Waavi\Translation\Commands\CacheFlushCommand;
+use Mockery;
 use Waavi\Translation\Test\TestCase;
 
 class FlushTest extends TestCase
@@ -8,16 +8,38 @@ class FlushTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $cacheStore      = $this->app['cache']->getStore();
-        $cacheRepository = CacheRepositoryFactory::make($cacheStore, $this->app['config']->get('translator.cache.suffix'));
-        $this->command   = new CacheFlushCommand($cacheRepository, $this->app['config']->get('translator.cache.enabled'));
+        $this->cacheRepository = \App::make('translation.cache.repository');
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
      * @test
      */
-    public function it_loads_files_into_database()
+    public function it_does_nothing_if_cache_disabled()
     {
-        $this->assertTrue(false);
+        $this->cacheRepository->put('en', 'group', 'namespace', 'value', 60);
+        $this->assertTrue($this->cacheRepository->has('en', 'group', 'namespace'));
+        $command = Mockery::mock('Waavi\Translation\Commands\CacheFlushCommand[info]', [$this->cacheRepository, false]);
+        $command->shouldReceive('info')->with('The translation cache is disabled.')->once();
+        $command->fire();
+        $this->assertTrue($this->cacheRepository->has('en', 'group', 'namespace'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_flushes_the_cache()
+    {
+        $this->cacheRepository->put('en', 'group', 'namespace', 'value', 60);
+        $this->assertTrue($this->cacheRepository->has('en', 'group', 'namespace'));
+        $command = Mockery::mock('Waavi\Translation\Commands\CacheFlushCommand[info]', [$this->cacheRepository, true]);
+        $command->shouldReceive('info')->with('Translation cache cleared.')->once();
+        $command->fire();
+        $this->assertFalse($this->cacheRepository->has('en', 'group', 'namespace'));
     }
 }

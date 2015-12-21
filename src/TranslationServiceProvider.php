@@ -42,6 +42,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
         parent::register();
+        $this->registerCacheRepository();
         $this->registerFileLoader();
         $this->registerCacheFlusher();
         $this->app->singleton('urilocalizer', UriLocalizer::class);
@@ -78,11 +79,24 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     break;
             }
             if ($app['config']->get('translator.cache.enabled')) {
-                $cacheStore      = $app['cache']->getStore();
-                $cacheRepository = CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
-                $loader          = new CacheLoader($defaultLocale, $cacheRepository, $loader, $app['config']->get('translator.cache.timeout'));
+                //$cacheStore      = $app['cache']->getStore();
+                //$cacheRepository = CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
+                $loader = new CacheLoader($defaultLocale, $app['translation.cache.repository'], $loader, $app['config']->get('translator.cache.timeout'));
             }
             return $loader;
+        });
+    }
+
+    /**
+     *  Register the translation cache repository
+     *
+     *  @return void
+     */
+    public function registerCacheRepository()
+    {
+        $this->app->singleton('translation.cache.repository', function ($app) {
+            $cacheStore = $app['cache']->getStore();
+            return CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
         });
     }
 
@@ -111,9 +125,9 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
      */
     public function registerCacheFlusher()
     {
-        $cacheStore      = $this->app['cache']->getStore();
-        $cacheRepository = CacheRepositoryFactory::make($cacheStore, $this->app['config']->get('translator.cache.suffix'));
-        $command         = new CacheFlushCommand($cacheRepository, $this->app['config']->get('translator.cache.enabled'));
+        //$cacheStore      = $this->app['cache']->getStore();
+        //$cacheRepository = CacheRepositoryFactory::make($cacheStore, $this->app['config']->get('translator.cache.suffix'));
+        $command = new CacheFlushCommand($this->app['translation.cache.repository'], $this->app['config']->get('translator.cache.enabled'));
 
         $this->app['command.translator:flush'] = $command;
         $this->commands('command.translator:flush');

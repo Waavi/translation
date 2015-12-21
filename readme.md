@@ -189,6 +189,43 @@ You may enable or disable the cache through the translator.php config file or th
  TRANSLATION_CACHE_TIMEOUT  | integer| Minutes translation items should be kept in the cache.
  TRANSLATION_CACHE_SUFFIX   | string | Default is 'translation'. This will be the cache suffix applied to all translation cache entries.
 
+### Cache tags
+
+Available since version 2.1.3.8, if the cache store in use allows for tags, the TRANSLATION_CACHE_SUFFIX will be used as the common tag to all cache entries. This is recommended to be able to invalidate only the translation cache, or even just a given locale, namespace and group configuration.
+
+### Clearing the cache
+
+Available since version 2.1.3.8, you may clear the translation cache through both an Artisan Command and a Facade. If cache tags are in use, only the translation cache will be cleared. All of your application cache will however be cleared if you cache tags are not available.
+
+Cache flush command:
+
+    php artisan translator:flush
+
+In order to access the translation cache, add to your config/app.php files, the following alias:
+
+    'aliases'         => [
+        /* ... */
+        'TranslationCache' => \Waavi\Translation\Facades\TranslationCache::class,
+    ]
+
+Once done, you may clear the whole translation cache by calling:
+
+    \TranslationCache::flushAll();
+
+You may also choose to invalidate only a given locale, namespace and group combination.
+
+    \TranslationCache::flush($locale, $group, $namespace);
+
+- The locale is the language locale you wish to clear.
+- The namespace is either '*' for your application translation files, or 'package' for vendor translation files.
+- The group variable is the path to the translation file you wish to clear.
+
+For example, say we have the following file in our resources/lang directory: en/auth.php, en/auth/login.php and en/vendor/waavi/login.php. To clear the cache entries for each of them you would call:
+
+    \TranslationCache::flush('en', 'auth', '*');
+    \TranslationCache::flush('en', 'auth/login', '*');
+    \TranslationCache::flush('en', 'login', 'waavi');
+
 ## Managing languages and translations in the Database
 
 The recommended way of managing both languages and translations is through the provided repositories. You may circumvent this by saving changes directly through the Language and Translation models, however validation is no longer executed automatically on model save and could lead to instability and errors.

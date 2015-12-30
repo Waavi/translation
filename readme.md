@@ -48,7 +48,7 @@ This package allows developers to leverage their database and cache to manage mu
 
 Require through composer
 
-	composer require waavi/translation 2.0.x
+	composer require waavi/translation 2.1.x
 
 Or manually edit your composer.json file:
 

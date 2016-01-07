@@ -11,6 +11,8 @@ Keeping a project's translations properly updated is cumbersome. Usually transla
 
 This package allows developers to leverage their database and cache to manage multilanguage sites, while still working on language files during development and benefiting from all the features Laravel's Translation bundle has, like pluralization or replacement.
 
+WAAVI is a web development studio based in Madrid, Spain. You can learn more about us at [waavi.com](http://waavi.com)
+
 ## Table of contents
 
 - [Laravel compatibility](#laravel-compatibility)
@@ -95,24 +97,25 @@ If you do not wish to leverage your database for translations, you may choose to
 
 Example:
 
-	The content in en/validations.php, where 'en' is the default locale, is:
-
-		array(
+The content in en/validations.php, where 'en' is the default locale, is:
+```php
+		[
 			'missing_name'			=>	'Name is missing',
 			'missing_surname'		=>	'Surname is missing',
-		);
-
-	The content in es/validations.php is:
-
-		array(
+		];
+```
+The content in es/validations.php is:
+```php
+		[
 			'missing_name'			=>	'Falta el nombre',
-		);
-
-	Output for different keys with 'es' locale:
-
-		trans('validations.missing_name') 		-> 		'Falta el nombre'
-		trans('validations.missing_surname') 	-> 		'Surname is missing'
-		trans('validations.missing_email') 		-> 		'missing_email'
+		];
+```
+Output for different keys with 'es' locale:
+```php
+		trans('validations.missing_name'); 		// 		'Falta el nombre'
+		trans('validations.missing_surname'); 	// 		'Surname is missing'
+		trans('validations.missing_email'); 	// 		'validations.missing_email'
+```
 
 ### Load translations from the database
 
@@ -120,28 +123,30 @@ You may choose to load translations exclusively from the database. This is very 
 
 Example:
 
-	The content in the languages table is:
+The content in the languages table is:
 
 		| id | locale | name    |
 		-------------------------
 		| 1  | en     | english |
 		| 2  | es     | spanish |
 
-	The relevant content in the language_entries table is:
+The relevant content in the language_entries table is:
 
 		| id | locale | namespace | group       | item	          | text                    |
 		-------------------------------------------------------------------------------------
-		| 1  | en     | NULL      | validations | missing.name    | Name is missing         |
-		| 2  | en     | NULL      | validations | missing.surname | Surname is missing      |
-		| 3  | en     | NULL      | validations | min_number      | Number is too small     |
-		| 4  | es     | NULL      | validations | missing.name    | Falta nombre   			|
-		| 5  | es     | NULL      | validations | missing.surname | Falta apellido 			|
+		| 1  | en     | *         | validations | missing.name    | Name is missing         |
+		| 2  | en     | *         | validations | missing.surname | Surname is missing      |
+		| 3  | en     | *         | validations | min_number      | Number is too small     |
+		| 4  | es     | *         | validations | missing.name    | Falta nombre   			|
+		| 5  | es     | *         | validations | missing.surname | Falta apellido 			|
 
-	Output for different keys with es locale:
+Output for different keys with es locale:
 
-		trans('validations.missing.name')   ->    'Falta nombre'
-		trans('validations.min_number')     ->    'Number is too small'
-		trans('validations.missing.email')  ->    'missing_email'
+```php
+		trans('validations.missing.name');   //    'Falta nombre'
+		trans('validations.min_number');     //    'Number is too small'
+		trans('validations.missing.email');  //    'missing_email'
+``
 
 ### Mixed mode
 
@@ -150,11 +155,12 @@ In mixed mode, both the language files and the database are queried when looking
 Example:
 
 	When files and database are set like in the previous examples:
-
-		trans('validations.missing_name')     ->    'Falta el nombre'
-		trans('validations.missing_surname')  ->    'Falta apellido'
-		trans('validations.min_number')       ->    'Number is too small'
-		trans('validations.missing_email')    ->    'missing_email'
+```php
+		trans('validations.missing_name');     //    'Falta el nombre'
+		trans('validations.missing_surname');  //    'Falta apellido'
+		trans('validations.min_number');       //    'Number is too small'
+		trans('validations.missing_email');    //    'missing_email'
+```
 
 ### Loading your files into the database
 
@@ -173,9 +179,10 @@ When executing the artisan command, the following will happen:
 - When an entry in the default locale is edited, all of its translations will be flagged as **pending review**. This gives translators the oportunity to review translations that might not be correct, but doesn't delete them so as to avoid minor errata changes in the source text from erasing all translations. See [Managing translations](#managing-translations) for details on how to work with unstable translations.
 
 Both vendor files and subdirectories are supported. Please keep in mind that when loading an entry inside a subdirectory, Laravel 5 has changed the syntax to:
-
+```php
 	trans('subdir/file.entry')
 	trans('package::subdir/file.entry')
+```
 
 ## Cache translations
 
@@ -202,29 +209,32 @@ Cache flush command:
     php artisan translator:flush
 
 In order to access the translation cache, add to your config/app.php files, the following alias:
-
+```php
     'aliases'         => [
         /* ... */
         'TranslationCache' => \Waavi\Translation\Facades\TranslationCache::class,
     ]
-
+```
 Once done, you may clear the whole translation cache by calling:
-
+```php
     \TranslationCache::flushAll();
+```
 
 You may also choose to invalidate only a given locale, namespace and group combination.
-
+```php
     \TranslationCache::flush($locale, $group, $namespace);
+```
 
 - The locale is the language locale you wish to clear.
 - The namespace is either '*' for your application translation files, or 'package' for vendor translation files.
 - The group variable is the path to the translation file you wish to clear.
 
 For example, say we have the following file in our resources/lang directory: en/auth.php, en/auth/login.php and en/vendor/waavi/login.php. To clear the cache entries for each of them you would call:
-
+```php
     \TranslationCache::flush('en', 'auth', '*');
     \TranslationCache::flush('en', 'auth/login', '*');
     \TranslationCache::flush('en', 'login', 'waavi');
+```
 
 ## Managing languages and translations in the Database
 
@@ -301,7 +311,7 @@ You can also use the translation management system to manage your model attribut
  - For every field you wish to translate, make sure there is a corresponding attributeName_translation field in your database.
 
 Example:
-
+```php
 	\Schema::create('examples', function ($table) {
         $table->increments('id');
         $table->string('slug')->nullable();
@@ -317,7 +327,7 @@ Example:
 	    use \Waavi\Translation\Translatable\Trait;
 	    protected $translatableAttributes = ['title', 'text'];
 	}
-
+```
 
 ## Uri localization
 
@@ -339,23 +349,26 @@ For example, if a user visits the url /home, the following would happen:
  	- Redirects will keep input data in the url, if any
 
 You may choose to activate this Middleware globally by adding the middleware to your App\Http\Kernel file:
-
+```php
 	protected $middleware = [
 		/* ... */
         \Waavi\Translation\Middleware\TranslationMiddleware::class,
     ]
-
+```
 Or to apply it selectively through the **'localize'** route middleware, which is already registered when installing the package through the ServiceProvider.
 
 It is recommended you add the following alias to your config/app.php aliases:
 
+```php
 	'aliases'         => [
 		/* ... */
 		'UriLocalizer'	=> Waavi\Translation\Facades\UriLocalizer::class,
     ];
+```
 
 Every localized route must be prefixed with the current locale:
 
+```php
 	// If the middleware is globally applied:
 	Route::group(['prefix' => \UriLocalizer::localeFromRequest()], function(){
 		/* Your routes here */
@@ -365,3 +378,17 @@ Every localized route must be prefixed with the current locale:
 	Route::group(['prefix' => \UriLocalizer::localeFromRequest(), 'middleware' => 'localize')], function () {
 	    /* Your routes here */
 	});
+```
+
+In your views, for routes where the Middleware is active, you may present the user with a menu to switch from the current language to another by using the shared variables. For example:
+
+```php
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $currentLanguage->name }} <b class="caret"></b></a>
+    <ul class="dropdown-menu">
+        @foreach ($altLocalizedUrls as $alt)
+            <li><a href="{{ $alt->url }}" hreflang="{{ $alt->locale }}">{{ $alt->name }}</a></li>
+        @endforeach
+    </ul>
+</li>
+```

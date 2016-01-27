@@ -146,7 +146,7 @@ Output for different keys with es locale:
 		trans('validations.missing.name');   //    'Falta nombre'
 		trans('validations.min_number');     //    'Number is too small'
 		trans('validations.missing.email');  //    'missing_email'
-``
+```
 
 ### Mixed mode
 

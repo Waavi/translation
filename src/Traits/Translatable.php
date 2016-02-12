@@ -5,6 +5,9 @@ use Illuminate\Support\Str;
 
 trait Translatable
 {
+    
+    private $_translatedAttributes = [];
+    
     /**
      *  Register Model observer.
      *
@@ -53,8 +56,19 @@ trait Translatable
                 $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::quickRandom();
                 $this->attributes["{$attribute}_translation"] = "$group.$item";
             }
+            
+            $this->_translatedAttributes[$attribute] = $value;
+            if (\App::getLocale() === config('app.fallback_locale')) {
+                return parent::setAttribute($attribute, $value);
+            }
+            
+        } else {
+            return parent::setAttribute($attribute, $value);
         }
-        return parent::setAttribute($attribute, $value);
+    }
+    
+    public function getTranslatedAttributes() {
+        return $this->_translatedAttributes;
     }
 
     /**

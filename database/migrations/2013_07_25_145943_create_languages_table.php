@@ -28,7 +28,7 @@ class CreateLanguagesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('languages');
+        Schema::drop('translator_languages');
     }
 
 }

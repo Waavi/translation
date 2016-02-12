@@ -5,6 +5,7 @@ use Waavi\Translation\Repositories\TranslationRepository;
 
 class TranslatableObserver
 {
+    
     /**
      *  Save translations when model is saved.
      *
@@ -15,11 +16,9 @@ class TranslatableObserver
     {
         $translationRepository = \App::make(TranslationRepository::class);
         $cacheRepository       = \App::make('translation.cache.repository');
-        foreach ($model->translatableAttributes() as $attribute) {
+        foreach ($model->getTranslatedAttributes() as $attribute => $value) {
             // If the value of the translatable attribute has changed:
-            if ($model->isDirty($attribute)) {
-                $translationRepository->updateDefaultByCode($model->translationCodeFor($attribute), $model->getRawAttribute($attribute));
-            }
+            $translationRepository->updateDefaultByCode($model->translationCodeFor($attribute), $value);
         }
         $cacheRepository->flush(config('app.locale'), 'translatable', '*');
     }

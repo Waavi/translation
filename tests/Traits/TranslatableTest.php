@@ -1,6 +1,7 @@
 <?php namespace Waavi\Translation\Test\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Mockery;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 use Waavi\Translation\Test\TestCase;
@@ -26,9 +27,9 @@ class TranslatableTest extends TestCase
     }
 
     /**
-     *    Check an entry is created when saving
+     * @test
      */
-    public function test_it_works()
+    public function it_saves_translations()
     {
         $dummy        = new Dummy;
         $dummy->title = 'Dummy title';
@@ -49,6 +50,21 @@ class TranslatableTest extends TestCase
         $this->assertTrue($deleted);
         $this->assertEquals(0, Dummy::count());
         $this->assertEquals(0, $this->translationRepository->count());
+    }
+
+    /**
+     * @test
+     */
+    public function it_flushes_cache()
+    {
+        $cacheMock = Mockery::mock(\Waavi\Translation\Cache\SimpleRepository::class);
+        $this->app->bind('translation.cache.repository', function ($app) use ($cacheMock) {return $cacheMock;});
+        $cacheMock->shouldReceive('flush')->with('en', 'translatable', '*');
+        $dummy        = new Dummy;
+        $dummy->title = 'Dummy title';
+        $dummy->text  = 'Dummy text';
+        $saved        = $dummy->save() ? true : false;
+        $this->assertTrue($saved);
     }
 }
 

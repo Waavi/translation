@@ -34,7 +34,7 @@ class CreateTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('language_entries');
+        Schema::drop('translator_translations');
     }
 
 }

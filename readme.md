@@ -388,7 +388,7 @@ In your views, for routes where the Middleware is active, you may present the us
     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $currentLanguage->name }} <b class="caret"></b></a>
     <ul class="dropdown-menu">
         @foreach ($altLocalizedUrls as $alt)
-            <li><a href="{{ $alt->url }}" hreflang="{{ $alt->locale }}">{{ $alt->name }}</a></li>
+            <li><a href="{{ $alt['url'] }}" hreflang="{{ $alt['locale'] }}">{{ $alt['name'] }}</a></li>
         @endforeach
     </ul>
 </li>

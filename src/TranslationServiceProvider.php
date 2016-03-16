@@ -45,7 +45,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->registerCacheRepository();
         $this->registerFileLoader();
         $this->registerCacheFlusher();
-        $this->app->singleton('urilocalizer', UriLocalizer::class);
+        $this->app->singleton('UriLocalizer', UriLocalizer::class);
         $this->app[\Illuminate\Routing\Router::class]->middleware('localize', TranslationMiddleware::class);
         // Fix issue with laravel prepending the locale to localize resource routes:
         $this->app->bind('Illuminate\Routing\ResourceRegistrar', ResourceRegistrar::class);

@@ -52,7 +52,7 @@ trait Translatable
             // If a translation code has not yet been set, generate one:
             if (!$this->translationCodeFor($attribute)) {
                 $reflected                                    = new \ReflectionClass($this);
-                $group                                        = 'translatable';
+                $group                                        = $this->getTranslatableAtrributeGroup($attribute);
                 $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::quickRandom();
                 $this->attributes["{$attribute}_translation"] = "$group.$item";
             }
@@ -124,6 +124,30 @@ trait Translatable
     public function isTranslatable($attribute)
     {
         return in_array($attribute, $this->translatableAttributes);
+    }
+    
+    /**
+     *  Get the group for a translatable attribute or the default if not defined
+     *
+     *  @return string
+     */
+    public function getTranslatableAtrributeGroup($attribute)
+    {
+        if (isset($this->translatableAttributeGroups)) {
+            
+            //if there is an array of attributes assigned to each translatable attribute
+            if (is_array($this->translatableAttributeGroups) && array_key_exists($attribute, $this->translatableAttributeGroups)) {
+                return $this->translatableAttributeGroups[$attribute];
+            }
+            
+            //if there is one translatable group for this model
+            if (is_string($this->translatableAttributeGroups)) {
+                return $this->translatableAttributeGroups;
+            }
+            
+        }
+        
+        return 'translatable';
     }
 
     /**

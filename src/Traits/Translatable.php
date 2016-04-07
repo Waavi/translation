@@ -48,7 +48,7 @@ trait Translatable
      */
     public function setAttribute($attribute, $value)
     {
-        if ($this->isTranslatable($attribute) && !empty($value)) {
+        if ($this->isTranslatable($attribute)) {
             // If a translation code has not yet been set, generate one:
             if (!$this->translationCodeFor($attribute)) {
                 $reflected                                    = new \ReflectionClass($this);

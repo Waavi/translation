@@ -164,7 +164,7 @@ class TranslationRepository extends Repository
         $lines = array_dot($lines);
         foreach ($lines as $item => $text) {
         
-            $text = (!$text) ?: '';
+            $text = $text ? $text : '';
             
             // Check if the entry exists in the database:
             $translation = Translation::whereLocale($locale)

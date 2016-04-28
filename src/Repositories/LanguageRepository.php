@@ -54,13 +54,13 @@ class LanguageRepository extends Repository
      *  @param  \Illuminate\Validation\Validator        $validator  Validator factory
      *  @return void
      */
-    public function __construct(Language $model, Validator $validator, Config $config)
+    public function __construct(Language $model, Application $app)
     {
         $this->model                   = $model;
-        $this->validator               = $validator;
-        $this->defaultLocale           = $config->get('app.locale');
-        $this->defaultAvailableLocales = $config->get('translator.available_locales', []);
-        $this->config                  = $config;
+        $this->app                     = $app;
+        $this->defaultLocale           = $app['config']->get('app.locale');
+        $this->defaultAvailableLocales = $app['config']->get('translator.available_locales', []);
+        $this->config                  = $app['config'];
     }
 
     /**
@@ -177,7 +177,7 @@ class LanguageRepository extends Repository
             'locale' => "required|unique:{$table},locale,{$id}",
             'name'   => "required|unique:{$table},name,{$id}",
         ];
-        $validator = $this->validator->make($attributes, $rules);
+        $validator = $this->app['validator']->make($attributes, $rules);
         if ($validator->fails()) {
             $this->errors = $validator->errors();
             return false;

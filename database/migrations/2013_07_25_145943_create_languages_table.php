@@ -16,6 +16,7 @@ class CreateLanguagesTable extends Migration
             $table->increments('id');
             $table->string('locale', 8)->unique();
             $table->string('name', 60)->unique();
+            $table->string('native', 60)->unique();
             $table->timestamps();
             $table->softDeletes();
         });

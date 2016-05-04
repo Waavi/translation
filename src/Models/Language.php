@@ -16,7 +16,7 @@ class Language extends Model
      *  List of variables that cannot be mass assigned
      *  @var array
      */
-    protected $fillable = ['locale', 'name'];
+    protected $fillable = ['locale', 'name', 'native'];
 
     /**
      *  Each language may have several translations.

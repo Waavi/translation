@@ -59,10 +59,6 @@ Or manually edit your composer.json file:
 		"waavi/translation": "2.1.x"
 	}
 
-Publish both the configuration file and the migrations:
-
-	php artisan vendor:publish
-
 Once installed, in your project's config/app.php file replace the following entry from the providers array:
 
 	Illuminate\Translation\TranslationServiceProvider::class
@@ -70,6 +66,14 @@ Once installed, in your project's config/app.php file replace the following entr
 with:
 
 	Waavi\Translation\TranslationServiceProvider::class
+
+Remove your config cache:
+
+	php artisan config:cache
+
+Publish both the configuration file and the migrations:
+
+	php artisan vendor:publish
 
 Execute the database migrations:
 

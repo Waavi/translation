@@ -163,24 +163,26 @@ class TranslationRepository extends Repository
         // Transform the lines into a flat dot array:
         $lines = array_dot($lines);
         foreach ($lines as $item => $text) {
-            // Check if the entry exists in the database:
-            $translation = Translation::whereLocale($locale)
-                ->whereNamespace($namespace)
-                ->whereGroup($group)
-                ->whereItem($item)
-                ->first();
+            if (is_string($text)) {
+                // Check if the entry exists in the database:
+                $translation = Translation::whereLocale($locale)
+                    ->whereNamespace($namespace)
+                    ->whereGroup($group)
+                    ->whereItem($item)
+                    ->first();
 
-            // If the translation already exists, we update the text:
-            if ($translation && !$translation->isLocked()) {
-                $translation->text = $text;
-                $saved             = $translation->save();
-                if ($saved && $translation->locale === $this->defaultLocale) {
-                    $this->flagAsUnstable($namespace, $group, $item);
+                // If the translation already exists, we update the text:
+                if ($translation && !$translation->isLocked()) {
+                    $translation->text = $text;
+                    $saved             = $translation->save();
+                    if ($saved && $translation->locale === $this->defaultLocale) {
+                        $this->flagAsUnstable($namespace, $group, $item);
+                    }
                 }
-            }
-            // If no entry was found, create it:
-            else {
-                $this->create(compact('locale', 'namespace', 'group', 'item', 'text'));
+                // If no entry was found, create it:
+                else {
+                    $this->create(compact('locale', 'namespace', 'group', 'item', 'text'));
+                }
             }
         }
     }

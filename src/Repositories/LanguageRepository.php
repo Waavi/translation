@@ -1,5 +1,6 @@
 <?php namespace Waavi\Translation\Repositories;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Validation\Factory as Validator;
 use Waavi\Translation\Models\Language;
@@ -54,10 +55,11 @@ class LanguageRepository extends Repository
      *  @param  \Illuminate\Validation\Validator        $validator  Validator factory
      *  @return void
      */
-    public function __construct(Language $model, Validator $validator, Config $config)
+    public function __construct(Language $model, Application $app)
     {
         $this->model                   = $model;
-        $this->validator               = $validator;
+        $this->validator               = $app['validator'];
+        $config                        = $app['config'];
         $this->defaultLocale           = $config->get('app.locale');
         $this->defaultAvailableLocales = $config->get('translator.available_locales', []);
         $this->config                  = $config;

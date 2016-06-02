@@ -163,6 +163,9 @@ class TranslationRepository extends Repository
         // Transform the lines into a flat dot array:
         $lines = array_dot($lines);
         foreach ($lines as $item => $text) {
+        
+            $text = $text ? $text : '';
+            
             // Check if the entry exists in the database:
             $translation = Translation::whereLocale($locale)
                 ->whereNamespace($namespace)

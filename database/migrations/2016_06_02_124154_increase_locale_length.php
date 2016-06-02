@@ -27,7 +27,7 @@ class IncreaseLocaleLength extends Migration
      */
     public function down()
     {
-        Schema::drop('translator_translations');
+        //
     }
 
 }

@@ -11,6 +11,6 @@ class UriLocalizer extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'UriLocalizer';
+        return 'translation.uri.localizer';
     }
 }

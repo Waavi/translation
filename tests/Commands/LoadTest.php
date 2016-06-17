@@ -91,19 +91,19 @@ class LoadTest extends TestCase
 
         $translations = $this->translationRepository->all();
 
-        $this->assertEquals(8, $translations->count());
+        $this->assertEquals(9, $translations->count());
 
-        $this->assertEquals('en', $translations[6]->locale);
-        $this->assertEquals('package', $translations[6]->namespace);
-        $this->assertEquals('example', $translations[6]->group);
-        $this->assertEquals('entry', $translations[6]->item);
-        $this->assertEquals('Vendor text', $translations[6]->text);
-
-        $this->assertEquals('es', $translations[7]->locale);
+        $this->assertEquals('en', $translations[7]->locale);
         $this->assertEquals('package', $translations[7]->namespace);
         $this->assertEquals('example', $translations[7]->group);
         $this->assertEquals('entry', $translations[7]->item);
-        $this->assertEquals('Texto proveedor', $translations[7]->text);
+        $this->assertEquals('Vendor text', $translations[7]->text);
+
+        $this->assertEquals('es', $translations[8]->locale);
+        $this->assertEquals('package', $translations[8]->namespace);
+        $this->assertEquals('example', $translations[8]->group);
+        $this->assertEquals('entry', $translations[8]->item);
+        $this->assertEquals('Texto proveedor', $translations[8]->text);
     }
 
     /**
@@ -138,5 +138,23 @@ class LoadTest extends TestCase
         $this->assertEquals('auth', $translations[1]->group);
         $this->assertEquals('login.action', $translations[1]->item);
         $this->assertEquals('Login', $translations[1]->text);
+    }
+
+    /**
+     *  @test
+     */
+    public function it_doesnt_load_empty_arrays()
+    {
+        $file = realpath(__DIR__ . '/../lang/en/empty.php');
+        $this->command->loadFile($file, 'en');
+        $translations = $this->translationRepository->all();
+
+        $this->assertEquals(1, $translations->count());
+
+        $this->assertEquals('en', $translations[0]->locale);
+        $this->assertEquals('*', $translations[0]->namespace);
+        $this->assertEquals('empty', $translations[0]->group);
+        $this->assertEquals('emptyString', $translations[0]->item);
+        $this->assertEquals('', $translations[0]->text);
     }
 }

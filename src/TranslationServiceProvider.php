@@ -52,6 +52,16 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     }
 
     /**
+     *  IOC alias provided by this Service Provider.
+     *
+     *  @return array
+     */
+    public function provides()
+    {
+        return ['translation.cache.repository', 'translation.uri.localizer', 'translation.loader'];
+    }
+
+    /**
      * Register the translation line loader.
      *
      * @return void

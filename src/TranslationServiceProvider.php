@@ -132,4 +132,14 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->app['command.translator:flush'] = $command;
         $this->commands('command.translator:flush');
     }
+
+    /**
+     *  Exposes the service container bindings provided by the translation service 
+     *
+     *  @return void
+     */
+    public function provides()
+    {
+        return array_merge(parent::provides(), ['translation.cache.repository', 'translation.uri.localizer']);
+    }
 }

@@ -202,7 +202,9 @@ class TranslationRepository extends Repository
     /**
      *  Return all items for a given locale, namespace and group
      *
-     *  @param  string $code
+     *  @param  string $locale
+     *  @param  string $namespace
+     *  @param  string $group
      *  @return array
      */
     public function getItems($locale, $namespace, $group)
@@ -213,6 +215,27 @@ class TranslationRepository extends Repository
             ->whereGroup($group)
             ->get()
             ->toArray();
+    }
+
+    /**
+     *  Return all items formatted as if coming from a PHP language file.
+     *
+     *  @param  string $locale
+     *  @param  string $namespace
+     *  @param  string $group
+     *  @return array
+     */
+    public function loadSource($locale, $namespace, $group)
+    {
+        return $this->model
+            ->whereLocale($locale)
+            ->whereNamespace($namespace)
+            ->whereGroup($group)
+            ->get()
+            ->reduce(function ($translationsArray, $translation) {
+                array_set($translationsArray, $translation['item'], $translation['text']);
+                return $translationsArray;
+            }, []);
     }
 
     /**

@@ -39,12 +39,7 @@ class DatabaseLoader extends Loader implements LoaderInterface
      */
     public function loadSource($locale, $group, $namespace = '*')
     {
-        $result       = [];
-        $translations = $this->translationRepository->getItems($locale, $namespace, $group);
-        foreach ($translations as $translation) {
-            array_set($result, $translation['item'], $translation['text']);
-        }
-        return $result;
+        return $this->translationRepository->loadSource($locale, $namespace, $group);
     }
 
     /**

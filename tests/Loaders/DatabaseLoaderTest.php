@@ -10,8 +10,8 @@ class DatabaseLoaderTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->repo   = Mockery::mock(TranslationRepository::class);
-        $this->loader = new DatabaseLoader('en', $this->repo);
+        $this->translationRepository = \App::make(TranslationRepository::class);
+        $this->loader                = new DatabaseLoader('es', $this->translationRepository);
     }
 
     public function tearDown()
@@ -25,16 +25,37 @@ class DatabaseLoaderTest extends TestCase
      */
     public function it_returns_from_database()
     {
-        $data = [
-            ['item' => 'one', 'text' => 'first'],
-            ['item' => 'two', 'text' => 'second'],
-        ];
         $expected = [
-            'one' => 'first',
-            'two' => 'second',
+            'simple' => 'text',
+            'array'  => [
+                'item'   => 'item',
+                'nested' => [
+                    'item' => 'nested',
+                ],
+            ],
         ];
-        $this->repo->shouldReceive('getItems')->with('en', 'name', 'group')->once()->andReturn($data);
-        $results = $this->loader->loadSource('en', 'group', 'name');
-        $this->assertEquals($expected, $results);
+        $translation = $this->translationRepository->create([
+            'locale'    => 'es',
+            'namespace' => '*',
+            'group'     => 'group',
+            'item'      => 'simple',
+            'text'      => 'text',
+        ]);
+        $translation = $this->translationRepository->create([
+            'locale'    => 'es',
+            'namespace' => '*',
+            'group'     => 'group',
+            'item'      => 'array.item',
+            'text'      => 'item',
+        ]);
+        $translation = $this->translationRepository->create([
+            'locale'    => 'es',
+            'namespace' => '*',
+            'group'     => 'group',
+            'item'      => 'array.nested.item',
+            'text'      => 'nested',
+        ]);
+        $translations = $this->loader->loadSource('es', 'group');
+        $this->assertEquals($expected, $translations);
     }
 }

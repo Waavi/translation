@@ -58,7 +58,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
      */
     public function provides()
     {
-        return ['translation.cache.repository', 'translation.uri.localizer', 'translation.loader'];
+        return array_merge(parent::provides(), ['translation.cache.repository', 'translation.uri.localizer', 'translation.loader']);
     }
 
     /**

@@ -61,9 +61,20 @@ class TranslationMiddleware
             $this->viewFactory->share('currentLanguage', $currentLanguage);
             $this->viewFactory->share('selectableLanguages', $selectableLanguages);
             $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);
+            
+            if($request->session()->get('locale')!==$uriLocale) {
+            	$request->session()->put('locale', $uriLocale);
+            }
             return $next($request);
         }
 
+        //Check session locale
+        if ($sessionLocale = $request->session()->get('locale')) {
+	        if ($this->languageRepository->isValidLocale($sessionLocale)) {
+	            return redirect()->to($this->uriLocalizer->localize($currentUrl, $sessionLocale));
+	        }
+        }
+        
         // If no locale was set in the url, check the browser's locale:
         $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
         if ($this->languageRepository->isValidLocale($browserLocale)) {

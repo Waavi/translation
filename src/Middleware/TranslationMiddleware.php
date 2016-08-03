@@ -62,14 +62,14 @@ class TranslationMiddleware
             $this->viewFactory->share('selectableLanguages', $selectableLanguages);
             $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);
             
-            if($request->session()->get('locale')!==$uriLocale) {
+            if($request->hasSession() && $request->session()->get('locale')!==$uriLocale) {
             	$request->session()->put('locale', $uriLocale);
             }
             return $next($request);
         }
 
         //Check session locale
-        if ($sessionLocale = $request->session()->get('locale')) {
+        if ($request->hasSession() && $sessionLocale = $request->session()->get('locale')) {
 	        if ($this->languageRepository->isValidLocale($sessionLocale)) {
 	            return redirect()->to($this->uriLocalizer->localize($currentUrl, $sessionLocale));
 	        }

@@ -57,24 +57,29 @@ class TranslationMiddleware
                     'url'    => $this->uriLocalizer->localize($currentUrl, $lang->locale),
                 ];
             }
+
+            // Set app locale
             $this->app->setLocale($uriLocale);
+
+            // Share language variable with views:
             $this->viewFactory->share('currentLanguage', $currentLanguage);
             $this->viewFactory->share('selectableLanguages', $selectableLanguages);
             $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);
-            
-            if($request->hasSession() && $request->session()->get('locale')!==$uriLocale) {
-            	$request->session()->put('locale', $uriLocale);
+
+            // Set locale in session:
+            if ($request->hasSession() && $request->session()->get('locale') !== $uriLocale) {
+                $request->session()->put('locale', $uriLocale);
             }
             return $next($request);
         }
 
-        //Check session locale
+        // If no locale was set in the url, check the session locale
         if ($request->hasSession() && $sessionLocale = $request->session()->get('locale')) {
-	        if ($this->languageRepository->isValidLocale($sessionLocale)) {
-	            return redirect()->to($this->uriLocalizer->localize($currentUrl, $sessionLocale));
-	        }
+            if ($this->languageRepository->isValidLocale($sessionLocale)) {
+                return redirect()->to($this->uriLocalizer->localize($currentUrl, $sessionLocale));
+            }
         }
-        
+
         // If no locale was set in the url, check the browser's locale:
         $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
         if ($this->languageRepository->isValidLocale($browserLocale)) {

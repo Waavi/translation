@@ -66,4 +66,15 @@ class TranslationMiddlewareTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('POST answer', $response->getContent());
     }
+
+    /**
+     *  @test
+     */
+    public function it_sets_the_app_locale()
+    {
+        $response = $this->call('GET', '/en/locale');
+        $this->assertEquals('en', $response->getContent());
+        $response = $this->call('GET', '/es/locale');
+        $this->assertEquals('es', $response->getContent());
+    }
 }

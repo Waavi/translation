@@ -27,6 +27,9 @@ abstract class TestCase extends Orchestra
         ];
     }
 
+    /**
+     * @param $app
+     */
     protected function getPackageAliases($app)
     {
         return [
@@ -81,6 +84,12 @@ abstract class TestCase extends Orchestra
         }]);
         \Route::get('/en', ['middleware' => 'localize', function () {
             return 'Hello world';
+        }]);
+        \Route::get('/en/locale', ['middleware' => 'localize', function () {
+            return \App::getLocale();
+        }]);
+        \Route::get('/es/locale', ['middleware' => 'localize', function () {
+            return \App::getLocale();
         }]);
     }
 }

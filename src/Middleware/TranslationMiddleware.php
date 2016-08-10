@@ -2,7 +2,7 @@
 
 use Closure;
 use Illuminate\Config\Repository as Config;
-use Illuminate\Translation\Translator;
+use Illuminate\Foundation\Application;
 use Illuminate\View\Factory as ViewFactory;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\UriLocalizer;
@@ -16,15 +16,15 @@ class TranslationMiddleware
      *  @param  Waavi\Translation\Repositories\LanguageRepository   $languageRepository
      *  @param  Illuminate\Config\Repository                        $config                 Laravel config
      *  @param  Illuminate\View\Factory                             $viewFactory
-     *  @param  Illuminate\Translation\Translator                   $translator
+     *  @param  Illuminate\Foundation\Application                   $app
      */
-    public function __construct(UriLocalizer $uriLocalizer, LanguageRepository $languageRepository, Config $config, ViewFactory $viewFactory, Translator $translator)
+    public function __construct(UriLocalizer $uriLocalizer, LanguageRepository $languageRepository, Config $config, ViewFactory $viewFactory, Application $app)
     {
         $this->uriLocalizer       = $uriLocalizer;
         $this->languageRepository = $languageRepository;
         $this->config             = $config;
         $this->viewFactory        = $viewFactory;
-        $this->translator         = $translator;
+        $this->app                = $app;
     }
 
     /**
@@ -57,7 +57,7 @@ class TranslationMiddleware
                     'url'    => $this->uriLocalizer->localize($currentUrl, $lang->locale),
                 ];
             }
-            $this->translator->setLocale($uriLocale);
+            $this->app->setLocale($uriLocale);
             $this->viewFactory->share('currentLanguage', $currentLanguage);
             $this->viewFactory->share('selectableLanguages', $selectableLanguages);
             $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);

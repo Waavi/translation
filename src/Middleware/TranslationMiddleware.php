@@ -67,14 +67,14 @@ class TranslationMiddleware
             $this->viewFactory->share('altLocalizedUrls', $altLocalizedUrls);
 
             // Set locale in session:
-            if ($request->hasSession() && $request->session()->get('locale') !== $uriLocale) {
-                $request->session()->put('locale', $uriLocale);
+            if ($request->hasSession() && $request->session()->get('waavi.translation.locale') !== $uriLocale) {
+                $request->session()->put('waavi.translation.locale', $uriLocale);
             }
             return $next($request);
         }
 
         // If no locale was set in the url, check the session locale
-        if ($request->hasSession() && $sessionLocale = $request->session()->get('locale')) {
+        if ($request->hasSession() && $sessionLocale = $request->session()->get('waavi.translation.locale')) {
             if ($this->languageRepository->isValidLocale($sessionLocale)) {
                 return redirect()->to($this->uriLocalizer->localize($currentUrl, $sessionLocale));
             }

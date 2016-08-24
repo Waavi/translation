@@ -1,7 +1,7 @@
 <?php namespace Waavi\Translation\Repositories;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Foundation\Application;
 use Illuminate\Validation\Factory as Validator;
 use Waavi\Translation\Models\Language;
 
@@ -130,7 +130,7 @@ class LanguageRepository extends Repository
             return $this->config->get('translator.locales');
         }
         if ($this->tableExists()) {
-            $locales = $this->model->distinct()->get()->lists('locale')->toArray();
+            $locales = $this->model->distinct()->get()->pluck('locale')->toArray();
             $this->config->set('translator.locales', $locales);
             return $locales;
         }

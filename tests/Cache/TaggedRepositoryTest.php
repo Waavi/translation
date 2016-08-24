@@ -16,7 +16,7 @@ class TaggedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function test_has_with_no_entry()
+    public function has_returns_false_when_no_entry_present()
     {
         $this->assertFalse($this->repo->has('en', 'namespace', 'group'));
     }
@@ -24,16 +24,16 @@ class TaggedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function test_has_returns_true_if_entry()
+    public function has_returns_true_if_entry_present()
     {
-        $this->repo->put('en', 'namespace', 'group', 'key', 'value');
+        $this->repo->put('en', 'namespace', 'group', 'value', 60);
         $this->assertTrue($this->repo->has('en', 'namespace', 'group'));
     }
 
     /**
      * @test
      */
-    public function test_get_returns_null_if_empty()
+    public function get_returns_null_if_empty()
     {
         $this->assertNull($this->repo->get('en', 'namespace', 'group'));
     }
@@ -41,7 +41,7 @@ class TaggedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function test_get_return_content_if_hit()
+    public function get_return_content_if_hit()
     {
         $this->repo->put('en', 'namespace', 'group', 'value', 60);
         $this->assertEquals('value', $this->repo->get('en', 'namespace', 'group'));

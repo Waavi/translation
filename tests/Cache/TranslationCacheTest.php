@@ -23,7 +23,7 @@ class TranslationCacheTest extends TestCase
      */
     public function test_has_returns_true_if_entry()
     {
-        \TranslationCache::put('en', 'namespace', 'group', 'key', 'value');
+        \TranslationCache::put('en', 'namespace', 'group', 'value', 60);
         $this->assertTrue(\TranslationCache::has('en', 'namespace', 'group'));
     }
 

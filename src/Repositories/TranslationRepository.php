@@ -339,11 +339,7 @@ class TranslationRepository extends Repository
                     ->whereRaw("`e`.`item` = `$table`.`item`");
             })
             ->get();
-        if (count($ids) <= 0) {
-            return null;
-        }
-        shuffle($ids);
-        return $this->find($ids[0]->id);
+        return $ids && $ids->count() > 0 ? $ids->pluck('id')->random() : null;
     }
 
     /**

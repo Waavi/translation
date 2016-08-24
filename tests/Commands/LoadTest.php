@@ -76,7 +76,7 @@ class LoadTest extends TestCase
     public function it_doesnt_load_undefined_locales()
     {
         $this->command->fire();
-        $locales = $this->translationRepository->all()->lists('locale')->toArray();
+        $locales = $this->translationRepository->all()->pluck('locale')->toArray();
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('es', $locales));
         $this->assertFalse(in_array('ca', $locales));

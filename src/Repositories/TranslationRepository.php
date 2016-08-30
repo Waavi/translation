@@ -233,7 +233,8 @@ class TranslationRepository extends Repository
             ->whereGroup($group)
             ->get()
             ->reduce(function ($translationsArray, $translation) {
-                array_set($translationsArray, $translation['item'], $translation['text']);
+                // array_set($translationsArray, $translation['item'], $translation['text']);
+                $translationsArray[$translation['item']] = $translation['text'];
                 return $translationsArray;
             }, []);
     }

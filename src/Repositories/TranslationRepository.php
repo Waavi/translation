@@ -232,10 +232,11 @@ class TranslationRepository extends Repository
             ->whereNamespace($namespace)
             ->whereGroup($group)
             ->get()
-            ->reduce(function ($translationsArray, $translation) {
-                array_set($translationsArray, $translation['item'], $translation['text']);
-                return $translationsArray;
-            }, []);
+            ->keyBy('item')
+            ->map(function ($translation) {
+                return $translation['text'];
+            })
+            ->toArray();
     }
 
     /**

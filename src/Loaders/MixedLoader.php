@@ -12,28 +12,28 @@ class MixedLoader extends Loader implements LoaderInterface
 
     /**
      *  The file loader.
-     *  @var \Waavi\Translation\Loaders\FileLoader
+     *  @var \Waavi\Translation\Loaders\Loader
      */
-    protected $fileLoader;
+    protected $primaryLoader;
 
     /**
      *  The database loader.
-     *  @var \Waavi\Translation\Loaders\DatabaseLoader
+     *  @var \Waavi\Translation\Loaders\Loader
      */
-    protected $databaseLoader;
+    protected $secondaryLoader;
 
     /**
      *  Create a new mixed loader instance.
      *
-     *  @param  string          $defaultLocale
-     *  @param  FileLoader      $fileLoader
-     *  @param  DatabaseLoader  $databaseLoader
+     *  @param  string  $defaultLocale
+     *  @param  Loader  $primaryLoader
+     *  @param  Loader  $secondaryLoader
      */
-    public function __construct($defaultLocale, FileLoader $fileLoader, DatabaseLoader $databaseLoader)
+    public function __construct($defaultLocale, Loader $primaryLoader, Loader $secondaryLoader)
     {
         parent::__construct($defaultLocale);
-        $this->fileLoader     = $fileLoader;
-        $this->databaseLoader = $databaseLoader;
+        $this->primaryLoader   = $primaryLoader;
+        $this->secondaryLoader = $secondaryLoader;
     }
 
     /**
@@ -47,8 +47,8 @@ class MixedLoader extends Loader implements LoaderInterface
     public function loadSource($locale, $group, $namespace = '*')
     {
         return array_replace_recursive(
-            $this->databaseLoader->loadSource($locale, $group, $namespace),
-            $this->fileLoader->loadSource($locale, $group, $namespace)
+            $this->secondaryLoader->loadSource($locale, $group, $namespace),
+            $this->primaryLoader->loadSource($locale, $group, $namespace)
         );
     }
 
@@ -62,6 +62,6 @@ class MixedLoader extends Loader implements LoaderInterface
     public function addNamespace($namespace, $hint)
     {
         $this->hints[$namespace] = $hint;
-        $this->fileLoader->addNamespace($namespace, $hint);
+        $this->primaryLoader->addNamespace($namespace, $hint);
     }
 }

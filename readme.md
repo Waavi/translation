@@ -91,7 +91,7 @@ This package allows you to load translation from the regular Laravel localizatio
  - 'files'		To load translations from Laravel's language files (default)
  - 'database'	To load translations from the database
  - 'mixed'		To load translations both from the filesystem and the database, with the filesystem having priority.
- - 'mixed_db'   To load translations both from the filesystem and the database, with the database having priority. [v2.1.5.2]
+ - 'mixed_db'   To load translations both from the filesystem and the database, with the database having priority. [v2.1.5.3]
 
 For cache configuration, please go to [cache configuration](#cache-translations)
 

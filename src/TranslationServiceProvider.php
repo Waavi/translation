@@ -80,6 +80,12 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     $databaseLoader    = new DatabaseLoader($defaultLocale, $app->make(TranslationRepository::class));
                     $loader            = new MixedLoader($defaultLocale, $fileLoader, $databaseLoader);
                     break;
+                case 'mixed_db':
+                    $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
+                    $fileLoader        = new FileLoader($defaultLocale, $laravelFileLoader);
+                    $databaseLoader    = new DatabaseLoader($defaultLocale, $app->make(TranslationRepository::class));
+                    $loader            = new MixedLoader($defaultLocale, $databaseLoader, $fileLoader);
+                    break;
                 case 'database':
                     $loader = new DatabaseLoader($defaultLocale, $app->make(TranslationRepository::class));
                     break;

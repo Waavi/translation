@@ -1,13 +1,17 @@
 <?php namespace Waavi\Translation\Repositories;
 
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\NamespacedItemResolver;
-use Illuminate\Validation\Factory as Validator;
-use Waavi\Translation\Models\Language;
 use Waavi\Translation\Models\Translation;
 
 class TranslationRepository extends Repository
 {
+    /**
+     * @var \Illuminate\Database\Connection
+     */
+    protected $database;
+
     /**
      * The model being queried.
      *
@@ -289,32 +293,17 @@ class TranslationRepository extends Repository
     /**
      *  List all entries in the default locale that do not exist for the target locale.
      *
-     *  @param      string    $target     Language to translate to.
+     *  @param      string    $locale     Language to translate to.
      *  @param      integer   $perPage    If greater than zero, return a paginated list with $perPage items per page.
      *  @param      string    $text       [optional] Show only entries with the given text in them in the reference language.
      *  @return     Collection
      */
     public function untranslated($locale, $perPage = 0, $text = null)
     {
-
-        $table = $this->model->getTable();
-        $ids   = $this->database->table($table)
-            ->select($table . '.id')
-            ->whereRaw("$table.locale = '$this->defaultLocale'")
-            ->whereNotExists(function ($query) use ($table, $locale) {
-                $query
-                    ->select($this->database->raw(1))
-                    ->from("$table as e")
-                    ->whereRaw("`e`.`locale` = '$locale'")
-                    ->whereRaw("`e`.`namespace` = `$table`.`namespace`")
-                    ->whereRaw("`e`.`group` = `$table`.`group`")
-                    ->whereRaw("`e`.`item` = `$table`.`item`");
-            })
-            ->get();
-
-        $ids = array_pluck($ids, 'id');
+        $ids = $this->untranslatedQuery($locale)->pluck('id');
 
         $untranslated = $text ? $this->model->whereIn('id', $ids)->where('text', 'like', "%$text%") : $this->model->whereIn('id', $ids);
+
         return $perPage ? $untranslated->paginate($perPage) : $untranslated->get();
     }
 
@@ -326,21 +315,7 @@ class TranslationRepository extends Repository
      */
     public function randomUntranslated($locale)
     {
-        $table = $this->model->getTable();
-        $ids   = $this->database->table($table)
-            ->select($table . '.id')
-            ->whereRaw("$table.locale = '$this->defaultLocale'")
-            ->whereNotExists(function ($query) use ($table, $locale) {
-                $query
-                    ->select($this->database->raw(1))
-                    ->from("$table as e")
-                    ->whereRaw("`e`.`locale` = '$locale'")
-                    ->whereRaw("`e`.`namespace` = `$table`.`namespace`")
-                    ->whereRaw("`e`.`group` = `$table`.`group`")
-                    ->whereRaw("`e`.`item` = `$table`.`item`");
-            })
-            ->get();
-        return $ids && $ids->count() > 0 ? $ids->pluck('id')->random() : null;
+        return $this->untranslatedQuery($locale)->inRandomOrder()->take(1)->pluck('id');
     }
 
     /**
@@ -479,5 +454,27 @@ class TranslationRepository extends Repository
         }
 
         return $segments;
+    }
+
+    /**
+     * Create and return a new query to identify untranslated records.
+     *
+     * @param string $locale
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function untranslatedQuery($locale)
+    {
+        $table = $this->model->getTable();
+
+        return $this->database->table("$table as $table")
+            ->select("$table.id")
+            ->leftJoin("$table as e", function (JoinClause $query) use ($table, $locale) {
+                $query->on('e.namespace', '=', "$table.namespace")
+                    ->on('e.group', '=', "$table.group")
+                    ->on('e.item', '=', "$table.item")
+                    ->where('e.locale', '=', $locale);
+            })
+            ->where("$table.locale", $this->defaultLocale)
+            ->whereNull("e.id");
     }
 }

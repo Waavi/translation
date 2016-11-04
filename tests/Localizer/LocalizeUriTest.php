@@ -61,4 +61,13 @@ class LocalizeUriTest extends TestCase
     {
         $this->assertEquals('/es/random?param1=value1&param2=', UriLocalizer::localize('random?param1=value1&param2=', 'es'));
     }
+
+    /**
+     * @test
+     */
+    public function it_localizes_when_locale_is_not_first()
+    {
+        $this->assertEquals('/api/es/random', UriLocalizer::localize('api/random', 'es', 1));
+        $this->assertEquals('/api/es/random', UriLocalizer::localize('api/en/random', 'es', 1));
+    }
 }

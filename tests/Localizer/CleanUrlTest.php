@@ -57,6 +57,14 @@ class CleanUrlTest extends TestCase
     /**
      * @test
      */
+    public function it_removes_locale_string_in_custom_position()
+    {
+        $this->assertEquals('/api/random?param=value&param=', UriLocalizer::cleanUrl('https://domain.com/api/es/random/?param=value&param=', 1));
+    }
+
+    /**
+     * @test
+     */
     public function it_keeps_invalid_locale_string()
     {
         $this->assertEquals('/ca/random?param=value&param=', UriLocalizer::cleanUrl('https://domain.com/ca/random/?param=value&param='));

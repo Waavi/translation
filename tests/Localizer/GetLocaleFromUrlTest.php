@@ -30,4 +30,12 @@ class GetLocaleFromUrlTest extends TestCase
         $this->assertNull(UriLocalizer::getLocaleFromUrl('/random/'));
         $this->assertNull(UriLocalizer::getLocaleFromUrl('ca/random/'));
     }
+
+    /**
+     * @test
+     */
+    public function it_returns_locale_from_url_in_custom_position()
+    {
+        $this->assertEquals('es', UriLocalizer::getLocaleFromUrl('http://domain.com/api/es/random/', 1));
+    }
 }

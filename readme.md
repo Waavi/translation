@@ -387,6 +387,19 @@ Every localized route must be prefixed with the current locale:
 	});
 ```
 
+Starting on v2.1.6, you may also specify a custom position for the locale segment in your url. For example, if the locale info is the third segment in a URL (/api/v1/es/my_resource), you may use:
+
+```php
+    // For selectively chosen routes:
+    Route::group(['prefix' => 'api/v1'], function() {
+        /** ... Non localized urls here **/
+
+        Route::group(['prefix' => \UriLocalizer::localeFromRequest(2), 'middleware' => 'localize:2')], function () {
+            /* Your localized routes here */
+        });
+    });
+```
+
 In your views, for routes where the Middleware is active, you may present the user with a menu to switch from the current language to another by using the shared variables. For example:
 
 ```php

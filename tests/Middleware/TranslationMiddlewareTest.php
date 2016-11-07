@@ -77,4 +77,28 @@ class TranslationMiddlewareTest extends TestCase
         $response = $this->call('GET', '/es/locale');
         $this->assertEquals('es', $response->getContent());
     }
+
+    /**
+     *  @test
+     */
+    public function it_detects_the_app_locale_in_custom_segment()
+    {
+        $response = $this->call('GET', '/api/v1/en/locale');
+        $this->assertEquals('en', $response->getContent());
+        $response = $this->call('GET', '/api/v1/es/locale');
+        $this->assertEquals('es', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function it_redirects_invalid_locale_in_custom_segment()
+    {
+        $response   = $this->call('GET', '/api/v1/ca/locale');
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertTrue($response->headers->has('location'));
+        $this->assertEquals('http://localhost/api/v1/en/ca/locale', $response->headers->get('location'));
+    }
 }

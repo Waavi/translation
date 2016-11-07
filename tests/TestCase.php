@@ -91,5 +91,14 @@ abstract class TestCase extends Orchestra
         \Route::get('/es/locale', ['middleware' => 'localize', function () {
             return \App::getLocale();
         }]);
+        \Route::get('/api/v1/en/locale', ['middleware' => 'localize:2', function () {
+            return \App::getLocale();
+        }]);
+        \Route::get('/api/v1/es/locale', ['middleware' => 'localize:2', function () {
+            return \App::getLocale();
+        }]);
+        \Route::get('/api/v1/ca/locale', ['middleware' => 'localize:2', function () {
+            return 'Whoops ca';
+        }]);
     }
 }

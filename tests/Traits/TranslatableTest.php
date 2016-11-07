@@ -66,16 +66,40 @@ class TranslatableTest extends TestCase
         $saved        = $dummy->save() ? true : false;
         $this->assertTrue($saved);
     }
+
+    /**
+     *  @test
+     */
+    public function to_array_features_translated_attributes()
+    {
+        $dummy = Dummy::create(['title' => 'Dummy title', 'text' => 'Dummy text']);
+        $this->assertEquals(1, Dummy::count());
+        // Change the text on the translation object:
+        $titleTranslation       = $this->translationRepository->findByLangCode('en', $dummy->translationCodeFor('title'));
+        $titleTranslation->text = 'Translated text';
+        $titleTranslation->save();
+        // Verify that toArray pulls from the translation and not model's value, and that the _translation attributes are hidden
+        $this->assertEquals(['title' => 'Translated text', 'text' => 'Dummy text'], $dummy->makeHidden(['created_at', 'updated_at', 'slug', 'id'])->toArray());
+    }
 }
 
 class Dummy extends Model
 {
     use Translatable;
 
+    /**
+     * @var array
+     */
     protected $fillable = ['title', 'text'];
 
+    /**
+     * @var array
+     */
     protected $translatableAttributes = ['title', 'text'];
 
+    /**
+     * @param $value
+     */
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = $value;

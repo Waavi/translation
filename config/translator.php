@@ -12,6 +12,7 @@ return [
     | Supported:
     |
     |   'mixed'         Both files and the database are queried for language entries, with files taking priority.
+    |   'mixed_db'      Both files and the database are queried for language entries, with database taking priority.
     |   'database'      Use the database as the exclusive source for language entries.
     |   'files'         Use files as the exclusive source for language entries [Laravel's default].
      */

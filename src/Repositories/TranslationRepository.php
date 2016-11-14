@@ -359,7 +359,7 @@ class TranslationRepository extends Repository
     {
         $table = $this->model->getTable();
 
-        $results = $this->model
+        return $this->model
             ->newQuery()
             ->select($table . '.text')
             ->from($table)
@@ -372,11 +372,9 @@ class TranslationRepository extends Repository
             ->where('e.locale', $textLocale)
             ->where('e.text', $text)
             ->get()
+            ->pluck('text')
+            ->unique()
             ->toArray();
-
-        $results = array_unique($results);
-
-        return array_pluck($results, 'text');
     }
 
     /**

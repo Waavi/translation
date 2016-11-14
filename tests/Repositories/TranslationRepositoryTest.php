@@ -438,14 +438,15 @@ class TranslationRepositoryTest extends TestCase
      */
     public function it_translates_text()
     {
-        $array = ['lang' => 'Castellano'];
+        $array = ['lang' => 'Castellano', 'multi' => 'Multiple', 'multi2' => 'Multiple'];
         $this->translationRepository->loadArray($array, 'es', 'file');
-        $array = ['lang' => 'English', 'other' => 'Random'];
+        $array = ['lang' => 'English', 'other' => 'Random', 'multi' => 'Multi', 'multi2' => 'Many'];
         $this->translationRepository->loadArray($array, 'en', 'file');
 
         $this->assertEquals(['Castellano'], $this->translationRepository->translateText('English', 'en', 'es'));
         $this->assertEquals(['English'], $this->translationRepository->translateText('Castellano', 'es', 'en'));
         $this->assertEquals([], $this->translationRepository->translateText('Complex', 'en', 'es'));
+        $this->assertEquals(['Multi', 'Many'], $this->translationRepository->translateText('Multiple', 'es', 'en'));
     }
 
     /**

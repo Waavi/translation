@@ -37,4 +37,23 @@ return [
         'timeout' => env('TRANSLATION_CACHE_TIMEOUT', 60),
         'suffix'  => env('TRANSLATION_CACHE_SUFFIX', 'translation'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Override Translation Models
+    |--------------------------------------------------------------------------
+    |
+    | This option makes possible to override Language and/or Translation
+    | models with your own and to use custom table structure.
+    | Make sure to extend package models.
+    |
+    |   'language'      \Waavi\Translation\Models\Language
+    |   'translation'   \Waavi\Translation\Models\Translation
+    |
+     */
+    'models'            => [
+        'Language'    => null,
+        'Translation' => null,
+    ],
+
 ];

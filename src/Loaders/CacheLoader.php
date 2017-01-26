@@ -79,4 +79,14 @@ class CacheLoader extends Loader implements LoaderInterface
     {
         $this->fallback->addNamespace($namespace, $hint);
     }
+
+    /**
+     * Get an array of all the registered namespaces.
+     *
+     * @return array
+     */
+    public function namespaces()
+    {
+        return $this->fallback->namespaces();
+    }
 }

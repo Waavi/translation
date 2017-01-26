@@ -63,4 +63,12 @@ abstract class Loader implements LoaderInterface
      * @return void
      */
     abstract public function addNamespace($namespace, $hint);
+
+
+    /**
+     * Get an array of all the registered namespaces.
+     *
+     * @return array
+     */
+    abstract public function namespaces();
 }

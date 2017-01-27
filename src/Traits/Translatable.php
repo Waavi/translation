@@ -50,7 +50,7 @@ trait Translatable
             if (!$this->translationCodeFor($attribute)) {
                 $reflected                                    = new \ReflectionClass($this);
                 $group                                        = 'translatable';
-                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::quickRandom();
+                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::random();
                 $this->attributes["{$attribute}_translation"] = "$group.$item";
             }
         }

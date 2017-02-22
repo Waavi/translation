@@ -129,11 +129,15 @@ class LanguageRepository extends Repository
         if ($this->config->has('translator.locales')) {
             return $this->config->get('translator.locales');
         }
-        if ($this->tableExists()) {
-            $locales = $this->model->distinct()->get()->pluck('locale')->toArray();
-            $this->config->set('translator.locales', $locales);
-            return $locales;
+
+        if ($this->config->get('translator.source') !== 'files') {
+            if ($this->tableExists()) {
+                $locales = $this->model->distinct()->get()->pluck('locale')->toArray();
+                $this->config->set('translator.locales', $locales);
+                return $locales;
+            }
         }
+
         return $this->defaultAvailableLocales;
     }
 

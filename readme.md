@@ -73,7 +73,7 @@ Remove your config cache:
 
 Publish both the configuration file and the migrations:
 
-	php artisan vendor:publish
+	php artisan vendor:publish --provider="Waavi\Translation\TranslationServiceProvider"
 
 Execute the database migrations:
 

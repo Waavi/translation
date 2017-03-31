@@ -32,12 +32,7 @@ class FileLoaderTest extends TestCase
                 'two' => 'Second',
             ],
         ];
-        $expected = [
-            'simple'     => 'Simple',
-            'nested.one' => 'First',
-            'nested.two' => 'Second',
-        ];
         $this->laravelLoader->shouldReceive('load')->with('en', 'group', 'name')->andReturn($data);
-        $this->assertEquals($expected, $this->fileLoader->loadSource('en', 'group', 'name'));
+        $this->assertEquals($data, $this->fileLoader->loadSource('en', 'group', 'name'));
     }
 }

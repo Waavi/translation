@@ -40,9 +40,11 @@ class LoadTest extends TestCase
             ],
         ];
         $expected = [
-            'simple'     => 'OverSimple',
-            'nested.one' => 'OverFirst',
-            'nested.two' => 'Second',
+            'simple' => 'OverSimple',
+            'nested' => [
+                'one' => 'OverFirst',
+                'two' => 'Second',
+            ],
         ];
         $this->laravelLoader->shouldReceive('load')->with('en', 'group', 'name')->andReturn($en);
         $this->laravelLoader->shouldReceive('load')->with('es', 'group', 'name')->andReturn($es);

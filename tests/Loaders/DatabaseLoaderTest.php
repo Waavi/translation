@@ -26,9 +26,13 @@ class DatabaseLoaderTest extends TestCase
     public function it_returns_from_database()
     {
         $expected = [
-            'simple'            => 'text',
-            'array.item'        => 'item',
-            'array.nested.item' => 'nested',
+            'simple' => 'text',
+            'array'  => [
+                'item'   => 'item',
+                'nested' => [
+                    'item' => 'nested',
+                ],
+            ],
         ];
         $translation = $this->translationRepository->create([
             'locale'    => 'es',

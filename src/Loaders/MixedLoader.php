@@ -63,6 +63,7 @@ class MixedLoader extends Loader implements LoaderInterface
     {
         $this->hints[$namespace] = $hint;
         $this->primaryLoader->addNamespace($namespace, $hint);
+        $this->secondaryLoader->addNamespace($namespace, $hint);
     }
 
 

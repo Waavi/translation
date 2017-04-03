@@ -40,6 +40,13 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/translator.php', 'translator');
 
         parent::register();
+
+        foreach ($this->app->config->get('translator.models') as $model => $custom) {
+            if ($custom) {
+                $this->app->bind('Waavi\Translation\Models\\' . $model , $custom);
+            }
+        }
+
         $this->registerCacheRepository();
         $this->registerFileLoader();
         $this->registerCacheFlusher();

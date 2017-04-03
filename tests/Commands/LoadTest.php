@@ -13,7 +13,7 @@ class LoadTest extends TestCase
         $this->languageRepository    = \App::make(LanguageRepository::class);
         $this->translationRepository = \App::make(TranslationRepository::class);
         $translationsPath            = realpath(__DIR__ . '/../lang');
-        $this->command               = new FileLoaderCommand($this->languageRepository, $this->translationRepository, \App::make('files'), $translationsPath, 'en');
+        $this->command               = new FileLoaderCommand($this->languageRepository, $this->translationRepository, \App::make('files'), \App::make('translation.loader'), $translationsPath, 'en');
     }
 
     /**
@@ -104,6 +104,26 @@ class LoadTest extends TestCase
         $this->assertEquals('example', $translations[8]->group);
         $this->assertEquals('entry', $translations[8]->item);
         $this->assertEquals('Texto proveedor', $translations[8]->text);
+    }
+
+    /**
+     * @test
+     */
+    public function it_loads_hinted_namespaces_from_the_loader_correctly()
+    {
+        $this->app['translation.loader']->addNamespace('hinted', __DIR__.'/../hinted/');
+
+        $this->command->fire();
+
+        $translations = $this->translationRepository->getItems('en', 'hinted', 'translation');
+
+        $this->assertEquals(1, count($translations));
+
+        $this->assertEquals('en', $translations[0]['locale']);
+        $this->assertEquals('hinted', $translations[0]['namespace']);
+        $this->assertEquals('translation', $translations[0]['group']);
+        $this->assertEquals('by_hinting', $translations[0]['item']);
+        $this->assertEquals('It works', $translations[0]['text']);
     }
 
     /**

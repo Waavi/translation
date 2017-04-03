@@ -2,6 +2,8 @@
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Waavi\Translation\Loaders\Loader;
+use Illuminate\Translation\LoaderInterface;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 
@@ -28,7 +30,7 @@ class FileLoaderCommand extends Command
      *  @param  \Waavi\Lang\Providers\LanguageEntryProvider   $translationRepository
      *  @param  \Illuminate\Foundation\Application            $app
      */
-    public function __construct(LanguageRepository $languageRepository, TranslationRepository $translationRepository, Filesystem $files, $translationsPath, $defaultLocale)
+    public function __construct(LanguageRepository $languageRepository, TranslationRepository $translationRepository, Filesystem $files, LoaderInterface $loader, $translationsPath, $defaultLocale)
     {
         parent::__construct();
         $this->languageRepository    = $languageRepository;
@@ -36,7 +38,7 @@ class FileLoaderCommand extends Command
         $this->path                  = $translationsPath;
         $this->files                 = $files;
         $this->defaultLocale         = $defaultLocale;
-
+        $this->loader                = $loader;
     }
 
     /**
@@ -46,6 +48,18 @@ class FileLoaderCommand extends Command
      */
     public function fire()
     {
+        // First attempt to load any hinted namespaces from, the loader.
+        // We can only do this if we are using the Waavi translation
+        // loader, since the default hints variable is protected.
+        if ($this->loader instanceof Loader && isset($this->loader->hints)) {
+            foreach ($this->loader->hints as $namespace => $path) {
+                $this->loadLocaleDirectories($path, $namespace);
+            }
+        }
+
+        // Next, load the language files from the resources folder.
+        // This way namespaces published to the resources path
+        // can overwrite the translations loaded in above.
         $this->loadLocaleDirectories($this->path);
     }
 

@@ -77,6 +77,7 @@ class CacheLoader extends Loader implements LoaderInterface
      */
     public function addNamespace($namespace, $hint)
     {
+        $this->hints[$namespace] = $hint;
         $this->fallback->addNamespace($namespace, $hint);
     }
 

@@ -1,11 +1,11 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Config\Repository as Config;
-use Illuminate\Translation\LoaderInterface;
+use Illuminate\Contracts\Translation\Loader as LoaderContract;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 
-abstract class Loader implements LoaderInterface
+abstract class Loader implements LoaderContract
 {
     /**
      * The default locale.
@@ -64,6 +64,13 @@ abstract class Loader implements LoaderInterface
      */
     abstract public function addNamespace($namespace, $hint);
 
+    /**
+     * Add a new JSON path to the loader.
+     *
+     * @param  string  $path
+     * @return void
+     **/
+    abstract public function addJsonPath($path);
 
     /**
      * Get an array of all the registered namespaces.

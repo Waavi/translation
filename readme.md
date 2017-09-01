@@ -52,6 +52,7 @@ WAAVI is a web development studio based in Madrid, Spain. You can learn more abo
 
 Require through composer
 
+
 	composer require waavi/translation 2.3.x
 
 Or manually edit your composer.json file:
@@ -74,7 +75,7 @@ Remove your config cache:
 
 Publish both the configuration file and the migrations:
 
-	php artisan vendor:publish
+	php artisan vendor:publish --provider="Waavi\Translation\TranslationServiceProvider"
 
 Execute the database migrations:
 

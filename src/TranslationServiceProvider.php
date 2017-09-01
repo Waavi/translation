@@ -1,4 +1,5 @@
-<?php namespace Waavi\Translation;
+<?php
+namespace Waavi\Translation;
 
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
@@ -68,9 +69,14 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     {
         $app = $this->app;
         $this->app->singleton('translation.loader', function ($app) {
-            $source        = $app['config']->get('translator.source');
             $defaultLocale = $app['config']->get('app.locale');
             $loader        = null;
+            $source        = $app['config']->get('translator.source');
+            // Default source to 'files' if translations table do not exist:
+            if ($source !== 'files' && app()->environment() !== 'testing') {
+                $source = \Schema::hasTable('translator_languages') && \Schema::hasTable('translator_translations') ? $source : 'files';
+            }
+
             switch ($source) {
                 case 'mixed':
                     $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
@@ -93,8 +99,6 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     break;
             }
             if ($app['config']->get('translator.cache.enabled')) {
-                //$cacheStore      = $app['cache']->getStore();
-                //$cacheRepository = CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
                 $loader = new CacheLoader($defaultLocale, $app['translation.cache.repository'], $loader, $app['config']->get('translator.cache.timeout'));
             }
             return $loader;

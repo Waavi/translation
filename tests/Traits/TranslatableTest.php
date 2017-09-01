@@ -1,4 +1,5 @@
-<?php namespace Waavi\Translation\Test\Traits;
+<?php
+namespace Waavi\Translation\Test\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Mockery;

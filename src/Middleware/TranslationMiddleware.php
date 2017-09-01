@@ -1,4 +1,5 @@
-<?php namespace Waavi\Translation\Middleware;
+<?php
+namespace Waavi\Translation\Middleware;
 
 use Closure;
 use Illuminate\Config\Repository as Config;
@@ -88,6 +89,10 @@ class TranslationMiddleware
         }
 
         // If not, redirect to the default locale:
+        // Keep flash data.
+        if ($request->hasSession()) {
+            $request->session()->reflash();
+        }
         return redirect()->to($this->uriLocalizer->localize($currentUrl, $defaultLocale, $segment));
     }
 }

@@ -1,9 +1,8 @@
 <?php namespace Waavi\Translation\Loaders;
 
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
-use Illuminate\Translation\LoaderInterface;
 
-class FileLoader extends Loader implements LoaderInterface
+class FileLoader extends Loader
 {
     /**
      * The default locale.

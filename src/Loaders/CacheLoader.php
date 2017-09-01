@@ -1,9 +1,8 @@
 <?php namespace Waavi\Translation\Loaders;
 
-use Illuminate\Translation\LoaderInterface;
 use Waavi\Translation\Cache\CacheRepositoryInterface as Cache;
 
-class CacheLoader extends Loader implements LoaderInterface
+class CacheLoader extends Loader
 {
     /**
      * The default locale.

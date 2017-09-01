@@ -1,8 +1,6 @@
 <?php namespace Waavi\Translation\Loaders;
 
-use Illuminate\Translation\LoaderInterface;
-
-class MixedLoader extends Loader implements LoaderInterface
+class MixedLoader extends Loader
 {
     /**
      *  The default locale.

@@ -1,9 +1,8 @@
 <?php namespace Waavi\Translation\Loaders;
 
-use Illuminate\Translation\LoaderInterface;
 use Waavi\Translation\Repositories\TranslationRepository;
 
-class DatabaseLoader extends Loader implements LoaderInterface
+class DatabaseLoader extends Loader
 {
     /**
      *  The default locale.

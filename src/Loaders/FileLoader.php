@@ -58,6 +58,17 @@ class FileLoader extends Loader
     }
 
     /**
+     * Add a new JSON path to the loader.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    public function addJsonPath($path)
+    {
+        $this->laravelFileLoader->addJsonPath($path);
+    }
+
+    /**
      * Get an array of all the registered namespaces.
      *
      * @return array

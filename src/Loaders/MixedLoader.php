@@ -1,6 +1,6 @@
 <?php namespace Waavi\Translation\Loaders;
 
-use Illuminate\Translation\LoaderInterface;
+use Illuminate\Contracts\Translation\Loader as LoaderInterface;
 
 class MixedLoader extends Loader implements LoaderInterface
 {

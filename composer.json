@@ -18,13 +18,13 @@
         }
     ],
     "require": {
-        "laravel/framework": "~5.4",
+        "laravel/framework": "~5.5",
         "doctrine/dbal": "^2.5"
     },
     "require-dev": {
-        "phpunit/phpunit" : "~5.0",
-        "orchestra/testbench": "~3.4",
-        "mockery/mockery": "^0.9.4"
+        "phpunit/phpunit" : "~6.0",
+        "orchestra/testbench": "~3.5",
+        "mockery/mockery": "^0.9.9"
     },
     "autoload": {
         "psr-4": {

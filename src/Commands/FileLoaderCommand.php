@@ -36,7 +36,11 @@ class FileLoaderCommand extends Command
         $this->path                  = $translationsPath;
         $this->files                 = $files;
         $this->defaultLocale         = $defaultLocale;
+    }
 
+    public function handle()
+    {
+        return $this->fire();
     }
 
     /**

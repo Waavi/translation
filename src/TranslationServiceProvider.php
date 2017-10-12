@@ -72,10 +72,6 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
             $defaultLocale = $app['config']->get('app.locale');
             $loader        = null;
             $source        = $app['config']->get('translator.source');
-            // Default source to 'files' if translations table do not exist:
-            if ($source !== 'files' && app()->environment() !== 'testing') {
-                $source = \Schema::hasTable('translator_languages') && \Schema::hasTable('translator_translations') ? $source : 'files';
-            }
 
             switch ($source) {
                 case 'mixed':

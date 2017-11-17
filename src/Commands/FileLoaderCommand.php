@@ -52,6 +52,15 @@ class FileLoaderCommand extends Command
     {
         $this->loadLocaleDirectories($this->path);
     }
+    
+    /**
+     * Execute the console command for Laravel 5.5
+     * this laravel version call handle intead of fire
+     */
+     public function handle()
+     {
+         $this->fire();
+     }
 
     /**
      *  Loads all locale directories in the given path (/en, /es, /fr) as long as the locale corresponds to a language in the database.

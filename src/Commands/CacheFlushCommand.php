@@ -47,4 +47,13 @@ class CacheFlushCommand extends Command
             $this->info('Translation cache cleared.');
         }
     }
+    
+    /**
+     * Execute the console command for Laravel 5.5
+     * this laravel version call handle intead of fire
+     */
+     public function handle()
+     {
+         $this->fire();
+     }
 }

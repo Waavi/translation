@@ -75,7 +75,7 @@ class LoadTest extends TestCase
      */
     public function it_doesnt_load_undefined_locales()
     {
-        $this->command->fire();
+        $this->command->handle();
         $locales = $this->translationRepository->all()->pluck('locale')->toArray();
         $this->assertTrue(in_array('en', $locales));
         $this->assertTrue(in_array('es', $locales));
@@ -87,11 +87,13 @@ class LoadTest extends TestCase
      */
     public function it_loads_overwritten_vendor_files_correctly()
     {
-        $this->command->fire();
+        $this->command->handle();
 
         $translations = $this->translationRepository->all();
 
         $this->assertEquals(9, $translations->count());
+
+        dd($translations[7]);
 
         $this->assertEquals('en', $translations[7]->locale);
         $this->assertEquals('package', $translations[7]->namespace);

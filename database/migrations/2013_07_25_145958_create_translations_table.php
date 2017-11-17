@@ -15,9 +15,9 @@ class CreateTranslationsTable extends Migration
         Schema::create('translator_translations', function ($table) {
             $table->increments('id');
             $table->string('locale', 6);
-            $table->string('namespace', 150)->default('*');
-            $table->string('group', 150);
-            $table->string('item', 150);
+            $table->string('namespace')->default('*');
+            $table->string('group');
+            $table->string('item');
             $table->text('text');
             $table->boolean('unstable')->default(false);
             $table->boolean('locked')->default(false);
@@ -36,5 +36,4 @@ class CreateTranslationsTable extends Migration
     {
         Schema::drop('translator_translations');
     }
-
 }

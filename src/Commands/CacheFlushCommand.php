@@ -38,7 +38,7 @@ class CacheFlushCommand extends Command
      *
      *  @return void
      */
-    public function fire()
+    public function handle()
     {
         if (!$this->cacheEnabled) {
             $this->info('The translation cache is disabled.');

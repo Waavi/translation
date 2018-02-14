@@ -53,7 +53,7 @@ class LoadTest extends TestCase
     {
         $directory = realpath(__DIR__ . '/../lang/es');
         $this->command->loadDirectory($directory, 'es');
-        $translations = $this->translationRepository->all();
+        $translations = $this->translationRepository->all()->sortBy('id');
 
         $this->assertEquals(2, $translations->count());
 
@@ -89,21 +89,21 @@ class LoadTest extends TestCase
     {
         $this->command->handle();
 
-        $translations = $this->translationRepository->all();
+        $translations = $this->translationRepository->all()->sortBy('id');
 
         $this->assertEquals(9, $translations->count());
 
-        $this->assertEquals('en', $translations[7]->locale);
+        $this->assertEquals('es', $translations[7]->locale);
         $this->assertEquals('package', $translations[7]->namespace);
         $this->assertEquals('example', $translations[7]->group);
         $this->assertEquals('entry', $translations[7]->item);
-        $this->assertEquals('Vendor text', $translations[7]->text);
+        $this->assertEquals('Texto proveedor', $translations[7]->text);
 
-        $this->assertEquals('es', $translations[8]->locale);
+        $this->assertEquals('en', $translations[8]->locale);
         $this->assertEquals('package', $translations[8]->namespace);
         $this->assertEquals('example', $translations[8]->group);
         $this->assertEquals('entry', $translations[8]->item);
-        $this->assertEquals('Texto proveedor', $translations[8]->text);
+        $this->assertEquals('Vendor text', $translations[8]->text);
     }
 
     /**

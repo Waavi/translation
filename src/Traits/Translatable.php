@@ -48,14 +48,31 @@ trait Translatable
         if ($this->isTranslatable($attribute) && !empty($value)) {
             // If a translation code has not yet been set, generate one:
             if (!$this->translationCodeFor($attribute)) {
-                $reflected                                    = new \ReflectionClass($this);
-                $group                                        = 'translatable';
-                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::random();
-                $this->attributes["{$attribute}_translation"] = "$group.$item";
+                $this->generateAttributeTranslationCode($attribute);
             }
         }
         return parent::setAttribute($attribute, $value);
     }
+
+    /**
+     * generate translation code for a specific attributea and returns it
+     * useful for legacy models, see https://github.com/Waavi/translation/issues/129
+     *
+     * @param mixed $attirbute
+     * @param mixed $value
+     * @access public
+     * @return string
+     */
+    public function generateAttributeTranslationCode($attribute)
+    {
+        $reflected                                    = new \ReflectionClass($this);
+        $group                                        = 'translatable';
+        $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::random();
+        $code                                         = "$group.$item";
+        $this->attributes["{$attribute}_translation"] = $code;
+
+        return $code;
+    } 
 
     /**
      *  Extend parent's attributesToArray so that _translation attributes do not appear in array, and translatable attributes are translated.

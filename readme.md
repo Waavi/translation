@@ -334,7 +334,7 @@ Example:
 
     class Example extends Model
 	{
-	    use \Waavi\Translation\Translatable\Trait;
+	    use \Waavi\Translation\Traits\Translatable;
 	    protected $translatableAttributes = ['title', 'text'];
 	}
 ```

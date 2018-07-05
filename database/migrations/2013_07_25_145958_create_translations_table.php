@@ -13,6 +13,7 @@ class CreateTranslationsTable extends Migration
     public function up()
     {
         Schema::create('translator_translations', function ($table) {
+            $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('locale', 6);
             $table->string('namespace')->default('*');

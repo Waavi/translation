@@ -44,4 +44,14 @@ class MixedLoaderTest extends TestCase
         $this->dbLoader->shouldReceive('loadSource')->with('en', 'group', 'name')->andReturn($db);
         $this->assertEquals($expected, $this->mixedLoader->load('en', 'group', 'name'));
     }
+
+    /**
+     * @test
+     */
+    public function it_cascades_namespaces()
+    {
+        $this->fileLoader->shouldReceive('addNamespace')->with('package', '/some/path/to/package')->andReturnNull();
+        $this->dbLoader->shouldReceive('addNamespace')->with('package', '/some/path/to/package')->andReturnNull();
+        $this->assertNull($this->mixedLoader->addNamespace('package', '/some/path/to/package'));
+    }
 }

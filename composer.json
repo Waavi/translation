@@ -39,5 +39,15 @@
     "minimum-stability": "dev",
     "scripts": {
         "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Waavi\\Translation\\TranslationServiceProvider"
+            ],
+            "aliases": {
+                "TranslationCache": "Waavi\\Translation\\Facades\\TranslationCache::class"
+            }
+        }
     }
 }

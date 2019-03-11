@@ -72,7 +72,7 @@ with:
 
 Remove your config cache:
 
-	php artisan config:cache
+	php artisan config:clear
 
 Publish both the configuration file and the migrations:
 

@@ -137,7 +137,7 @@ trait Translatable
     {
         $translationCode = $this->translationCodeFor($attribute);
         $translation     = $translationCode ? trans($translationCode) : false;
-        return $translation ?: parent::getAttribute($attribute);
+        return $translation && $translation !== $translationCode ? $translation : parent::getAttribute($attribute);
     }
 
     /**

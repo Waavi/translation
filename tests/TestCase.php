@@ -6,7 +6,7 @@ use Waavi\Translation\Repositories\LanguageRepository;
 
 abstract class TestCase extends Orchestra
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         //$this->app['cache']->clear();

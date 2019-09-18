@@ -11,7 +11,7 @@ class FlushTest extends TestCase
         $this->cacheRepository = \App::make('translation.cache.repository');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         Mockery::close();

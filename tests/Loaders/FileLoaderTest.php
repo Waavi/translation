@@ -14,7 +14,7 @@ class FileLoaderTest extends TestCase
         $this->fileLoader    = new FileLoader('en', $this->laravelLoader);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

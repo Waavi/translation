@@ -28,7 +28,7 @@ class ResourceRouteTest extends TestCase
         return $method;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

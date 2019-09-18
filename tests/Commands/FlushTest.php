@@ -5,7 +5,7 @@ use Waavi\Translation\Test\TestCase;
 
 class FlushTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->cacheRepository = \App::make('translation.cache.repository');

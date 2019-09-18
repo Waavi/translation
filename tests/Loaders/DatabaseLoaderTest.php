@@ -7,7 +7,7 @@ use \Mockery;
 
 class DatabaseLoaderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->translationRepository = \App::make(TranslationRepository::class);

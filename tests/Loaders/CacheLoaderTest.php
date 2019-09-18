@@ -8,7 +8,7 @@ use \Mockery;
 
 class CacheLoaderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->cache       = Mockery::mock(Cache::class);

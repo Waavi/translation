@@ -7,7 +7,7 @@ use Waavi\Translation\Test\TestCase;
 
 class TranslationRepositoryTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         // During the parent's setup, both a 'es' 'Spanish' and 'en' 'English' languages are inserted into the database.
         parent::setUp();

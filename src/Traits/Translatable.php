@@ -1,5 +1,6 @@
 <?php namespace Waavi\Translation\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
@@ -84,7 +85,7 @@ trait Translatable
      */
     public function translationCodeFor($attribute)
     {
-        return array_get($this->attributes, "{$attribute}_translation", false);
+        return Arr::get($this->attributes, "{$attribute}_translation", false);
     }
 
     /**
@@ -107,7 +108,7 @@ trait Translatable
      */
     public function getRawAttribute($attribute)
     {
-        return array_get($this->attributes, $attribute, '');
+        return Arr::get($this->attributes, $attribute, '');
     }
 
     /**

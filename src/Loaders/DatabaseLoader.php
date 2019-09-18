@@ -1,5 +1,6 @@
 <?php namespace Waavi\Translation\Loaders;
 
+use Illuminate\Support\Arr;
 use Waavi\Translation\Repositories\TranslationRepository;
 
 class DatabaseLoader extends Loader
@@ -41,7 +42,7 @@ class DatabaseLoader extends Loader
         $dotArray = $this->translationRepository->loadSource($locale, $namespace, $group);
         $undot    = [];
         foreach ($dotArray as $item => $text) {
-            array_set($undot, $item, $text);
+            Arr::set($undot, $item, $text);
         }
         return $undot;
     }

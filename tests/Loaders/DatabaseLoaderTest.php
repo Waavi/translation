@@ -14,7 +14,7 @@ class DatabaseLoaderTest extends TestCase
         $this->loader                = new DatabaseLoader('es', $this->translationRepository);
     }
 
-    public function tearDown()
+    public function tearDown():void
     {
         Mockery::close();
         parent::tearDown();

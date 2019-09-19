@@ -7,14 +7,14 @@ use \Mockery;
 
 class DatabaseLoaderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->translationRepository = \App::make(TranslationRepository::class);
         $this->loader                = new DatabaseLoader('es', $this->translationRepository);
     }
 
-    public function tearDown()
+    public function tearDown():void
     {
         Mockery::close();
         parent::tearDown();

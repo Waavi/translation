@@ -8,7 +8,7 @@ use \Mockery;
 
 class MixedLoaderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->fileLoader  = Mockery::mock(FileLoader::class);
@@ -16,7 +16,7 @@ class MixedLoaderTest extends TestCase
         $this->mixedLoader = new MixedLoader('en', $this->fileLoader, $this->dbLoader);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

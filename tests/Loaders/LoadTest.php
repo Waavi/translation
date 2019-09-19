@@ -7,7 +7,7 @@ use \Mockery;
 
 class LoadTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->laravelLoader = Mockery::mock(LaravelFileLoader::class);
@@ -15,7 +15,7 @@ class LoadTest extends TestCase
         $this->fileLoader = new FileLoader('en', $this->laravelLoader);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

@@ -8,7 +8,7 @@ use \Mockery;
 
 class CacheLoaderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->cache       = Mockery::mock(Cache::class);
@@ -16,7 +16,7 @@ class CacheLoaderTest extends TestCase
         $this->cacheLoader = new CacheLoader('en', $this->cache, $this->fallback, 60, 'translation');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

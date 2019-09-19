@@ -10,7 +10,7 @@ use \Mockery;
 
 class ResourceRouteTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         // During the parent's setup, both a 'es' 'Spanish' and 'en' 'English' languages are inserted into the database.
         parent::setUp();
@@ -28,7 +28,7 @@ class ResourceRouteTest extends TestCase
         return $method;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();

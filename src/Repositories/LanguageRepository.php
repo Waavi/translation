@@ -2,6 +2,7 @@
 
 use Illuminate\Config\Repository as Config;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory as Validator;
 use Waavi\Translation\Models\Language;
 
@@ -177,7 +178,7 @@ class LanguageRepository extends Repository
      */
     public function validate(array $attributes)
     {
-        $id    = array_get($attributes, 'id', 'NULL');
+        $id    = Arr::get($attributes, 'id', 'NULL');
         $table = $this->model->getTable();
         $rules = [
             'locale' => "required|unique:{$table},locale,{$id}",

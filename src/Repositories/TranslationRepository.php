@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
 use Illuminate\Support\NamespacedItemResolver;
 use Waavi\Translation\Models\Translation;
 
@@ -165,7 +166,7 @@ class TranslationRepository extends Repository
     public function loadArray(array $lines, $locale, $group, $namespace = '*')
     {
         // Transform the lines into a flat dot array:
-        $lines = array_dot($lines);
+        $lines = Arr::dot($lines);
         foreach ($lines as $item => $text) {
             if (is_string($text)) {
                 // Check if the entry exists in the database:
@@ -409,9 +410,9 @@ class TranslationRepository extends Repository
     public function validate(array $attributes)
     {
         $table     = $this->model->getTable();
-        $locale    = array_get($attributes, 'locale', '');
-        $namespace = array_get($attributes, 'namespace', '');
-        $group     = array_get($attributes, 'group', '');
+        $locale    = Arr::get($attributes, 'locale', '');
+        $namespace = Arr::get($attributes, 'namespace', '');
+        $group     = Arr::get($attributes, 'group', '');
         $rules     = [
             'locale'    => 'required',
             'namespace' => 'required',

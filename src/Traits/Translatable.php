@@ -135,9 +135,9 @@ trait Translatable
      */
     public function translate($attribute)
     {
-        $translationCode = $this->translationCodeFor($attribute);
-        $translation     = $translationCode ? trans($translationCode) : false;
-        return $translation && $translation !== $translationCode ? $translation : parent::getAttribute($attribute);
+        $locale = \App::getLocale();
+        $translationField = $attribute . '_' . $locale;
+        return parent::getAttribute($translationField) ?: parent::getAttribute($attribute);
     }
 
     /**

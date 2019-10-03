@@ -16,6 +16,13 @@ class Translation extends Model
      */
     protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setConnection(config('translator.connection'));
+    }
+
     /**
      *  Each translation belongs to a language.
      */

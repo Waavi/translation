@@ -4,33 +4,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Translation Mode
+    | 기본 번역 모드
     |--------------------------------------------------------------------------
     |
-    | This option controls the translation's bundle mode of operation.
+    | 이 옵션은 번역 번들 모드 작동을 컨트롤 합니다.
     |
     | Supported:
     |
-    |   'mixed'         Both files and the database are queried for language entries, with files taking priority.
-    |   'mixed_db'      Both files and the database are queried for language entries, with database taking priority.
-    |   'database'      Use the database as the exclusive source for language entries.
-    |   'files'         Use files as the exclusive source for language entries [Laravel's default].
+    |   'mixed'         파일과 데이터베이스는 우선권과 함께 언어 입력을 위해 의문이 제기 됩니다.
+    |   'mixed_db'      파일과 데이터베이스는 우선권과 함께 언어 입력을 위해 의문이 제기 됩니다.
+    |   'database'      언어 입력을 위해 독점적 소스처럼 데이터 베이스를 사용하세요.
+    |   'files'         언어 입력을 위해 독점적 소스처럼 데이터 베이스를 사용하세요. [라라벨 디폴트].
      */
     'source'            => env('TRANSLATION_SOURCE', 'files'),
 
-    // In case the files source is selected, please enter here the supported locales for your app.
+    // 파일소스가 선택이 되었을 경우, 여기에 당신이 지원하는 언어를 적으세요.
     // Ex: ['en', 'es', 'fr']
     'available_locales' => [],
 
     /*
     |--------------------------------------------------------------------------
-    | Default Translation Cache
+    | 기본 번역 캐시
     |--------------------------------------------------------------------------
     |
-    | Choose whether to leverage Laravel's cache module and how to do so.
+    | Laravel의 캐시 모듈을 활용할 것인지 여부와 그 방법을 선택하십시오.
     |
-    |   'enabled'       Boolean value.
-    |   'timeout'       In minutes.
+    |   'enabled'       부울 값.
+    |   'timeout'       분단위.
     |
      */
     'cache'             => [

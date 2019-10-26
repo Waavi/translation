@@ -2,8 +2,8 @@
 
 return [
     'login'  => [
-        'label'  => 'Enter your credentials',
-        'action' => 'Login',
+        'label'  => '자격 증명을 입력',
+        'action' => '로그인',
     ],
-    'simple' => 'Simple',
+    'simple' => '심플',
 ];

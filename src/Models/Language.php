@@ -19,6 +19,17 @@ class Language extends Model
     protected $fillable = ['locale', 'name'];
 
     /**
+     * Language constructor.
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setConnection(config('translator.connection'));
+    }
+
+    /**
      *  Each language may have several translations.
      */
     public function translations()

@@ -153,6 +153,6 @@ class UriLocalizer
      *  @return string
      */
 	protected function removeBaseUrl($url) {
-		return str_ireplace(\URL::to('/'), "", $url) ?: '/';
+		return str_ireplace(\URL::to('/'), "", rtrim($url, '/')) ?: '/';
 	}
 }

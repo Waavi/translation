@@ -25,6 +25,7 @@ class UriLocalizer
     public function localeFromRequest($segment = 0)
     {
         $url = $this->request->getUri();
+        $url = $this->removeBaseUrl($url);
         return $this->getLocaleFromUrl($url, $segment);
     }
 
@@ -40,6 +41,7 @@ class UriLocalizer
      */
     public function localize($url, $locale, $segment = 0)
     {
+        $url = $this->removeBaseUrl($url);
         $cleanUrl  = $this->cleanUrl($url, $segment);
         $parsedUrl = $this->parseUrl($cleanUrl, $segment);
 
@@ -59,6 +61,7 @@ class UriLocalizer
      */
     public function getLocaleFromUrl($url, $segment = 0)
     {
+        $url = $this->removeBaseUrl($url);
         return $this->parseUrl($url, $segment)['locale'];
     }
 
@@ -72,6 +75,7 @@ class UriLocalizer
      */
     public function cleanUrl($url, $segment = 0)
     {
+        $url = $this->removeBaseUrl($url);
         $parsedUrl = $this->parseUrl($url, $segment);
         // Remove locale from segments:
         if ($parsedUrl['locale']) {
@@ -141,4 +145,14 @@ class UriLocalizer
     {
         return strlen($path) > 0 && substr($path, -1) === '/' ? substr($path, 0, -1) : $path;
     }
+    
+    /**
+     *  Remove base URL from URL string
+     *
+     *  @param  string $url
+     *  @return string
+     */
+	protected function removeBaseUrl($url) {
+		return str_ireplace(\URL::to('/'), "", $url);
+	}
 }

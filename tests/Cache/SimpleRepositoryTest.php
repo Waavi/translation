@@ -26,7 +26,7 @@ class SimpleRepositoryTest extends TestCase
      */
     public function test_has_returns_true_if_entry()
     {
-        $this->repo->put('en', 'namespace', 'group', 'key', 'value');
+        $this->repo->put('en', 'namespace', 'group', ['key' => 'value'], 60);
         $this->assertTrue($this->repo->has('en', 'namespace', 'group'));
     }
 

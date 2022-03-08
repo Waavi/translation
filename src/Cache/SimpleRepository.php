@@ -57,13 +57,13 @@ class SimpleRepository implements CacheRepositoryInterface
      *  @param  string  $group
      *  @param  string  $namespace
      *  @param  mixed   $content
-     *  @param  integer $minutes
+     *  @param  integer $seconds
      *  @return void
      */
-    public function put($locale, $group, $namespace, $content, $minutes)
+    public function put($locale, $group, $namespace, $content, $seconds)
     {
         $key = $this->getKey($locale, $group, $namespace);
-        $this->store->put($key, $content, $minutes);
+        $this->store->put($key, $content, $seconds);
     }
 
     /**
